@@ -39,6 +39,11 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     {
         return 0.0f;
     }
+    //if the x value is 0 (straight line) return 0 (no steering angle needed) or else it will give the wrong angle in the atan2
+    if ((*closest_point)[0] == 0)
+    {
+        return 0.0f;
+    }
 
     // Calculate angle between the closest point and (0,0) (because the point is returned relative to (0,0)) instead of the rear!!
 
@@ -100,13 +105,13 @@ optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points,
             array<float, 2> point1 = path_points[i];
             array<float, 2> point2 = path_points[i + 1];
             auto intersections = get_intersection(point1, point2, look_ahead_distance);
-            // TODO: CHECK IF IT MAKES SENSE TO MAKE THE X ALWAYS POSITIVE OR IF IT NEEDS TO BE THE Y OR NONE
-            //if there is an intersection and the x value is positive
+            // TODO: CHECK IF IT MAKES SENSE TO MAKE THE Y ALWAYS POSITIVE OR IF IT CAN BE NEGATIVE
+            //if there is an intersection and the y value is positive
             if (intersections.has_value())
             {
                 for (auto intersection : intersections.value())
                 {
-                    if (intersection[0] > 0)
+                    if (intersection[1] > 0)
                     {
                         return intersection;
                     }
