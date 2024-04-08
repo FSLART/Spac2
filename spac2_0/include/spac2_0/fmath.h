@@ -20,7 +20,7 @@ class Pure_Pursuit{
 
 class PID_Controller{
     public:
-        PID_Controller();
+        PID_Controller(float min, float max);
         float compute(float setpoint, float input);
         int set_Tunings(float Kp, float Ki, float Kd);
         float get_Proportion();
@@ -28,7 +28,7 @@ class PID_Controller{
         float get_Derivative();
             
     protected:
-        float kp, ki, kd;
+        float kp, ki, kd, min_signal_value, max_signal_value;
         float output_past, error, error_prev, error_sum;
 };
 

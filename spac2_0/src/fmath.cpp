@@ -55,7 +55,7 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     return steering_angle * 180 / M_PI;
 }
 
-PID_Controller::PID_Controller()
+PID_Controller::PID_Controller(float min, float max)
 {
     kp = 0;
     ki = 0;
@@ -64,6 +64,8 @@ PID_Controller::PID_Controller()
     error_prev = 0;
     error_sum = 0;
     output_past = 0;
+    min_signal_value = min;
+    max_signal_value = max;
 }
 // TODO: simple implementation of the PID controller, can be improved
 float PID_Controller::compute(float setpoint, float input)
@@ -71,8 +73,16 @@ float PID_Controller::compute(float setpoint, float input)
     error = setpoint - input;
     error_sum += error;
     float output = kp * error + ki * error_sum + kd * (error - error_prev);
-    output_past = output;
-    error_prev = error;
+    //output_past = output;
+    
+    if(output > max_signal_value){
+        output = max_signal_value;
+    }else if(output < min_signal_value){
+        output = min_signal_value;
+    }else{
+        //only update the error if the output is within the limits
+        error_prev = error;
+    }
     return output;
 }
 
