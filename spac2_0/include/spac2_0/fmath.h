@@ -5,6 +5,7 @@
 #include "nav_msgs/msg/path.hpp"
 #include <optional>
 #include <cmath>
+#include <rclcpp/logging.hpp>
 
 using namespace std;
 
@@ -20,6 +21,7 @@ class Pure_Pursuit{
 
 class PID_Controller{
     public:
+        PID_Controller();
         PID_Controller(float min, float max);
         float compute(float setpoint, float input);
         int set_Tunings(float Kp, float Ki, float Kd);
