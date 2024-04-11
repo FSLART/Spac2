@@ -16,8 +16,8 @@ Pure_Pursuit::Pure_Pursuit()
 
 float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float speed)
 {
-    // Create a pose with the current position of the rear axle of the car.
-    array<float, 2> position = {-DEFAULT_IMU_TO_REAR_AXLE, 0.0};
+    // Create a pose with the current position  of the car.
+    array<float, 2> position = {0.0, 0.0};
 
     // adds the current position to an array with all the points of the path
     // discarding Z axis
@@ -25,7 +25,8 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     path_points.push_back(position);
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
-        array<float, 2> point = {(float) path.poses[i].pose.position.x, (float) path.poses[i].pose.position.y};
+        //CREATE AN ARRAY WITH X AND Y POSITION OF THE PATH, SHIFTING THE X VALUE TO THE REAR OF THE CAR
+        array<float, 2> point = {(float) (path.poses[i].pose.position.x + DEFAULT_IMU_TO_REAR_AXLE), (float) path.poses[i].pose.position.y};
         path_points.push_back(point);
     }
 
@@ -47,7 +48,7 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
 
     // Calculate angle between the closest point and (0,0) (because the point is returned relative to (0,0)) instead of the rear!!
 
-    float alpha = atan2((*closest_point)[1], (*closest_point)[0]-(-DEFAULT_IMU_TO_REAR_AXLE));
+    float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
 
     // Calculate steering angle (pure pursuit algorithm)
     float steering_angle = atan2(2 * WHEELBASE * sin(alpha), look_ahead_distance);
@@ -139,11 +140,10 @@ optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points,
 }
 
 
-//TODO: THE SOURCE CODE USES THE FRONT OF THE CAR AS X AXIS AND FOR US IT IS DIFFERENT (CHANGED! CHECK IF IT IS OK)
 //Function from https://stackoverflow.com/a/59582674/2609987 with some modifications
 optional<vector<array<float, 2>>> get_intersection(array<float, 2> point1, array<float, 2> point2, float radius)
 {
-    array<float, 2> circle_center = {-DEFAULT_IMU_TO_REAR_AXLE, 0.0};
+    array<float, 2> circle_center = {0.0, 0.0};
     vector<array<float,2>> intersections;
     float x1 = point1[0]-circle_center[0];
     float y1 = point1[1]-circle_center[1];
@@ -159,7 +159,7 @@ optional<vector<array<float, 2>>> get_intersection(array<float, 2> point1, array
         return nullopt;
     }
 
-    int sign1 = (dy < 0) ? 1 : -1;
+    int sign1 = (dy < 0) ? -1 : 1;
     int sign2 = -sign1;
 
     //TODO: check if everything works out with this axis
