@@ -4,6 +4,7 @@ Target::Target(int desired_rpm){
     this->pure_pursuit = Pure_Pursuit();
     //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
+    //TODO: THERE IS THE NEED TO SET THE PARAMETERS FOR THE PID CONTROLLER: IT COMES FROM THE PARAMETERS -> TO IMPLEMENT
     this->desired_rpm = desired_rpm;
 }
 
