@@ -17,7 +17,7 @@ Pure_Pursuit::Pure_Pursuit()
 float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float speed)
 {
     // Create a pose with the current position of the rear axle of the car.
-    array<float, 2> position = {0.0, -DEFAULT_IMU_TO_REAR_AXLE};
+    array<float, 2> position = {-DEFAULT_IMU_TO_REAR_AXLE, 0.0};
 
     // adds the current position to an array with all the points of the path
     // discarding Z axis
@@ -47,7 +47,7 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
 
     // Calculate angle between the closest point and (0,0) (because the point is returned relative to (0,0)) instead of the rear!!
 
-    float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
+    float alpha = atan2((*closest_point)[1], (*closest_point)[0]-(-DEFAULT_IMU_TO_REAR_AXLE));
 
     // Calculate steering angle (pure pursuit algorithm)
     float steering_angle = atan2(2 * WHEELBASE * sin(alpha), look_ahead_distance);
@@ -57,6 +57,13 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
 
 PID_Controller::PID_Controller(float min, float max)
 {
+    PID_Controller();
+    min_signal_value = min;
+    max_signal_value = max;
+}
+
+PID_Controller::PID_Controller()
+{
     kp = 0;
     ki = 0;
     kd = 0;
@@ -64,10 +71,9 @@ PID_Controller::PID_Controller(float min, float max)
     error_prev = 0;
     error_sum = 0;
     output_past = 0;
-    min_signal_value = min;
-    max_signal_value = max;
 }
-// TODO: simple implementation of the PID controller, can be improved
+
+
 float PID_Controller::compute(float setpoint, float input)
 {
     error = setpoint - input;
@@ -116,12 +122,12 @@ optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points,
             array<float, 2> point2 = path_points[i + 1];
             auto intersections = get_intersection(point1, point2, look_ahead_distance);
             // TODO: CHECK IF IT MAKES SENSE TO MAKE THE Y ALWAYS POSITIVE OR IF IT CAN BE NEGATIVE
-            //if there is an intersection and the y value is positive
+            //if there is an intersection and the x value is positive
             if (intersections.has_value())
             {
                 for (auto intersection : intersections.value())
                 {
-                    if (intersection[1] > 0)
+                    if (intersection[0] > 0)
                     {
                         return intersection;
                     }
@@ -137,7 +143,7 @@ optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points,
 //Function from https://stackoverflow.com/a/59582674/2609987 with some modifications
 optional<vector<array<float, 2>>> get_intersection(array<float, 2> point1, array<float, 2> point2, float radius)
 {
-    array<float, 2> circle_center = {0.0, -DEFAULT_IMU_TO_REAR_AXLE};
+    array<float, 2> circle_center = {-DEFAULT_IMU_TO_REAR_AXLE, 0.0};
     vector<array<float,2>> intersections;
     float x1 = point1[0]-circle_center[0];
     float y1 = point1[1]-circle_center[1];
