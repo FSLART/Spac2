@@ -18,12 +18,13 @@ void Target::instance_CarrotControl(){
     try{
         //current speed is being obtained from the rpm
         //and it is used to calculate how far is the look ahead point
-        auto steering_angle = this->get_steering_angle(this->path, 417);
+        auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
         steering_angle = std::clamp(steering_angle, (float)-MAX_STEERING,(float) MAX_STEERING);
 
         auto rpm = this->get_PID_rpm(current_rpm, desired_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
+        //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
 
         //TODO: SETTING ROS MESSAGE WITH RPM AND STEERING ANGLE
@@ -50,6 +51,7 @@ ackermann_msgs::msg::AckermannDrive Target::get_dirtyDispatcherMail(){
 	if(isDispatcherDirty){
 		return dispatcherMailBox;
 	}
+    //TODO: WHEN THERE IS A CATCH IN THE INSTANCE_CARROTCONTROL FUNCTION, this will say that it tried to read clean but it can be bad data!!
 	//Log warning that the dispatcher tried to read clean data
 	RCLCPP_WARN(rclcpp::get_logger("get_dirtyDispatcherMail"), "Dispatcher is trying to read clean data, this means that the dispatcher is trying to read data that has not been updated yet");
 	return dispatcherMailBox;

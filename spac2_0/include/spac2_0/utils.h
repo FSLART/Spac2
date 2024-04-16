@@ -5,6 +5,7 @@
 #define MIN_LOOKAHEAD 2.0f
 #define WHEELBASE 1.550f
 #define WHEEL_RADIUS 0.255f
+//TODO: set the default values for max_steering
 #define MAX_STEERING (2*M_PI/9)
 #define TERMINAL_RPM 5000.0f
 #define DEFAULT_DESIRED_SPEED 10.0

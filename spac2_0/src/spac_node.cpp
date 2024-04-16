@@ -42,7 +42,6 @@ SpacNode::SpacNode() : Node("spac_node")
     subscription_path = this->create_subscription<nav_msgs::msg::Path>(
         "path_topic", 10, std::bind(&SpacNode::path_callback, this, _1));
 
-    //TODO: receives the current rpm and calls the rpm_callback function
     subscription_rpm = this->create_subscription<std_msgs::msg::Float32>(
         "rpm_topic", 10, std::bind(&SpacNode::rpm_callback, this, _1));
 
