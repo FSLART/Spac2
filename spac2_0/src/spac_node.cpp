@@ -12,6 +12,12 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_DISTANCE_IMU_TO_REAR_AXLE, distance_imu_to_rear_axle);
     this->declare_parameter(PARAMS_DESIDERED_SPEED, DEFAULT_DESIRED_SPEED);
     this->get_parameter(PARAMS_DESIDERED_SPEED, desired_speed);
+    this->declare_parameter(PARAMS_KP_SPEED, DEFAULT_KP_SPEED);
+    this->get_parameter(PARAMS_KP_SPEED, kp_speed);
+    this->declare_parameter(PARAMS_KI_SPEED, DEFAULT_KI_SPEED);
+    this->get_parameter(PARAMS_KI_SPEED, ki_speed);
+    this->declare_parameter(PARAMS_KD_SPEED, DEFAULT_KD_SPEED);
+    this->get_parameter(PARAMS_KD_SPEED, kd_speed);
     //topics
     this->declare_parameter(PARAMS_TOPIC_PATH, "/");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
@@ -27,7 +33,7 @@ SpacNode::SpacNode() : Node("spac_node")
     //calculate the desired rpm
     desired_rpm = mps_to_rpm(speed_mps);
 
-    target = new Target(desired_rpm);
+    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed);
 
     //create publisher for ackermann drive
 	ackermann_publisher = this->create_publisher<ackermann_msgs::msg::AckermannDrive>(ackermann_topic, 10);

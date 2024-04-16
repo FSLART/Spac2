@@ -11,7 +11,7 @@
 
 class Target{
     public:
-        Target(int desired_rpm);
+        Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed);
         Target(Pure_Pursuit pure_pursuit, PID_Controller pid);
         float get_steering_angle(nav_msgs::msg::Path path, int rpm);
         float get_PID_rpm(float setpoint, float input);

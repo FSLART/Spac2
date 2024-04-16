@@ -93,11 +93,11 @@ float PID_Controller::compute(float setpoint, float input)
     return output;
 }
 
-int PID_Controller::set_Tunings(float Kp, float Ki, float Kd)
+int PID_Controller::set_Tunings(float kp, float ki, float kd)
 {
-    kp = Kp;
-    ki = Ki;
-    kd = Kd;
+    kp = kp;
+    ki = ki;
+    kd = kd;
     return 0;
 }
 float PID_Controller::get_Proportion()

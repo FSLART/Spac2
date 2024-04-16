@@ -24,7 +24,7 @@ class PID_Controller{
         PID_Controller();
         PID_Controller(float min, float max);
         float compute(float setpoint, float input);
-        int set_Tunings(float Kp, float Ki, float Kd);
+        int set_Tunings(float kp, float ki, float kd);
         float get_Proportion();
         float get_Integral();
         float get_Derivative();

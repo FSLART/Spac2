@@ -4,6 +4,9 @@
     path_topic: "/path/current"
     ackermann_topic: "/control/drive"
     distance_imu_to_rear_axle: 1.0
+    kp_speed: 0.5
+    ki_speed: 0.5
+    kd_speed: 0.5
     qos_overrides:
       /parameter_events:
         publisher:
