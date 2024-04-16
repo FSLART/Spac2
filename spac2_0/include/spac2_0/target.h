@@ -29,7 +29,7 @@ class Target{
         PID_Controller pid;
         bool isDispatcherDirty=true;
         nav_msgs::msg::Path path;
-        float cureent_rpm=0;
+        float current_rpm=0;
 		ackermann_msgs::msg::AckermannDrive dispatcherMailBox;
         int desired_rpm; 
 };

@@ -21,7 +21,7 @@ void Target::instance_CarrotControl(){
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
         steering_angle = std::clamp(steering_angle, (float)-MAX_STEERING,(float) MAX_STEERING);
 
-        auto rpm = this->get_PID_rpm(cureent_rpm, desired_rpm);
+        auto rpm = this->get_PID_rpm(current_rpm, desired_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
 
@@ -76,11 +76,11 @@ nav_msgs::msg::Path Target::get_path(){
 }
 
 void Target::set_rpm(int rpm){
-    this->cureent_rpm = rpm;
+    this->current_rpm = rpm;
 }
 
 int Target::get_rpm(){
-    return this->cureent_rpm;
+    return this->current_rpm;
 }
 
 
