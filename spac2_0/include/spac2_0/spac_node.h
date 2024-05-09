@@ -11,6 +11,7 @@
 #include "nav_msgs/msg/path.hpp"
 #include "target.h"
 #include "ackermann_msgs/msg/ackermann_drive.hpp"
+#include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
 #include "std_msgs/msg/float32.hpp"
 
 #define PARAMS_DISTANCE_IMU_TO_REAR_AXLE "distance_imu_to_rear_axle"
@@ -34,7 +35,7 @@ private:
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr subscription_path;
     rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr subscription_rpm;
-    rclcpp::Publisher<ackermann_msgs::msg::AckermannDrive>::SharedPtr ackermann_publisher;
+    rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr ackermann_publisher;
 
 protected:
 

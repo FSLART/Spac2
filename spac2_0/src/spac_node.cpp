@@ -36,7 +36,7 @@ SpacNode::SpacNode() : Node("spac_node")
     target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed);
 
     //create publisher for ackermann drive
-	ackermann_publisher = this->create_publisher<ackermann_msgs::msg::AckermannDrive>(ackermann_topic, 10);
+	ackermann_publisher = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(ackermann_topic, 10);
 
     //receives the current path and calls the path_callback function
     subscription_path = this->create_subscription<nav_msgs::msg::Path>(

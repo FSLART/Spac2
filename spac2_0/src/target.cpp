@@ -46,15 +46,17 @@ void Target::instance_CarrotControl(){
     }
 }
 
-ackermann_msgs::msg::AckermannDrive Target::get_dirtyDispatcherMail(){
-	//This may look "optimizable" but the reason its like this is to keep a error by default approach 
+ackermann_msgs::msg::AckermannDriveStamped Target::get_dirtyDispatcherMail(){
+    //TODO: this is just for now
+    dispatcherMailBoxStamped.drive = dispatcherMailBox;
+    //This may look "optimizable" but the reason its like this is to keep a error by default approach 
 	if(isDispatcherDirty){
-		return dispatcherMailBox;
+		return dispatcherMailBoxStamped;
 	}
     //TODO: WHEN THERE IS A CATCH IN THE INSTANCE_CARROTCONTROL FUNCTION, this will say that it tried to read clean but it can be bad data!!
 	//Log warning that the dispatcher tried to read clean data
 	RCLCPP_WARN(rclcpp::get_logger("get_dirtyDispatcherMail"), "Dispatcher is trying to read clean data, this means that the dispatcher is trying to read data that has not been updated yet");
-	return dispatcherMailBox;
+    return dispatcherMailBoxStamped;
 } 
 
 bool Target::get_isDispatcherDirty(){

@@ -4,6 +4,7 @@
 
 #include "fmath.h"
 #include "ackermann_msgs/msg/ackermann_drive.hpp"
+#include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
 #include <cmath>
 #include "utils.h"
 #include <rclcpp/logging.hpp>
@@ -16,7 +17,7 @@ class Target{
         float get_steering_angle(nav_msgs::msg::Path path, int rpm);
         float get_PID_rpm(float setpoint, float input);
         void instance_CarrotControl();
-        ackermann_msgs::msg::AckermannDrive get_dirtyDispatcherMail();
+        ackermann_msgs::msg::AckermannDriveStamped get_dirtyDispatcherMail();
         bool get_isDispatcherDirty();
         int set_throwDirtDispatcher();
         void set_path(nav_msgs::msg::Path path);
@@ -31,6 +32,7 @@ class Target{
         nav_msgs::msg::Path path;
         float current_rpm=0;
 		ackermann_msgs::msg::AckermannDrive dispatcherMailBox;
+        ackermann_msgs::msg::AckermannDriveStamped dispatcherMailBoxStamped;
         int desired_rpm; 
 };
 
