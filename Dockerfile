@@ -20,7 +20,10 @@ RUN rosdep update
 
 # copy the ros package and build it
 RUN mkdir -p /spac_ws/src/wonderful_package
-COPY . /spac_ws/src/wonderful_package
+WORKDIR /spac_ws/src/
+#clone into existing package
+RUN git clone https://github.com/FSLART/Spac2.git -b eufs_sim_devel wonderful_package 
+
 WORKDIR /spac_ws
 # install dependencies
 RUN rosdep install --from-paths /spac_ws --ignore-src -r -y
@@ -30,6 +33,8 @@ RUN /bin/bash -c "source /opt/ros/humble/setup.bash && \
     colcon build --parallel-workers 6 --symlink-install"
 
 # launch the package
-CMD /bin/bash -c "source /opt/ros/humble/setup.bash && \
-    source install/setup.bash && \
-    ros2 launch spac2_0 drivemodel.launch.xml"
+#CMD /bin/bash -c "source /opt/ros/humble/setup.bash && \
+#    source install/setup.bash && \
+#    ros2 launch spac2_0 drivemodel.launch.xml"
+
+CMD ["/bin/bash"]   
