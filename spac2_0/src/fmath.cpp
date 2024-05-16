@@ -95,9 +95,9 @@ float PID_Controller::compute(float setpoint, float input)
 
 int PID_Controller::set_Tunings(float kp, float ki, float kd)
 {
-    kp = kp;
-    ki = ki;
-    kd = kd;
+    this->kp = kp;
+    this->ki = ki;
+    this->kd = kd;
     return 0;
 }
 float PID_Controller::get_Proportion()
