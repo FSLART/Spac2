@@ -3,7 +3,9 @@
     frequency: 10
     path_topic: "/planned_path_topic"
     ackermann_topic: "/control/drive"
+    rpm_topic: "/current/rpm"
     distance_imu_to_rear_axle: 1.0
+    desired_speed: 10.0
     kp_speed: 0.5
     ki_speed: 0.5
     kd_speed: 0.5
