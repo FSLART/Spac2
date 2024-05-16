@@ -40,10 +40,10 @@ SpacNode::SpacNode() : Node("spac_node")
 
     //receives the current path and calls the path_callback function
     subscription_path = this->create_subscription<nav_msgs::msg::Path>(
-        "path_topic", 10, std::bind(&SpacNode::path_callback, this, _1));
+        path_topic, 10, std::bind(&SpacNode::path_callback, this, _1));
 
     subscription_rpm = this->create_subscription<std_msgs::msg::Float32>(
-        "rpm_topic", 10, std::bind(&SpacNode::rpm_callback, this, _1));
+        rpm_topic, 10, std::bind(&SpacNode::rpm_callback, this, _1));
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
