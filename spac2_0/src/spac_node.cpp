@@ -23,16 +23,14 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
 	this->declare_parameter(PARAMS_TOPIC_ACKERMANN, "/");
 	this->get_parameter(PARAMS_TOPIC_ACKERMANN, ackermann_topic);
-    this->declare_parameter(PARAMS_TOPIC_RPM, "/");
-	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
-    
+    this->declare_parameter(PARAMS_TOPIC_WHEELS, "/");
+	this->get_parameter(PARAMS_TOPIC_WHEELS, wheels_topic);
 
     //convert speed from km/h to m/s
     float speed_mps = desired_speed / 3.6;
     
     //calculate the desired rpm
     desired_rpm = mps_to_rpm(speed_mps);
-
     target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed);
 
     //create publisher for ackermann drive
@@ -40,10 +38,10 @@ SpacNode::SpacNode() : Node("spac_node")
 
     //receives the current path and calls the path_callback function
     subscription_path = this->create_subscription<nav_msgs::msg::Path>(
-        "path_topic", 10, std::bind(&SpacNode::path_callback, this, _1));
+        path_topic, 10, std::bind(&SpacNode::path_callback, this, _1));
 
-    subscription_rpm = this->create_subscription<std_msgs::msg::Float32>(
-        "rpm_topic", 10, std::bind(&SpacNode::rpm_callback, this, _1));
+    subscription_wheels = this->create_subscription<eufs_msgs::msg::WheelSpeedsStamped>(
+        wheels_topic, 10, std::bind(&SpacNode::wheels_callback, this, _1));
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
@@ -59,7 +57,7 @@ SpacNode::SpacNode() : Node("spac_node")
 
 void SpacNode::dispatchAckermannDrive(){
 	if(this->target->get_isDispatcherDirty()){
-		RCLCPP_INFO(this->get_logger(), "Dispatching ackermann drive on { %s }", __PRETTY_FUNCTION__); 
+		//RCLCPP_INFO(this->get_logger(), "Dispatching ackermann drive on { %s }", __PRETTY_FUNCTION__); 
 		this->ackermann_publisher->publish(this->target->get_dirtyDispatcherMail());
 		this->target->set_throwDirtDispatcher(); 
 
@@ -68,13 +66,18 @@ void SpacNode::dispatchAckermannDrive(){
 
 void SpacNode::path_callback(const nav_msgs::msg::Path::SharedPtr msg)
 {
-    //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg.c_str());
+    /*for(long unsigned int i=0; i < msg->poses.size(); i++){
+        RCLCPP_INFO(this->get_logger(), "I heard: '%f'", msg->poses[i].pose.position.x);
+        RCLCPP_INFO(this->get_logger(), "I heard: '%f'", msg->poses[i].pose.position.y);
+    }*/
     this->target->set_path(*msg);
 }
 
-void SpacNode::rpm_callback(const std_msgs::msg::Float32::SharedPtr msg)
+void SpacNode::wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedPtr msg)
 {
-    this->target->set_rpm(msg->data);
+    //RCLCPP_INFO(this->get_logger(), "I heard: '%f'", msg->speeds.lb_speed);
+    float speed = ((msg->speeds.lb_speed + msg->speeds.rb_speed)/2) / 37.8188;
+    this->target->set_rpm(mps_to_rpm(speed));
 }
 
 int main(int argc, char *argv[])
