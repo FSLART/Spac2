@@ -66,10 +66,11 @@ void SpacNode::dispatchAckermannDrive(){
 
 void SpacNode::path_callback(const nav_msgs::msg::Path::SharedPtr msg)
 {
-    /*for(long unsigned int i=0; i < msg->poses.size(); i++){
-        RCLCPP_INFO(this->get_logger(), "I heard: '%f'", msg->poses[i].pose.position.x);
-        RCLCPP_INFO(this->get_logger(), "I heard: '%f'", msg->poses[i].pose.position.y);
-    }*/
+    RCLCPP_INFO(this->get_logger(), "NEW MESSAGE");
+    for(long unsigned int i=0; i < msg->poses.size(); i++){
+        RCLCPP_INFO(this->get_logger(), "I heard (X): '%f'", msg->poses[i].pose.position.x);
+        RCLCPP_INFO(this->get_logger(), "I heard (Y): '%f'", msg->poses[i].pose.position.y);
+    }
     this->target->set_path(*msg);
 }
 

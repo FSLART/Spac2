@@ -1,6 +1,6 @@
 /DriveModelNode:
   ros__parameters:
-    frequency: 10
+    frequency: 20
     path_topic: "/planned_path_topic"
     ackermann_topic: "/cmd"
     wheels_topic: "/ground_truth/wheel_speeds"

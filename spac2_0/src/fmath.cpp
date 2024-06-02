@@ -11,7 +11,7 @@ Pure_Pursuit::Pure_Pursuit(float k_dd)
 Pure_Pursuit::Pure_Pursuit()
 {
     // TODO: Change to CONSTANT variable MAYBE INCREMENT THIS PARAMETER
-    this->k_dd = 1.0;
+    this->k_dd = 2.0;
 }
 
 float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float speed)
@@ -35,13 +35,16 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
 
     // Find the closest point to the look ahead distance intersecting the path with a circle
     optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance);
+    RCLCPP_INFO(rclcpp::get_logger("calculate_steering_angle"), "closest_point(X)=%f", (*closest_point)[0]);
+    RCLCPP_INFO(rclcpp::get_logger("calculate_steering_angle"), "closest_point(Y)=%f", (*closest_point)[1]);
+    RCLCPP_INFO(rclcpp::get_logger("calculate_steering_angle"), "look_ahead_distance=%f", look_ahead_distance);
     // if there is no intersection with the path, keep the car straight (?) TODO: check if this is the best approach
     if (!closest_point.has_value())
     {
         return 0.0f;
     }
     //if the x value is 0 (straight line) return 0 (no steering angle needed) or else it will give the wrong angle in the atan2
-    if ((*closest_point)[0] == 0)
+    if ((*closest_point)[1] == 0)
     {
         return 0.0f;
     }
@@ -49,11 +52,11 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     // Calculate angle between the closest point and (0,0) (because the point is returned relative to (0,0)) instead of the rear!!
 
     float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
-
+    RCLCPP_INFO(rclcpp::get_logger("calculate_steering_angle"), "alpha=%f", alpha);
     // Calculate steering angle (pure pursuit algorithm)
     float steering_angle = atan2(2 * WHEELBASE * sin(alpha), look_ahead_distance);
-
-    return steering_angle * 180 / M_PI;
+    RCLCPP_INFO(rclcpp::get_logger("calculate_steering_angle"), "steering_angle in radians=%f", steering_angle);
+    return steering_angle;
 }
 
 PID_Controller::PID_Controller(float min, float max)

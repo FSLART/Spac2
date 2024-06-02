@@ -23,6 +23,7 @@ void Target::instance_CarrotControl(){
         steering_angle = std::clamp(steering_angle, (float)-MAX_STEERING,(float) MAX_STEERING);
 
         auto rpm = this->get_PID_rpm(desired_rpm, current_rpm);
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "desired speed (m/s)=%f", rpm_to_mps(desired_rpm));
         //clamp speed to -MAX_SPEED and MAX_SPEED
         //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
@@ -51,6 +52,9 @@ ackermann_msgs::msg::AckermannDriveStamped Target::get_dirtyDispatcherMail(){
     dispatcherMailBoxStamped.drive = dispatcherMailBox;
     //This may look "optimizable" but the reason its like this is to keep a error by default approach 
 	if(isDispatcherDirty){
+
+        RCLCPP_WARN(rclcpp::get_logger("get_dirtyDispatcherMail"), " " );
+        RCLCPP_WARN(rclcpp::get_logger("get_dirtyDispatcherMail"), "dispatcherMailBox=%f", dispatcherMailBox.steering_angle);
 		return dispatcherMailBoxStamped;
 	}
     //TODO: WHEN THERE IS A CATCH IN THE INSTANCE_CARROTCONTROL FUNCTION, this will say that it tried to read clean but it can be bad data!!
