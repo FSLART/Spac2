@@ -77,18 +77,26 @@ PID_Controller::PID_Controller()
 
 float PID_Controller::compute(float setpoint, float input)
 {
+    //TODO: ONLY MAKES SENSE TO START PID WHEN THE STATE IS "DRIVING"  
     error = setpoint - input;
     error_sum += error;
+    error_prev = error;
+    //float output = kp * error;
     float output = kp * error + ki * error_sum + kd * (error - error_prev);
     //output_past = output;
     
+    //write the PID to a file
+    ofstream myfile;
+    myfile.open("pid.csv", ios::app);
+    myfile << input << ", " << setpoint << ", " << output << "\n"; 
+    myfile.close();
+
     if(output > max_signal_value){
+        error_sum -= error;
         output = max_signal_value;
     }else if(output < min_signal_value){
+        error_sum -= error;
         output = min_signal_value;
-    }else{
-        //only update the error if the output is within the limits
-        error_prev = error;
     }
     return output;
 }
