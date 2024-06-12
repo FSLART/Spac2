@@ -8,11 +8,17 @@ Pure_Pursuit::Pure_Pursuit(float k_dd)
     this->k_dd = k_dd;
 }
 
+//TODO: check how to not have the need for a empty constructor
 Pure_Pursuit::Pure_Pursuit()
 {
-    // TODO: Change to CONSTANT variable MAYBE INCREMENT THIS PARAMETER
-    this->k_dd = 1.0;
+    //this->k_dd = 2.0;
 }
+
+float Pure_Pursuit::get_k_dd()
+{
+    return k_dd;
+}
+
 
 float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float speed)
 {
@@ -77,27 +83,35 @@ PID_Controller::PID_Controller()
 
 float PID_Controller::compute(float setpoint, float input)
 {
+    //TODO: ONLY MAKES SENSE TO START PID WHEN THE STATE IS "DRIVING"  
     error = setpoint - input;
     error_sum += error;
+    error_prev = error;
+    //float output = kp * error;
     float output = kp * error + ki * error_sum + kd * (error - error_prev);
     //output_past = output;
     
+    //write the PID to a file
+    ofstream myfile;
+    myfile.open("pid.csv", ios::app);
+    myfile << input << ", " << setpoint << ", " << output << "\n"; 
+    myfile.close();
+
     if(output > max_signal_value){
+        error_sum -= error;
         output = max_signal_value;
     }else if(output < min_signal_value){
+        error_sum -= error;
         output = min_signal_value;
-    }else{
-        //only update the error if the output is within the limits
-        error_prev = error;
     }
     return output;
 }
 
-int PID_Controller::set_Tunings(float Kp, float Ki, float Kd)
+int PID_Controller::set_Tunings(float kp, float ki, float kd)
 {
-    kp = Kp;
-    ki = Ki;
-    kd = Kd;
+    this->kp = kp;
+    this->ki = ki;
+    this->kd = kd;
     return 0;
 }
 float PID_Controller::get_Proportion()

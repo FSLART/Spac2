@@ -6,6 +6,8 @@
 #include <optional>
 #include <cmath>
 #include <rclcpp/logging.hpp>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -13,6 +15,7 @@ class Pure_Pursuit{
     public:
         Pure_Pursuit(float k_dd);
         Pure_Pursuit();
+        float get_k_dd();
         float calculate_steering_angle(nav_msgs::msg::Path path, float speed);
     protected:
         float k_dd;
@@ -24,7 +27,7 @@ class PID_Controller{
         PID_Controller();
         PID_Controller(float min, float max);
         float compute(float setpoint, float input);
-        int set_Tunings(float Kp, float Ki, float Kd);
+        int set_Tunings(float kp, float ki, float kd);
         float get_Proportion();
         float get_Integral();
         float get_Derivative();

@@ -19,14 +19,14 @@ RUN rosdep init
 RUN rosdep update
 
 # copy the ros package and build it
-RUN mkdir -p /spac_ws/src/wonderful_package
-COPY . /spac_ws/src/wonderful_package
-WORKDIR /spac_ws
+RUN mkdir -p /ws/src/spac2
+COPY . /ws/src/spac2
+WORKDIR /ws
 # install dependencies
-RUN rosdep install --from-paths /spac_ws --ignore-src -r -y
+RUN rosdep install --from-paths /ws --ignore-src -r -y
 # build
 RUN /bin/bash -c "source /opt/ros/humble/setup.bash && \
-    cd /spac_ws && \
+    cd /ws && \
     colcon build --parallel-workers 6 --symlink-install"
 
 # launch the package

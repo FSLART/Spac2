@@ -11,7 +11,7 @@
 
 class Target{
     public:
-        Target(int desired_rpm);
+        Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed, float kdd);
         Target(Pure_Pursuit pure_pursuit, PID_Controller pid);
         float get_steering_angle(nav_msgs::msg::Path path, int rpm);
         float get_PID_rpm(float setpoint, float input);
@@ -29,7 +29,7 @@ class Target{
         PID_Controller pid;
         bool isDispatcherDirty=true;
         nav_msgs::msg::Path path;
-        float cureent_rpm=0;
+        float current_rpm=0;
 		ackermann_msgs::msg::AckermannDrive dispatcherMailBox;
         int desired_rpm; 
 };

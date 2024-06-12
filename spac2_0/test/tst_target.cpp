@@ -11,7 +11,7 @@
 TEST (tst_target, get_straight_angle){
     nav_msgs::msg::Path path;
     //current_rpm influences the lookahed distance that influences the steering angle
-    int cureent_rpm = 400;
+    int current_rpm = 400;
     float expected_steering_angle = 0.0;
     geometry_msgs::msg::Point point;
     geometry_msgs::msg::Quaternion quaternion;
@@ -28,15 +28,15 @@ TEST (tst_target, get_straight_angle){
     geometry_msgs::msg::PoseStamped pose_stamped;
     pose_stamped.pose = pose;
     path.poses.push_back(pose_stamped);
-    Target target(417);
-    float steering_angle = target.get_steering_angle(path, cureent_rpm);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
+    float steering_angle = target.get_steering_angle(path, current_rpm);
     ASSERT_EQ(steering_angle, expected_steering_angle);
 }
 
 TEST (tst_target, get_calculated_angle){
     nav_msgs::msg::Path path;
     //current_rpm influences the lookahed distance that influences the steering angle
-    int cureent_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
+    int current_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
     float expected_steering_angle = 39.654786357;
     geometry_msgs::msg::Point point;
     geometry_msgs::msg::Quaternion quaternion;
@@ -53,15 +53,15 @@ TEST (tst_target, get_calculated_angle){
     geometry_msgs::msg::PoseStamped pose_stamped;
     pose_stamped.pose = pose;
     path.poses.push_back(pose_stamped);
-    Target target(417);
-    float steering_angle = target.get_steering_angle(path, cureent_rpm);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
+    float steering_angle = target.get_steering_angle(path, current_rpm);
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
 }
 
 TEST (tst_target, get_angle_invalid_path){
     nav_msgs::msg::Path path;
     //current_rpm influences the lookahed distance that influences the steering angle
-    int cureent_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
+    int current_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
     float expected_steering_angle = 0.0;
     geometry_msgs::msg::Point point;
     geometry_msgs::msg::Quaternion quaternion;
@@ -78,8 +78,8 @@ TEST (tst_target, get_angle_invalid_path){
     geometry_msgs::msg::PoseStamped pose_stamped;
     pose_stamped.pose = pose;
     path.poses.push_back(pose_stamped);
-    Target target(417);
-    float steering_angle = target.get_steering_angle(path, cureent_rpm);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
+    float steering_angle = target.get_steering_angle(path, current_rpm);
     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
 }
@@ -87,7 +87,7 @@ TEST (tst_target, get_angle_invalid_path){
 TEST (tst_target, get_angle_invalid_path_negative_x){
     nav_msgs::msg::Path path;
     //current_rpm influences the lookahed distance that influences the steering angle
-    int cureent_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
+    int current_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
     float expected_steering_angle = 0.0;
     geometry_msgs::msg::Point point;
     geometry_msgs::msg::Quaternion quaternion;
@@ -104,8 +104,8 @@ TEST (tst_target, get_angle_invalid_path_negative_x){
     geometry_msgs::msg::PoseStamped pose_stamped;
     pose_stamped.pose = pose;
     path.poses.push_back(pose_stamped);
-    Target target(417);
-    float steering_angle = target.get_steering_angle(path, cureent_rpm);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
+    float steering_angle = target.get_steering_angle(path, current_rpm);
     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
 }
@@ -113,7 +113,7 @@ TEST (tst_target, get_angle_invalid_path_negative_x){
 TEST (tst_target, get_angle_3_points){
     nav_msgs::msg::Path path;
     //current_rpm influences the lookahed distance that influences the steering angle
-    int cureent_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
+    int current_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
     float expected_steering_angle = 29.158181989;   
     geometry_msgs::msg::Point pointM;
     geometry_msgs::msg::Point pointN;
@@ -157,8 +157,8 @@ TEST (tst_target, get_angle_3_points){
     pose_stampedO.pose = poseO;
     path.poses.push_back(pose_stampedO);
 
-    Target target(417);
-    float steering_angle = target.get_steering_angle(path, cureent_rpm);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
+    float steering_angle = target.get_steering_angle(path, current_rpm);
     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
 }
@@ -166,8 +166,8 @@ TEST (tst_target, get_angle_3_points){
 TEST (tst_target, get_angle_right_3_points){
     nav_msgs::msg::Path path;
     //current_rpm influences the lookahed distance that influences the steering angle
-    int cureent_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
-    float expected_steering_angle = -38.57446428;   //TODO: the calculations for this value are not done yet
+    int current_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
+    float expected_steering_angle = -38.57446428;   
     geometry_msgs::msg::Point pointM;
     geometry_msgs::msg::Point pointN;
     geometry_msgs::msg::Point pointO;
@@ -210,8 +210,8 @@ TEST (tst_target, get_angle_right_3_points){
     pose_stampedO.pose = poseO;
     path.poses.push_back(pose_stampedO);
 
-    Target target(417);
-    float steering_angle = target.get_steering_angle(path, cureent_rpm);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
+    float steering_angle = target.get_steering_angle(path, current_rpm);
     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
 }
