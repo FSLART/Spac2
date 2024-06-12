@@ -15,6 +15,7 @@
 #define DEFAULT_KP_SPEED 0.1
 #define DEFAULT_KI_SPEED 0.1
 #define DEFAULT_KD_SPEED 0.1
+#define DEFAULT_KDD 2.0
 
 
 #endif // UTILS_H_

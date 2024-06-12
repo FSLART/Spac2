@@ -8,11 +8,17 @@ Pure_Pursuit::Pure_Pursuit(float k_dd)
     this->k_dd = k_dd;
 }
 
+//TODO: check how to not have the need for a empty constructor
 Pure_Pursuit::Pure_Pursuit()
 {
-    // TODO: Change to CONSTANT variable MAYBE INCREMENT THIS PARAMETER
-    this->k_dd = 2.0;
+    //this->k_dd = 2.0;
 }
+
+float Pure_Pursuit::get_k_dd()
+{
+    return k_dd;
+}
+
 
 float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float speed)
 {

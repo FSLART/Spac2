@@ -9,6 +9,7 @@
     kp_speed: 0.1
     ki_speed: 0.0075
     kd_speed: 0.00
+    k_dd: 2.0
     qos_overrides:
       /parameter_events:
         publisher:

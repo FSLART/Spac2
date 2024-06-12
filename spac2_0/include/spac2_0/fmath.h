@@ -15,6 +15,7 @@ class Pure_Pursuit{
     public:
         Pure_Pursuit(float k_dd);
         Pure_Pursuit();
+        float get_k_dd();
         float calculate_steering_angle(nav_msgs::msg::Path path, float speed);
     protected:
         float k_dd;

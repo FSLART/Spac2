@@ -1,7 +1,7 @@
 #include "spac2_0/target.h"
 
-Target::Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed){
-    this->pure_pursuit = Pure_Pursuit();
+Target::Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed, float kdd){
+    this->pure_pursuit = Pure_Pursuit(kdd);
     //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
     //TODO: THERE IS THE NEED TO SET THE PARAMETERS FOR THE PID CONTROLLER: IT COMES FROM THE PARAMETERS -> TO IMPLEMENT
@@ -16,6 +16,8 @@ Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
 
 void Target::instance_CarrotControl(){
     try{
+        //print the value of the k_dd of target->pure_pursuit
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "k_dd=%f", this->pure_pursuit.get_k_dd());
         //current speed is being obtained from the rpm
         //and it is used to calculate how far is the look ahead point
         auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
