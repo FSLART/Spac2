@@ -18,6 +18,8 @@ SpacNode::SpacNode() : Node("spac_node")
     this->get_parameter(PARAMS_KI_SPEED, ki_speed);
     this->declare_parameter(PARAMS_KD_SPEED, DEFAULT_KD_SPEED);
     this->get_parameter(PARAMS_KD_SPEED, kd_speed);
+    this->declare_parameter(PARAMS_KDD, DEFAULT_KDD);
+    this->get_parameter(PARAMS_KDD, k_dd_pp);
     //topics
     this->declare_parameter(PARAMS_TOPIC_PATH, "/");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
@@ -32,8 +34,7 @@ SpacNode::SpacNode() : Node("spac_node")
     
     //calculate the desired rpm
     desired_rpm = mps_to_rpm(speed_mps);
-
-    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed);
+    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_dd_pp);
 
     //create publisher for ackermann drive
 	ackermann_publisher = this->create_publisher<ackermann_msgs::msg::AckermannDrive>(ackermann_topic, 10);

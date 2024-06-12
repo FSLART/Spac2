@@ -28,7 +28,7 @@ TEST (tst_target, get_straight_angle){
     geometry_msgs::msg::PoseStamped pose_stamped;
     pose_stamped.pose = pose;
     path.poses.push_back(pose_stamped);
-    Target target(417, 0.1, 0.1, 0.1);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
     float steering_angle = target.get_steering_angle(path, current_rpm);
     ASSERT_EQ(steering_angle, expected_steering_angle);
 }
@@ -53,7 +53,7 @@ TEST (tst_target, get_calculated_angle){
     geometry_msgs::msg::PoseStamped pose_stamped;
     pose_stamped.pose = pose;
     path.poses.push_back(pose_stamped);
-    Target target(417, 0.1, 0.1, 0.1);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
     float steering_angle = target.get_steering_angle(path, current_rpm);
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
 }
@@ -78,7 +78,7 @@ TEST (tst_target, get_angle_invalid_path){
     geometry_msgs::msg::PoseStamped pose_stamped;
     pose_stamped.pose = pose;
     path.poses.push_back(pose_stamped);
-    Target target(417, 0.1, 0.1, 0.1);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
     float steering_angle = target.get_steering_angle(path, current_rpm);
     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
@@ -104,7 +104,7 @@ TEST (tst_target, get_angle_invalid_path_negative_x){
     geometry_msgs::msg::PoseStamped pose_stamped;
     pose_stamped.pose = pose;
     path.poses.push_back(pose_stamped);
-    Target target(417, 0.1, 0.1, 0.1);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
     float steering_angle = target.get_steering_angle(path, current_rpm);
     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
@@ -157,7 +157,7 @@ TEST (tst_target, get_angle_3_points){
     pose_stampedO.pose = poseO;
     path.poses.push_back(pose_stampedO);
 
-    Target target(417, 0.1, 0.1, 0.1);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
     float steering_angle = target.get_steering_angle(path, current_rpm);
     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
@@ -210,7 +210,7 @@ TEST (tst_target, get_angle_right_3_points){
     pose_stampedO.pose = poseO;
     path.poses.push_back(pose_stampedO);
 
-    Target target(417, 0.1, 0.1, 0.1);
+    Target target(417, 0.1, 0.1, 0.1, 2.0);
     float steering_angle = target.get_steering_angle(path, current_rpm);
     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);

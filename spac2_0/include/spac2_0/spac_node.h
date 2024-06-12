@@ -19,6 +19,7 @@
 #define PARAMS_KP_SPEED "kp_speed"
 #define PARAMS_KI_SPEED "ki_speed"
 #define PARAMS_KD_SPEED "kd_speed"
+#define PARAMS_KDD "k_dd"
 #define PARAMS_TOPIC_PATH "path_topic"
 #define PARAMS_TOPIC_ACKERMANN "ackermann_topic"
 #define PARAMS_TOPIC_RPM "rpm_topic"
@@ -49,6 +50,7 @@ protected:
     float kp_speed;
     float ki_speed;
     float kd_speed;
+    float k_dd_pp;
     int desired_rpm;
     Target *target;
     rclcpp::TimerBase::SharedPtr timer;
