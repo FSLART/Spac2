@@ -6,6 +6,8 @@
 #include <optional>
 #include <cmath>
 #include <rclcpp/logging.hpp>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
