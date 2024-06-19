@@ -14,6 +14,7 @@
 #include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "eufs_msgs/msg/wheel_speeds_stamped.hpp"
+#include "lart_common.h"
 
 #define PARAMS_DISTANCE_IMU_TO_REAR_AXLE "distance_imu_to_rear_axle"
 #define PARAMS_FREQUENCY "frequency"
@@ -46,6 +47,7 @@ protected:
     void path_callback(const nav_msgs::msg::Path::SharedPtr msg);
     void wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedPtr msg);
 
+    int lResult = 1;
     float distance_imu_to_rear_axle;
     int frequency=0;
     float desired_speed;
@@ -61,5 +63,10 @@ protected:
     std::string ackermann_topic;
     std::string wheels_topic;
 };
+
+int open_actuation();
+int actuate(int actuator_angle);
+int close_actuation();
+
 
 #endif

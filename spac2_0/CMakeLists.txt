@@ -35,7 +35,7 @@ if(BUILD_TESTING)
 	ament_uncrustify(${library_name} ${lib_srcs})
 endif()
 
-add_executable(spac_node src/spac_node.cpp src/target.cpp src/fmath.cpp)
+add_executable(spac_node src/spac_node.cpp src/target.cpp src/fmath.cpp src/HelloEposCmd.cpp)
 
 ament_target_dependencies(
   spac_node
@@ -48,7 +48,7 @@ ament_target_dependencies(
   "eufs_msgs"
 )
 
-target_link_libraries(spac_node ${library_name})
+target_link_libraries(spac_node ${library_name} -lEposCmd)
 
 install(TARGETS
   spac_node
