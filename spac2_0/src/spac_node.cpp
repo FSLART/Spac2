@@ -28,6 +28,8 @@ SpacNode::SpacNode() : Node("spac_node")
     this->declare_parameter(PARAMS_TOPIC_WHEELS, "/");
 	this->get_parameter(PARAMS_TOPIC_WHEELS, wheels_topic);
 
+    lResult = open_actuation();
+
     //convert speed from km/h to m/s
     float speed_mps = desired_speed / 3.6;
     
@@ -60,7 +62,13 @@ SpacNode::SpacNode() : Node("spac_node")
 void SpacNode::dispatchAckermannDrive(){
 	if(this->target->get_isDispatcherDirty()){
 		//RCLCPP_INFO(this->get_logger(), "Dispatching ackermann drive on { %s }", __PRETTY_FUNCTION__); 
-		this->ackermann_publisher->publish(this->target->get_dirtyDispatcherMail());
+		ackermann_msgs::msg::AckermannDriveStamped ackerman_msg = this->target->get_dirtyDispatcherMail();
+        float actuator_angle = RAD_ST_ANGLE_TO_ACTUATOR_POS(ackerman_msg.drive.steering_angle);
+        //if(lResult == 0)
+        lResult = actuate(actuator_angle);
+        //else
+        //    RCLCPP_ERROR(this->get_logger(), "Error in phisic actuation");
+        this->ackermann_publisher->publish(ackerman_msg);
 		this->target->set_throwDirtDispatcher(); 
 
 	}
@@ -88,5 +96,6 @@ int main(int argc, char *argv[])
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<SpacNode>());
     rclcpp::shutdown();
+    close_actuation();
     return 0;
 }
