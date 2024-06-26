@@ -22,23 +22,17 @@ void Target::instance_CarrotControl(){
         //and it is used to calculate how far is the look ahead point
         auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
-        steering_angle = std::clamp(steering_angle, (float)-MAX_STEERING,(float) MAX_STEERING);
+        steering_angle = std::clamp(steering_angle, (float)-SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD),(float) SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD));
 
         auto rpm = this->get_PID_rpm(current_rpm, desired_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
         //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
 
-        //TODO: SETTING ROS MESSAGE WITH RPM AND STEERING ANGLE
-        //for now rpms obtained from the PID are being converted to m/s to send with the ackermann message
-        auto speed = rpm_to_mps(rpm);
-
-        dispatcherMailBox = ackermann_msgs::msg::AckermannDrive();
-        dispatcherMailBox.speed = speed;
+        //create dispatcher with rpm and steering
+        dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
+        dispatcherMailBox.rpm = rpm;
         dispatcherMailBox.steering_angle = steering_angle;
-
-        //for now lets keep it simple, this makes it as fast as possible
-        dispatcherMailBox.steering_angle_velocity = 0.0f;
 
         isDispatcherDirty = true;
     }catch(...){
@@ -48,7 +42,7 @@ void Target::instance_CarrotControl(){
     }
 }
 
-ackermann_msgs::msg::AckermannDrive Target::get_dirtyDispatcherMail(){
+lart_msgs::msg::DynamicsCMD Target::get_dirtyDispatcherMail(){
 	//This may look "optimizable" but the reason its like this is to keep a error by default approach 
 	if(isDispatcherDirty){
 		return dispatcherMailBox;
@@ -90,7 +84,7 @@ int Target::get_rpm(){
 
 
 float Target::get_steering_angle(nav_msgs::msg::Path path, int rpm){
-    auto speed = rpm_to_mps(rpm);
+    auto speed = RPM_TO_MS(rpm);
     float steering_angle = this->pure_pursuit.calculate_steering_angle(path, speed);
     return steering_angle;
 }

@@ -3,7 +3,8 @@
 #define TARGET_H_
 
 #include "fmath.h"
-#include "ackermann_msgs/msg/ackermann_drive.hpp"
+#include "../lart_common/lart_common.h" 
+#include "lart_msgs/msg/dynamics_cmd.hpp"
 #include <cmath>
 #include "utils.h"
 #include <rclcpp/logging.hpp>
@@ -16,7 +17,7 @@ class Target{
         float get_steering_angle(nav_msgs::msg::Path path, int rpm);
         float get_PID_rpm(float setpoint, float input);
         void instance_CarrotControl();
-        ackermann_msgs::msg::AckermannDrive get_dirtyDispatcherMail();
+        lart_msgs::msg::DynamicsCMD get_dirtyDispatcherMail();
         bool get_isDispatcherDirty();
         int set_throwDirtDispatcher();
         void set_path(nav_msgs::msg::Path path);
@@ -30,7 +31,7 @@ class Target{
         bool isDispatcherDirty=true;
         nav_msgs::msg::Path path;
         float current_rpm=0;
-		ackermann_msgs::msg::AckermannDrive dispatcherMailBox;
+		lart_msgs::msg::DynamicsCMD dispatcherMailBox;
         int desired_rpm; 
 };
 

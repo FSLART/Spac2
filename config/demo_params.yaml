@@ -2,8 +2,9 @@
   ros__parameters:
     frequency: 60
     path_topic: "/planned_path_topic"
-    ackermann_topic: "/control/drive"
+    dynamics_cmd_topic: "pc_origin/dynamics"
     wheels_topic: "/ground_truth/wheel_speeds"
+    rpm_topic: "/pwr/rpm"
     distance_imu_to_rear_axle: 1.0
     desired_speed: 10.0
     kp_speed: 0.1

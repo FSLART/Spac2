@@ -21,23 +21,22 @@ SpacNode::SpacNode() : Node("spac_node")
     this->declare_parameter(PARAMS_KDD, DEFAULT_KDD);
     this->get_parameter(PARAMS_KDD, k_dd_pp);
     //topics
-    this->declare_parameter(PARAMS_TOPIC_PATH, "/");
+    this->declare_parameter(PARAMS_TOPIC_PATH, "/path");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
-	this->declare_parameter(PARAMS_TOPIC_ACKERMANN, "/");
-	this->get_parameter(PARAMS_TOPIC_ACKERMANN, ackermann_topic);
-    this->declare_parameter(PARAMS_TOPIC_RPM, "/");
+	this->declare_parameter(PARAMS_TOPIC_DYNAMICS_CMD, "/cmd");
+	this->get_parameter(PARAMS_TOPIC_DYNAMICS_CMD, dynamics_cmd_topic);
+    this->declare_parameter(PARAMS_TOPIC_RPM, "/rpm");
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
     
-
     //convert speed from km/h to m/s
     float speed_mps = desired_speed / 3.6;
     
     //calculate the desired rpm
-    desired_rpm = mps_to_rpm(speed_mps);
+    desired_rpm = MS_TO_RPM(speed_mps);
     target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_dd_pp);
 
     //create publisher for ackermann drive
-	ackermann_publisher = this->create_publisher<ackermann_msgs::msg::AckermannDrive>(ackermann_topic, 10);
+	dynamics_publisher = this->create_publisher<lart_msgs::msg::DynamicsCMD>(dynamics_cmd_topic, 10);
 
     //receives the current path and calls the path_callback function
     subscription_path = this->create_subscription<nav_msgs::msg::Path>(
@@ -52,16 +51,16 @@ SpacNode::SpacNode() : Node("spac_node")
 	RCLCPP_INFO(this->get_logger(), "Started carrot waypoint targeting routine on { %s }", __PRETTY_FUNCTION__ );
 	this->timer = this->create_wall_timer(interval, std::bind(&Target::instance_CarrotControl, this->target));
 
-    //creates a timer that calls the dispatchAckermannDrive function
-    RCLCPP_INFO(this->get_logger(), "Started ackermann drive dispatch routine on { %s }", __PRETTY_FUNCTION__ );
-	this->timer_publisher= this->create_wall_timer(interval, [this]()-> void {this->dispatchAckermannDrive();});
+    //creates a timer that calls the dispatchDynamicsCMD function
+    RCLCPP_INFO(this->get_logger(), "Started dynamics command dispatch routine on { %s }", __PRETTY_FUNCTION__ );
+	this->timer_publisher= this->create_wall_timer(interval, [this]()-> void {this->dispatchDynamicsCMD();});
 
 }
 
-void SpacNode::dispatchAckermannDrive(){
+void SpacNode::dispatchDynamicsCMD(){
 	if(this->target->get_isDispatcherDirty()){
-		RCLCPP_INFO(this->get_logger(), "Dispatching ackermann drive on { %s }", __PRETTY_FUNCTION__); 
-		this->ackermann_publisher->publish(this->target->get_dirtyDispatcherMail());
+		RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__); 
+		this->dynamics_publisher->publish(this->target->get_dirtyDispatcherMail());
 		this->target->set_throwDirtDispatcher(); 
 
 	}
