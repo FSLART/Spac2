@@ -4,6 +4,7 @@
 
 #include "nav_msgs/msg/path.hpp"
 #include <optional>
+#include "../lart_common/lart_common.h"
 #include <cmath>
 #include <rclcpp/logging.hpp>
 #include <iostream>
@@ -39,8 +40,5 @@ class PID_Controller{
 
 optional<array<float, 2>> get_closest_point(std::vector<std::array<float,2>> path_points, float look_ahead_distance);
 optional<vector<array<float, 2>>> get_intersection(std::array<float, 2> point1, std::array<float, 2> point2, float radius);
-
-int mps_to_rpm(float speed_m_s);
-float rpm_to_mps(int speed_rpm);
 
 #endif

@@ -57,7 +57,7 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
 
     // Calculate steering angle (pure pursuit algorithm)
-    float steering_angle = atan2(2 * WHEELBASE * sin(alpha), look_ahead_distance);
+    float steering_angle = atan2(2 * WHEELBASE_M * sin(alpha), look_ahead_distance);
 
     return steering_angle * 180 / M_PI;
 }
@@ -214,16 +214,4 @@ optional<vector<array<float, 2>>> get_intersection(array<float, 2> point1, array
     } 
     return filtered_intersections;
 
-}
-
-//function to convert m/s to rpm
-int mps_to_rpm(float speed_mps)
-{
-    return (int) (60 * 4 * (speed_mps / (M_PI * WHEEL_RADIUS * 2)));
-}
-
-//function to convert rpm to m/s
-float rpm_to_mps(int speed_rpm)
-{
-    return (float) (((speed_rpm * M_PI * WHEEL_RADIUS * 2) / 60) / 4);
 }
