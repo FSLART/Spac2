@@ -20,7 +20,9 @@ RUN rosdep update
 
 # copy the ros package and build it
 RUN mkdir -p /ws/src/spac2
+RUN git clone https://github.com/FSLART/lart_msgs.git -b dev /ws/src/lart_msgs
 COPY . /ws/src/spac2
+RUN git clone https://github.com/FSLART/lart_common.git /ws/src/spac2/spac2_0/include/lart_common
 WORKDIR /ws
 # install dependencies
 RUN rosdep install --from-paths /ws --ignore-src -r -y
