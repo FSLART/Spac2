@@ -34,7 +34,7 @@ void Target::instance_CarrotControl(){
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = rpm;
-        dispatcherMailBox.steering_angle = steering_angle;
+        dispatcherMailBox.steering_angle = -steering_angle;
 
         isDispatcherDirty = true;
     }catch(...){
