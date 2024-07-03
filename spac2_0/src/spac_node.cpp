@@ -45,6 +45,16 @@ SpacNode::SpacNode() : Node("spac_node")
     subscription_rpm = this->create_subscription<std_msgs::msg::Float32>(
         rpm_topic, 10, std::bind(&SpacNode::rpm_callback, this, _1));
 
+    //TODO: AXANATO PARA AGORA MAS PRECISA DE SER ALTERADO / NO ENTANTO ESTA VALIDAÇÃO É NECESSÁRIA
+    subscription_ready = this->create_subscription<std_msgs::msg::Bool>(
+        "acu_origin/res_ready", 10, [this](const std_msgs::msg::Bool::SharedPtr msg) {
+            if (msg->data)
+            {
+                RCLCPP_INFO(this->get_logger(), "Received ready signal");
+                this->target->set_ready();
+            }
+        });
+
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
     //creates a timer that calls the instance_CarrotControl function

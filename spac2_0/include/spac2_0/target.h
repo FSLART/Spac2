@@ -24,6 +24,8 @@ class Target{
         nav_msgs::msg::Path get_path();
         void set_rpm(int rpm);
         int get_rpm();
+        void set_ready();
+        bool get_ready();
 
     protected:
         Pure_Pursuit pure_pursuit;
@@ -33,6 +35,7 @@ class Target{
         float current_rpm=0;
 		lart_msgs::msg::DynamicsCMD dispatcherMailBox;
         int desired_rpm; 
+        bool ready=false;
 };
 
 #endif

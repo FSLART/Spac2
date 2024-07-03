@@ -4,7 +4,6 @@ Target::Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed, 
     this->pure_pursuit = Pure_Pursuit(kdd);
     //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
-    //TODO: THERE IS THE NEED TO SET THE PARAMETERS FOR THE PID CONTROLLER: IT COMES FROM THE PARAMETERS -> TO IMPLEMENT
     this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
     this->desired_rpm = desired_rpm;
 }
@@ -16,6 +15,9 @@ Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
 
 void Target::instance_CarrotControl(){
     try{
+        if(get_ready() == false){
+            throw std::runtime_error("Not ready yet");
+        }
         //print the value of the k_dd of target->pure_pursuit
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "k_dd=%f", this->pure_pursuit.get_k_dd());
         //current speed is being obtained from the rpm
@@ -52,6 +54,14 @@ lart_msgs::msg::DynamicsCMD Target::get_dirtyDispatcherMail(){
 	RCLCPP_WARN(rclcpp::get_logger("get_dirtyDispatcherMail"), "Dispatcher is trying to read clean data, this means that the dispatcher is trying to read data that has not been updated yet");
 	return dispatcherMailBox;
 } 
+
+void Target::set_ready(){
+    ready = true;
+}
+
+bool Target::get_ready(){
+    return ready;
+}
 
 bool Target::get_isDispatcherDirty(){
 	return isDispatcherDirty;

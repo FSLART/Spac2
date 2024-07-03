@@ -7,6 +7,7 @@
 #include <string>
 
 #include "std_msgs/msg/string.hpp"
+#include "std_msgs/msg/bool.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "target.h"
@@ -37,6 +38,7 @@ private:
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr subscription_path;
     rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr subscription_rpm;
     rclcpp::Publisher<lart_msgs::msg::DynamicsCMD>::SharedPtr dynamics_publisher;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_ready;
 
 protected:
 
