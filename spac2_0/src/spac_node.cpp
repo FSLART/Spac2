@@ -55,6 +55,9 @@ SpacNode::SpacNode() : Node("spac_node")
             }
         });
 
+    //TODO APAGAR
+    this->target->set_ready();
+
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
     //creates a timer that calls the instance_CarrotControl function

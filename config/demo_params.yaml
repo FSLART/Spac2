@@ -5,8 +5,8 @@
     dynamics_cmd_topic: "pc_origin/dynamics"
     wheels_topic: "/ground_truth/wheel_speeds"
     rpm_topic: "/pwr/rpm"
-    distance_imu_to_rear_axle: 1.0
-    desired_speed: 10.0
+    distance_imu_to_rear_axle: 1.15
+    desired_speed: 2.0
     kp_speed: 0.1
     ki_speed: 0.0075
     kd_speed: 0.00
