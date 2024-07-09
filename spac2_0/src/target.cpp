@@ -24,7 +24,7 @@ void Target::instance_CarrotControl(){
         //and it is used to calculate how far is the look ahead point
         auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
-        steering_angle = std::clamp(steering_angle, (float)-SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD),(float) SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD));
+        steering_angle = std::clamp((float)(steering_angle * LART_PI / 180), (float)-SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD),(float) SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD));
 
         auto rpm = this->get_PID_rpm(current_rpm, desired_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
@@ -34,7 +34,9 @@ void Target::instance_CarrotControl(){
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = rpm;
-        dispatcherMailBox.steering_angle = -steering_angle;
+        dispatcherMailBox.steering_angle = steering_angle;
+
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
 
         isDispatcherDirty = true;
     }catch(...){
