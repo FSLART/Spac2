@@ -19,24 +19,25 @@ void Target::instance_CarrotControl(){
             throw std::runtime_error("Not ready yet");
         }
         //print the value of the k_dd of target->pure_pursuit
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "k_dd=%f", this->pure_pursuit.get_k_dd());
+        ////RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "k_dd=%f", this->pure_pursuit.get_k_dd());
         //current speed is being obtained from the rpm
         //and it is used to calculate how far is the look ahead point
         auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
-        steering_angle = std::clamp((float)(steering_angle * LART_PI / 180), (float)-SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD),(float) SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD));
+        steering_angle = std::clamp((float)(steering_angle), (float)-SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD),(float) SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD));
 
-        auto rpm = this->get_PID_rpm(current_rpm, desired_rpm);
+        auto rpm = this->get_PID_rpm(desired_rpm, this->current_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
         //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
-
+        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "DESIRED_rpm=%d", desired_rpm);
+        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "pid_rpm=%f", rpm);
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = rpm;
         dispatcherMailBox.steering_angle = steering_angle;
 
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
+        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
 
         isDispatcherDirty = true;
     }catch(...){
