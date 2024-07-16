@@ -33,6 +33,7 @@ SpacNode::SpacNode() : Node("spac_node")
     
     //calculate the desired rpm
     desired_rpm = MS_TO_RPM(speed_mps);
+    //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
     target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_dd_pp);
 
     //create publisher for ackermann drive
@@ -42,7 +43,7 @@ SpacNode::SpacNode() : Node("spac_node")
     subscription_path = this->create_subscription<nav_msgs::msg::Path>(
         path_topic, 10, std::bind(&SpacNode::path_callback, this, _1));
 
-    subscription_rpm = this->create_subscription<std_msgs::msg::Float32>(
+    subscription_rpm = this->create_subscription<lart_msgs::msg::Dynamics>(
         rpm_topic, 10, std::bind(&SpacNode::rpm_callback, this, _1));
 
     //TODO: AXANATO PARA AGORA MAS PRECISA DE SER ALTERADO / NO ENTANTO ESTA VALIDAÇÃO É NECESSÁRIA
@@ -56,16 +57,16 @@ SpacNode::SpacNode() : Node("spac_node")
         });
 
     //TODO APAGAR
-    this->target->set_ready();
+    //this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
     //creates a timer that calls the instance_CarrotControl function
-	RCLCPP_INFO(this->get_logger(), "Started carrot waypoint targeting routine on { %s }", __PRETTY_FUNCTION__ );
+	//RCLCPP_INFO(this->get_logger(), "Started carrot waypoint targeting routine on { %s }", __PRETTY_FUNCTION__ );
 	this->timer = this->create_wall_timer(interval, std::bind(&Target::instance_CarrotControl, this->target));
 
     //creates a timer that calls the dispatchDynamicsCMD function
-    RCLCPP_INFO(this->get_logger(), "Started dynamics command dispatch routine on { %s }", __PRETTY_FUNCTION__ );
+    //RCLCPP_INFO(this->get_logger(), "Started dynamics command dispatch routine on { %s }", __PRETTY_FUNCTION__ );
 	this->timer_publisher= this->create_wall_timer(interval, [this]()-> void {this->dispatchDynamicsCMD();});
 
 }
@@ -85,9 +86,9 @@ void SpacNode::path_callback(const nav_msgs::msg::Path::SharedPtr msg)
     this->target->set_path(*msg);
 }
 
-void SpacNode::rpm_callback(const std_msgs::msg::Float32::SharedPtr msg)
+void SpacNode::rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg)
 {
-    this->target->set_rpm(msg->data);
+    this->target->set_rpm(msg->rpm);
 }
 
 int main(int argc, char *argv[])
