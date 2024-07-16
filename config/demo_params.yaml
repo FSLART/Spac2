@@ -1,16 +1,16 @@
 /DriveModelNode:
   ros__parameters:
-    frequency: 60
+    frequency: 10
     path_topic: "/planned_path_topic"
     dynamics_cmd_topic: "pc_origin/dynamics"
     wheels_topic: "/ground_truth/wheel_speeds"
-    rpm_topic: "/pwr/rpm"
+    rpm_topic: "/acu_origin/dynamics"
     distance_imu_to_rear_axle: 1.15
     desired_speed: 2.0
     kp_speed: 0.1
     ki_speed: 0.0075
     kd_speed: 0.00
-    k_dd: 3.0
+    k_dd: 5.2
     qos_overrides:
       /parameter_events:
         publisher:
