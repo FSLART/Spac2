@@ -35,10 +35,11 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
         array<float, 2> point = {(float) (path.poses[i].pose.position.x + DEFAULT_IMU_TO_REAR_AXLE), (float) path.poses[i].pose.position.y};
         path_points.push_back(point);
     }
-
+    //RCLCPP_INFO(rclcpp::get_logger("pure"), "k_dd=%f", k_dd);
     // Calculate look ahead point based on the speed with a min and max distances
-    float look_ahead_distance = clamp(speed * k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
-
+    //TODO REVERTER
+    //float look_ahead_distance = clamp(speed * k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+    float look_ahead_distance = clamp(k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
     // Find the closest point to the look ahead distance intersecting the path with a circle
     optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance);
     // if there is no intersection with the path, keep the car straight (?) TODO: check if this is the best approach
@@ -59,7 +60,14 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     // Calculate steering angle (pure pursuit algorithm)
     float steering_angle = atan2(2 * WHEELBASE_M * sin(alpha), look_ahead_distance);
 
-    return steering_angle * 180 / M_PI;
+    //write the steering angle and the point of intersection to a file
+    ofstream myfile;
+    myfile.open("steer_point.csv", ios::app);
+    myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << "\n"; 
+    myfile.close();
+
+
+    return steering_angle;
 }
 
 PID_Controller::PID_Controller(float min, float max)
@@ -83,7 +91,7 @@ PID_Controller::PID_Controller()
 
 float PID_Controller::compute(float setpoint, float input)
 {
-    //TODO: ONLY MAKES SENSE TO START PID WHEN THE STATE IS "DRIVING"  
+    //RCLCPP_INFO(rclcpp::get_logger("pid"), "setpoint=%f, input=%f, kp=%f, ki=%f, kd=%f", setpoint, input, kp, ki, kd);
     error = setpoint - input;
     error_sum += error;
     error_prev = error;
@@ -92,10 +100,10 @@ float PID_Controller::compute(float setpoint, float input)
     //output_past = output;
     
     //write the PID to a file
-    ofstream myfile;
+    /*ofstream myfile;
     myfile.open("pid.csv", ios::app);
     myfile << input << ", " << setpoint << ", " << output << "\n"; 
-    myfile.close();
+    myfile.close();*/
 
     if(output > max_signal_value){
         error_sum -= error;
@@ -104,6 +112,7 @@ float PID_Controller::compute(float setpoint, float input)
         error_sum -= error;
         output = min_signal_value;
     }
+    //RCLCPP_INFO(rclcpp::get_logger("pid"), "output=%f", output);
     return output;
 }
 
