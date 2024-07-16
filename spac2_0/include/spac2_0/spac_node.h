@@ -13,6 +13,7 @@
 #include "target.h"
 #include "std_msgs/msg/float32.hpp"
 #include "lart_msgs/msg/dynamics_cmd.hpp"
+#include "lart_msgs/msg/dynamics.hpp"
 #include "../lart_common/lart_common.h"
 
 #define PARAMS_DISTANCE_IMU_TO_REAR_AXLE "distance_imu_to_rear_axle"
@@ -36,7 +37,7 @@ private:
     
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr subscription_path;
-    rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr subscription_rpm;
+    rclcpp::Subscription<lart_msgs::msg::Dynamics>::SharedPtr subscription_rpm;
     rclcpp::Publisher<lart_msgs::msg::DynamicsCMD>::SharedPtr dynamics_publisher;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_ready;
 
@@ -45,7 +46,7 @@ protected:
     void dispatchDynamicsCMD();
     void timer_callback();
     void path_callback(const nav_msgs::msg::Path::SharedPtr msg);
-    void rpm_callback(const std_msgs::msg::Float32::SharedPtr msg);
+    void rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg);
 
     float distance_imu_to_rear_axle;
     int frequency=0;
