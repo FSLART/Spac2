@@ -3,7 +3,7 @@
 
 #define MAX_LOOKAHEAD 20.0f
 #define MIN_LOOKAHEAD 2.0f
-
+//TODO this value needs to be increased for EBS test
 #define TERMINAL_RPM 500.0f
 #define DEFAULT_DESIRED_SPEED 10.0
 #define DEFAULT_FREQUENCY 10
