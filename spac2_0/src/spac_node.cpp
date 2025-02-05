@@ -20,6 +20,10 @@ SpacNode::SpacNode() : Node("spac_node")
     this->get_parameter(PARAMS_KD_SPEED, kd_speed);
     this->declare_parameter(PARAMS_KDD, DEFAULT_KDD);
     this->get_parameter(PARAMS_KDD, k_dd_pp);
+    this->declare_parameter(PARAMS_K_CURV, DEFAULT_K_CURV);
+    this->get_parameter(PARAMS_K_CURV, k_curv);
+    this->declare_parameter(PARAMS_K_DIST, DEFAULT_K_DIST);
+    this->get_parameter(PARAMS_K_DIST, k_dist);
     //topics
     this->declare_parameter(PARAMS_TOPIC_PATH, "/path");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
@@ -34,13 +38,13 @@ SpacNode::SpacNode() : Node("spac_node")
     //calculate the desired rpm
     desired_rpm = MS_TO_RPM(speed_mps);
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_dd_pp);
+    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
 
     //create publisher for ackermann drive
 	dynamics_publisher = this->create_publisher<lart_msgs::msg::DynamicsCMD>(dynamics_cmd_topic, 10);
 
     //receives the current path and calls the path_callback function
-    subscription_path = this->create_subscription<nav_msgs::msg::Path>(
+    subscription_path = this->create_subscription<lart_msgs::msg::PathSpline>(
         path_topic, 10, std::bind(&SpacNode::path_callback, this, _1));
 
     subscription_rpm = this->create_subscription<lart_msgs::msg::Dynamics>(
@@ -80,7 +84,7 @@ void SpacNode::dispatchDynamicsCMD(){
 	}
 }
 
-void SpacNode::path_callback(const nav_msgs::msg::Path::SharedPtr msg)
+void SpacNode::path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
 {
     //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg.c_str());
     this->target->set_path(*msg);

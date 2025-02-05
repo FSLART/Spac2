@@ -12,23 +12,25 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(lart_msgs REQUIRED)
 
-include_directories(include)
+include_directories(
+  include
+  ${CMAKE_SOURCE_DIR}/../../lart_common
+)
 
 add_library(${library_name} ${lib_srcs})
 
-ament_target_dependencies(${library_name} rclcpp std_msgs nav_msgs geometry_msgs lart_msgs tf2)
+ament_target_dependencies(${library_name} rclcpp std_msgs geometry_msgs lart_msgs tf2)
 
 
 if(BUILD_TESTING)
 	find_package(ament_cmake_gtest REQUIRED)
 	ament_add_gtest(spac2_0_test test/tst_target.cpp)
-	ament_target_dependencies(spac2_0_test rclcpp std_msgs nav_msgs geometry_msgs lart_msgs tf2)
+	ament_target_dependencies(spac2_0_test rclcpp std_msgs geometry_msgs lart_msgs tf2)
 	target_link_libraries(spac2_0_test spac2_0)
   else()
 	ament_uncrustify(${library_name} ${lib_srcs})
@@ -39,7 +41,6 @@ add_executable(spac_node src/spac_node.cpp src/target.cpp src/fmath.cpp)
 ament_target_dependencies(
   spac_node
   "rclcpp"
-  "nav_msgs"
   "geometry_msgs"
   "tf2"
   "std_msgs"

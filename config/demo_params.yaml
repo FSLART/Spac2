@@ -10,6 +10,8 @@
     kp_speed: 0.1
     ki_speed: 0.0075
     kd_speed: 0.00
+    k_curv: 1.0
+    k_dist: 1.0
     k_dd: 5.2
     qos_overrides:
       /parameter_events:

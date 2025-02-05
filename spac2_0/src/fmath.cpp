@@ -3,9 +3,14 @@
 
 using namespace std;
 
-Pure_Pursuit::Pure_Pursuit(float k_dd)
+int CommonBase::index = 0;
+
+Pure_Pursuit::Pure_Pursuit(float k_dd, float k_curv, float k_dist,float distance_to_rear_axle)
 {
     this->k_dd = k_dd;
+    this->k_curv = k_curv;
+    this->k_dist = k_dist;
+    this->distance_imu_to_rear_axle = distance_to_rear_axle;
 }
 
 //TODO: check how to not have the need for a empty constructor
@@ -20,7 +25,7 @@ float Pure_Pursuit::get_k_dd()
 }
 
 
-float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float speed)
+float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, float speed)
 {
     // Create a pose with the current position  of the car.
     array<float, 2> position = {0.0, 0.0};
@@ -29,10 +34,11 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     // discarding Z axis
     vector<array<float, 2>> path_points;
     path_points.push_back(position);
+
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
         //CREATE AN ARRAY WITH X AND Y POSITION OF THE PATH, SHIFTING THE X VALUE TO THE REAR OF THE CAR
-        array<float, 2> point = {(float) (path.poses[i].pose.position.x + DEFAULT_IMU_TO_REAR_AXLE), (float) path.poses[i].pose.position.y};
+        array<float, 2> point = {(float) (path.poses[i].pose.position.x + this->distance_imu_to_rear_axle), (float) path.poses[i].pose.position.y};
         path_points.push_back(point);
     }
     //RCLCPP_INFO(rclcpp::get_logger("pure"), "k_dd=%f", k_dd);
@@ -41,24 +47,29 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     //float look_ahead_distance = clamp(speed * k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
     float look_ahead_distance = clamp(k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
     // Find the closest point to the look ahead distance intersecting the path with a circle
-    optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance);
+    optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance, this->distance_imu_to_rear_axle);
     // if there is no intersection with the path, keep the car straight (?) TODO: check if this is the best approach
     if (!closest_point.has_value())
     {
-        return 0.0f;
+        return getAvgAngle();
     }
     //if the x value is 0 (straight line) return 0 (no steering angle needed) or else it will give the wrong angle in the atan2
     if ((*closest_point)[0] == 0)
     {
+        // Keep previous angles to calculate the average
+        keepAvgAngle(0.0f);
         return 0.0f;
     }
 
     // Calculate angle between the closest point and (0,0) (because the point is returned relative to (0,0)) instead of the rear!!
-
     float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
 
     // Calculate steering angle (pure pursuit algorithm)
     float steering_angle = atan2(2 * WHEELBASE_M * sin(alpha), look_ahead_distance);
+
+    // Keep previous angles to calculate the average
+    keepAvgAngle(steering_angle);
+    
 
     //write the steering angle and the point of intersection to a file
     ofstream myfile;
@@ -67,7 +78,38 @@ float Pure_Pursuit::calculate_steering_angle(nav_msgs::msg::Path path, float spe
     myfile.close();
 
 
-    return steering_angle;
+    return getAvgAngle();
+}
+
+float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path){
+    if(index > -1){
+        //TODO: CHECK IF IT SHOULD BE INDEX + K_DIST OR THE INDEX * K_DIST
+        float curvature = path.curvature[index + this->k_dist];
+        float p_curv = min(1.0f, curvature * this->k_curv);
+        float desired_speed = MAX_SPEED * (1 - p_curv); 
+        return desired_speed;
+    }
+    return 0;
+}
+
+void Pure_Pursuit::keepAvgAngle(float steering_angle){
+    int slot = cycles % SIZE_AVG_ARRAY;
+    avg_angle[slot] = steering_angle;
+    cycles++;
+}
+
+float Pure_Pursuit::getAvgAngle(){
+    float sum = 0;
+    int interval = SIZE_AVG_ARRAY;
+    
+    if(cycles < SIZE_AVG_ARRAY){
+        interval = cycles;
+    }
+
+    for(int i = 0; i < interval; i++){
+        sum += avg_angle[i];
+    }
+    return sum / interval;
 }
 
 PID_Controller::PID_Controller(float min, float max)
@@ -87,7 +129,6 @@ PID_Controller::PID_Controller()
     error_sum = 0;
     output_past = 0;
 }
-
 
 float PID_Controller::compute(float setpoint, float input)
 {
@@ -136,91 +177,17 @@ float PID_Controller::get_Derivative()
     return kd;
 }
 
-optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance)
+optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance, float distance_imu_to_rear_axle)
 {
-    if (path_points.size() > 1)
+    if(path_points.size() > MIN_INDEX)
     {
-        for (long unsigned int i = 0; i < path_points.size()-1; i++)
-        {
-            array<float, 2> point1 = path_points[i];
-            array<float, 2> point2 = path_points[i + 1];
-            auto intersections = get_intersection(point1, point2, look_ahead_distance);
-            // TODO: CHECK IF IT MAKES SENSE TO MAKE THE Y ALWAYS POSITIVE OR IF IT CAN BE NEGATIVE
-            //if there is an intersection and the x value is positive
-            if (intersections.has_value())
-            {
-                for (auto intersection : intersections.value())
-                {
-                    if (intersection[0] > 0)
-                    {
-                        return intersection;
-                    }
-                }
-            }
-        }
+        CommonBase::index = fastRound((look_ahead_distance + distance_imu_to_rear_axle)/AVG_DISTANCE) - 1;
+        return path_points[CommonBase::index];
     }
+    CommonBase::index = -1;
     return nullopt;
 }
 
-
-//Function from https://stackoverflow.com/a/59582674/2609987 with some modifications
-optional<vector<array<float, 2>>> get_intersection(array<float, 2> point1, array<float, 2> point2, float radius)
-{
-    array<float, 2> circle_center = {0.0, 0.0};
-    vector<array<float,2>> intersections;
-    float x1 = point1[0]-circle_center[0];
-    float y1 = point1[1]-circle_center[1];
-    float x2 = point2[0]-circle_center[0];
-    float y2 = point2[1]-circle_center[1];
-    float dx = x2 - x1;
-    float dy = y2 - y1;
-    float dr = sqrt(pow(dx, 2) + pow(dy, 2));
-    float D = x1 * y2 - x2 * y1;
-    float discriminant = pow(radius, 2) * pow(dr, 2) - pow(D, 2);
-    if (discriminant < 0) // there is no intersection
-    {
-        return nullopt;
-    }
-
-    int sign1 = (dy < 0) ? -1 : 1;
-    int sign2 = -sign1;
-
-    //TODO: check if everything works out with this axis
-    for (int sign : {sign1, sign2}) {
-        array<float, 2> temp_intersec;
-        temp_intersec[0] = (circle_center[0] + (D * dy + sign * (dy < 0 ? -1 : 1) * dx * sqrt(discriminant))) / (dr * dr);
-        temp_intersec[1] = (circle_center[1] + (-D * dx + sign * abs(dy) * sqrt(discriminant))) / (dr * dr);
-        intersections.push_back(temp_intersec);
-    }
-
-    //filter out intersections that are not within the segment
-    vector<float> fraction_along_segment;
-    for (auto intersection : intersections) {
-        float xi = intersection[0];
-        float yi = intersection[1];
-        float fraction;
-        if (abs(dx) > abs(dy)) {
-            fraction = (xi - point1[0]) / dx;
-        } else {
-            fraction = (yi - point1[1]) / dy;
-        }
-        fraction_along_segment.push_back(fraction);
-    }
-    vector<array<float, 2>> filtered_intersections;
-    for (long unsigned int i = 0; i < intersections.size(); ++i) {
-        float frac = fraction_along_segment[i];
-        if (frac >= 0 && frac <= 1) {
-            filtered_intersections.push_back(intersections[i]);
-        }
-    }
-
-    if (filtered_intersections.size() == 2 && abs(discriminant) <= 1e-9) {
-        // If the line is tangent to the circle, return just one point
-        // (as both intersections have the same location)
-        vector<array<float, 2>> tangent_intersection;
-        tangent_intersection.push_back(filtered_intersections[0]);
-        return tangent_intersection;
-    } 
-    return filtered_intersections;
-
+int fastRound(float x) {
+    return static_cast<int>(x + 0.5f);
 }
