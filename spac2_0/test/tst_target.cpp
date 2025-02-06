@@ -279,3 +279,139 @@ TEST (tst_target, get_angle_example_path){
 //     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
 //     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
 // }
+
+TEST (tst_target, get_angle_three_cycles){
+    lart_msgs::msg::PathSpline path;
+    lart_msgs::msg::PathSpline path2;
+    lart_msgs::msg::PathSpline path3;
+    geometry_msgs::msg::PoseStamped pose_stamped;
+    //current_rpm influences the lookahed distance that influences the steering angle
+    int current_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
+    float expected_steering_angle = 0.25194386;
+
+    std::vector<std::vector<float>> data = {
+    {0.00000000, -0.0578711390, -0.0419723335, 0.102172062},
+    {0.495972149, 0.434555014, 0.00524532866, 0.101734447},
+    {0.991944299, 0.924145585, 0.0778424859, 0.101140748},
+    {1.48791645, 1.40977053, 0.175242234, 0.100426292},
+    {1.98388860, 1.89029981, 0.296867669, 0.0996595820},
+    {2.47986075, 2.36460338, 0.442141886, 0.0988950161},
+    {2.97583290, 2.83155120, 0.610487981, 0.0981850733},
+    {3.47180505, 3.29001322, 0.801329050, 0.0976202298},
+    {3.96777719, 3.73885941, 1.01408819, 0.0972945139},
+    {4.46374934, 4.17695972, 1.24818849, 0.0971543551},
+    {4.95972149, 4.60318411, 1.50305306, 0.0971408345},
+    {5.45569364, 5.01642145, 1.77808304, 0.0971882216}, // -> 0.1636456282582117
+    {5.95166579, 5.41567802, 2.07254340, 0.0971428136},
+    {6.61296199, 5.92463255, 2.49402155, 0.0963946603},
+    {7.10893414, 6.28757809, 2.83075777, 0.0947358350}
+    };
+
+    // Populate the Pathspline message
+    for (const auto& row : data) {
+        float distance = row[0];
+        float x = row[1];
+        float y = row[2];
+        float curvature = row[3];
+
+        // Add distance and curvature
+        path.distance.push_back(distance);
+        path.curvature.push_back(curvature);
+
+        // Create and populate a PoseStamped
+        pose_stamped.pose.position.x = x;
+        pose_stamped.pose.position.y = y;
+        pose_stamped.pose.position.z = 0.0; // Assume z = 0 for 2D path
+        pose_stamped.pose.orientation.w = 1.0; // Default orientation (no rotation)
+
+        // Add the PoseStamped to the pathspline
+        path.poses.push_back(pose_stamped);
+    }
+    Target target(417, 0.1, 0.1, 0.1, 0, 0, 5.2, 1.15);
+    float steering_angle = target.get_steering_angle(path, current_rpm);
+    std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
+
+    std::vector<std::vector<float>> data2 = {
+    {0.00000000, -0.0578711390, -0.0419723335, 0.102172062},
+    {0.495972149, 0.434555014, 0.00524532866, 0.101734447},
+    {0.991944299, 0.924145585, 0.0778424859, 0.101140748},
+    {1.48791645, 1.40977053, 0.175242234, 0.100426292},
+    {1.98388860, 1.89029981, 0.296867669, 0.0996595820},
+    {2.47986075, 2.36460338, 0.442141886, 0.0988950161},
+    {2.97583290, 2.83155120, 0.610487981, 0.0981850733},
+    {3.47180505, 3.29001322, 0.801329050, 0.0976202298},
+    {3.96777719, 3.73885941, 1.01408819, 0.0972945139},
+    {4.46374934, 4.17695972, 1.24818849, 0.0971543551},
+    {4.95972149, 4.60318411, 1.50305306, 0.0971408345},
+    {5.45569364, 4.77000000, 2.64000000, 0.0971882216}, // -> 0.2379761052640517
+    {5.95166579, 5.41567802, 2.07254340, 0.0971428136},
+    {6.61296199, 5.92463255, 2.49402155, 0.0963946603},
+    {7.10893414, 6.28757809, 2.83075777, 0.0947358350}
+    };
+
+    for (const auto& row : data2) {
+        float distance = row[0];
+        float x = row[1];
+        float y = row[2];
+        float curvature = row[3];
+
+        // Add distance and curvature
+        path2.distance.push_back(distance);
+        path2.curvature.push_back(curvature);
+
+        // Create and populate a PoseStamped
+        pose_stamped.pose.position.x = x;
+        pose_stamped.pose.position.y = y;
+        pose_stamped.pose.position.z = 0.0; // Assume z = 0 for 2D path
+        pose_stamped.pose.orientation.w = 1.0; // Default orientation (no rotation)
+
+        // Add the PoseStamped to the pathspline
+        path2.poses.push_back(pose_stamped);
+    }
+
+    steering_angle = target.get_steering_angle(path2, current_rpm);
+    std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
+
+    std::vector<std::vector<float>> data3 = {
+    {0.00000000, -0.0578711390, -0.0419723335, 0.102172062},
+    {0.495972149, 0.434555014, 0.00524532866, 0.101734447},
+    {0.991944299, 0.924145585, 0.0778424859, 0.101140748},
+    {1.48791645, 1.40977053, 0.175242234, 0.100426292},
+    {1.98388860, 1.89029981, 0.296867669, 0.0996595820},
+    {2.47986075, 2.36460338, 0.442141886, 0.0988950161},
+    {2.97583290, 2.83155120, 0.610487981, 0.0981850733},
+    {3.47180505, 3.29001322, 0.801329050, 0.0976202298},
+    {3.96777719, 3.73885941, 1.01408819, 0.0972945139},
+    {4.46374934, 4.17695972, 1.24818849, 0.0971543551},
+    {4.95972149, 4.60318411, 1.50305306, 0.0971408345},
+    {5.45569364, 5.19000000, 5.01000000, 0.0971882216}, // -> 0.35421294
+    {5.95166579, 5.41567802, 2.07254340, 0.0971428136},
+    {6.61296199, 5.92463255, 2.49402155, 0.0963946603},
+    {7.10893414, 6.28757809, 2.83075777, 0.0947358350}
+    };
+
+    for (const auto& row : data3) {
+        float distance = row[0];
+        float x = row[1];
+        float y = row[2];
+        float curvature = row[3];
+
+        // Add distance and curvature
+        path3.distance.push_back(distance);
+        path3.curvature.push_back(curvature);
+
+        // Create and populate a PoseStamped
+        pose_stamped.pose.position.x = x;
+        pose_stamped.pose.position.y = y;
+        pose_stamped.pose.position.z = 0.0; // Assume z = 0 for 2D path
+        pose_stamped.pose.orientation.w = 1.0; // Default orientation (no rotation)
+
+        // Add the PoseStamped to the pathspline
+        path3.poses.push_back(pose_stamped);
+    }
+
+    steering_angle = target.get_steering_angle(path3, current_rpm);
+    std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
+
+    ASSERT_NEAR((int) TWOCUTFLOATING(steering_angle), (int) TWOCUTFLOATING(expected_steering_angle), 1);
+ }
