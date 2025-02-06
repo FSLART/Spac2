@@ -32,9 +32,9 @@ class Pure_Pursuit : public CommonBase{
         float k_dd;
         float k_curv, k_dist;
         float distance_imu_to_rear_axle;
-        float avg_angle[SIZE_AVG_ARRAY];
-        int cycles;
-};
+        float avg_angle[SIZE_AVG_ARRAY] = {0};
+        int cycles = 0;
+};;
 
 class PID_Controller{
     public:

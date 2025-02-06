@@ -58,7 +58,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     {
         // Keep previous angles to calculate the average
         keepAvgAngle(0.0f);
-        return 0.0f;
+        return getAvgAngle();
     }
 
     // Calculate angle between the closest point and (0,0) (because the point is returned relative to (0,0)) instead of the rear!!
@@ -103,6 +103,9 @@ float Pure_Pursuit::getAvgAngle(){
     int interval = SIZE_AVG_ARRAY;
     
     if(cycles < SIZE_AVG_ARRAY){
+        if (cycles == 0){
+            return 0.0;
+        }
         interval = cycles;
     }
 
