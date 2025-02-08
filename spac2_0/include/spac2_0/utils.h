@@ -20,6 +20,6 @@
 #define DEFAULT_K_DIST 1.0
 #define MAX_SPEED 10.0
 
-#define SIZE_AVG_ARRAY 3
+#define SIZE_AVG_ARRAY 1
 
 #endif // UTILS_H_

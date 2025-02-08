@@ -83,7 +83,6 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 
 float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path){
     if(index > -1){
-        //TODO: CHECK IF IT SHOULD BE INDEX + K_DIST OR THE INDEX * K_DIST
         float curvature = path.curvature[index + this->k_dist];
         float p_curv = min(1.0f, curvature * this->k_curv);
         float desired_speed = MAX_SPEED * (1 - p_curv); 
