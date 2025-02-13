@@ -16,10 +16,10 @@
 #define DEFAULT_KD_SPEED 0.0
 #define DEFAULT_KDD 2.0
 
-#define DEFAULT_K_CURV 1.0
-#define DEFAULT_K_DIST 1.0
+#define DEFAULT_K_CURV 1.5
+#define DEFAULT_K_DIST 10.0
 #define MAX_SPEED 10.0
 
-#define SIZE_AVG_ARRAY 1
+#define SIZE_AVG_ARRAY 3
 
 #endif // UTILS_H_
