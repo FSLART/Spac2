@@ -35,10 +35,35 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     vector<array<float, 2>> path_points;
     path_points.push_back(position);
 
+    // Define the transformation
+    tf2::Transform transform;
+    transform.setOrigin(tf2::Vector3(this->distance_imu_to_rear_axle, 0.0, 0.0));
+    transform.setRotation(tf2::Quaternion(0, 0, 0, 1));
+
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
-        //CREATE AN ARRAY WITH X AND Y POSITION OF THE PATH, SHIFTING THE X VALUE TO THE REAR OF THE CAR
-        array<float, 2> point = {(float) (path.poses[i].pose.position.x + this->distance_imu_to_rear_axle), (float) path.poses[i].pose.position.y};
+        // Create an array with X and Y position of the path, shifting the X value to the rear of the car
+        geometry_msgs::msg::PoseStamped input_pose = path.poses[i];
+        tf2::Transform input_transform;
+        tf2::fromMsg(input_pose.pose, input_transform);
+
+        // Apply the transformation
+        tf2::Transform transformed_transform = transform * input_transform;
+        geometry_msgs::msg::Pose transformed_pose;
+        transformed_pose.position.x = transformed_transform.getOrigin().x();
+        transformed_pose.position.y = transformed_transform.getOrigin().y();
+        transformed_pose.position.z = transformed_transform.getOrigin().z();
+        transformed_pose.orientation.x = transformed_transform.getRotation().x();
+        transformed_pose.orientation.y = transformed_transform.getRotation().y();
+        transformed_pose.orientation.z = transformed_transform.getRotation().z();
+        transformed_pose.orientation.w = transformed_transform.getRotation().w();
+
+        // Extract the transformed X and Y positions
+        std::array<float, 2> point = {
+            static_cast<float>(transformed_pose.position.x),
+            static_cast<float>(transformed_pose.position.y)
+        };
+
         path_points.push_back(point);
     }
     //RCLCPP_INFO(rclcpp::get_logger("pure"), "k_dd=%f", k_dd);
@@ -85,7 +110,7 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path){
     if(index > -1){
         float curvature = path.curvature[index + this->k_dist];
         float p_curv = min(1.0f, curvature * this->k_curv);
-        float desired_speed = MAX_SPEED * (1 - p_curv); 
+        float desired_speed = MAX_SPEED * (1 - p_curv);
         return desired_speed;
     }
     return 0;
