@@ -221,64 +221,13 @@ TEST (tst_target, get_angle_example_path){
         path.poses.push_back(pose_stamped);
     }
 
-    Target target(417, 0.1, 0.1, 0.1, 0, 0, 5.2, 1.15);
+    Target target(417, 0.1, 0.1, 0.1, 1.5, 10.0, 5.2, 1.15);
     float steering_angle = target.get_steering_angle(path, current_rpm);
+    float speed = target.get_desired_rpm(path);
+    std::cerr << "[          ] speed = " << speed << std::endl;
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int) TWOCUTFLOATING(steering_angle), (int) TWOCUTFLOATING(expected_steering_angle), 1);
  }
-
-// TEST (tst_target, get_angle_right_3_points){
-//     lart_msgs::msg::PathSpline path;
-//     //current_rpm influences the lookahed distance that influences the steering angle
-//     int current_rpm = 400;      //current speed: 2.67 m/s (9,61 km/h)
-//     float expected_steering_angle = -38.57446428;
-//     geometry_msgs::msg::Point pointM;
-//     geometry_msgs::msg::Point pointN;
-//     geometry_msgs::msg::Point pointO;
-
-//     geometry_msgs::msg::Quaternion quaternion;
-//     pointM.x = 0.4;
-//     pointM.y = -0.45;
-//     pointM.z = 0.0; //irrelevant
-
-//     pointN.x = 0.7;
-//     pointN.y = -1.0;
-//     pointN.z = 0.0; //irrelevant
-
-//     pointO.x = 1;
-//     pointO.y = -2;
-//     pointO.z = 0.0; //irrelevant
-
-//     quaternion.x = 0.0;
-//     quaternion.y = 0.0;
-//     quaternion.z = 0.0;
-//     quaternion.w = 1.0;
-//     geometry_msgs::msg::Pose poseM;
-//     poseM.position = pointM;
-//     poseM.orientation = quaternion;
-//     geometry_msgs::msg::PoseStamped pose_stampedM;
-//     pose_stampedM.pose = poseM;
-//     path.poses.push_back(pose_stampedM);
-
-//     geometry_msgs::msg::Pose poseN;
-//     poseN.position = pointN;
-//     poseN.orientation = quaternion; //quaternion is irrelevant so it is the same var as the previous one
-//     geometry_msgs::msg::PoseStamped pose_stampedN;
-//     pose_stampedN.pose = poseN;
-//     path.poses.push_back(pose_stampedN);
-
-//     geometry_msgs::msg::Pose poseO;
-//     poseO.position = pointO;
-//     poseO.orientation = quaternion;
-//     geometry_msgs::msg::PoseStamped pose_stampedO;
-//     pose_stampedO.pose = poseO;
-//     path.poses.push_back(pose_stampedO);
-
-//     Target target(417, 0.1, 0.1, 0.1, 2.0);
-//     float steering_angle = target.get_steering_angle(path, current_rpm);
-//     //std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
-//     ASSERT_NEAR((int)steering_angle, (int) expected_steering_angle, 1);
-// }
 
 TEST (tst_target, get_angle_three_cycles){
     lart_msgs::msg::PathSpline path;
@@ -327,8 +276,10 @@ TEST (tst_target, get_angle_three_cycles){
         // Add the PoseStamped to the pathspline
         path.poses.push_back(pose_stamped);
     }
-    Target target(417, 0.1, 0.1, 0.1, 0, 0, 5.2, 1.15);
+    Target target(417, 0.1, 0.1, 0.1, 1.5, 1.0, 5.2, 1.15);
     float steering_angle = target.get_steering_angle(path, current_rpm);
+    float speed = target.get_desired_rpm(path);
+    std::cerr << "[          ] speed = " << speed << std::endl;
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
 
     std::vector<std::vector<float>> data2 = {
@@ -370,6 +321,8 @@ TEST (tst_target, get_angle_three_cycles){
     }
 
     steering_angle = target.get_steering_angle(path2, current_rpm);
+    speed = target.get_desired_rpm(path2);
+    std::cerr << "[          ] speed = " << speed << std::endl;
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
 
     std::vector<std::vector<float>> data3 = {
@@ -411,6 +364,8 @@ TEST (tst_target, get_angle_three_cycles){
     }
 
     steering_angle = target.get_steering_angle(path3, current_rpm);
+    speed = target.get_desired_rpm(path3);
+    std::cerr << "[          ] speed = " << speed << std::endl;
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
 
     ASSERT_NEAR((int) TWOCUTFLOATING(steering_angle), (int) TWOCUTFLOATING(expected_steering_angle), 1);
