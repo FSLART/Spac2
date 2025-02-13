@@ -2,25 +2,41 @@
 #ifndef FMATH_H_
 #define FMATH_H_
 
-#include "nav_msgs/msg/path.hpp"
+#include "lart_msgs/msg/path_spline.hpp"
 #include <optional>
+#include "lart_common.h"
 #include <cmath>
 #include <rclcpp/logging.hpp>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
+#include "utils.h"
+#include <tf2/LinearMath/Transform.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 using namespace std;
 
-class Pure_Pursuit{
+class CommonBase {
+public:
+    static int index;
+};
+
+class Pure_Pursuit : public CommonBase{
     public:
-        Pure_Pursuit(float k_dd);
+        Pure_Pursuit(float k_dd, float k_curv, float k_dist, float distance_imu_to_rear_axle);
         Pure_Pursuit();
         float get_k_dd();
-        float calculate_steering_angle(nav_msgs::msg::Path path, float speed);
+        float calculate_steering_angle(lart_msgs::msg::PathSpline path, float speed);
+        float calculate_desiredSpeed(lart_msgs::msg::PathSpline path);
+        void keepAvgAngle(float steering_angle);
+        float getAvgAngle();
     protected:
         float k_dd;
-
-};
+        float k_curv, k_dist;
+        float distance_imu_to_rear_axle;
+        float avg_angle[SIZE_AVG_ARRAY] = {0};
+        int cycles = 0;
+};;
 
 class PID_Controller{
     public:
@@ -37,10 +53,7 @@ class PID_Controller{
         float output_past, error, error_prev, error_sum;
 };
 
-optional<array<float, 2>> get_closest_point(std::vector<std::array<float,2>> path_points, float look_ahead_distance);
-optional<vector<array<float, 2>>> get_intersection(std::array<float, 2> point1, std::array<float, 2> point2, float radius);
-
-int mps_to_rpm(float speed_m_s);
-float rpm_to_mps(int speed_rpm);
+optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance,float distance_imu_to_rear_axle);
+int fastRound(float x);
 
 #endif

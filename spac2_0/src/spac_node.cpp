@@ -20,53 +20,71 @@ SpacNode::SpacNode() : Node("spac_node")
     this->get_parameter(PARAMS_KD_SPEED, kd_speed);
     this->declare_parameter(PARAMS_KDD, DEFAULT_KDD);
     this->get_parameter(PARAMS_KDD, k_dd_pp);
+    this->declare_parameter(PARAMS_K_CURV, DEFAULT_K_CURV);
+    this->get_parameter(PARAMS_K_CURV, k_curv);
+    this->declare_parameter(PARAMS_K_DIST, DEFAULT_K_DIST);
+    this->get_parameter(PARAMS_K_DIST, k_dist);
     //topics
-    this->declare_parameter(PARAMS_TOPIC_PATH, "/");
+    this->declare_parameter(PARAMS_TOPIC_PATH, "/path");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
-	this->declare_parameter(PARAMS_TOPIC_ACKERMANN, "/");
-	this->get_parameter(PARAMS_TOPIC_ACKERMANN, ackermann_topic);
-    this->declare_parameter(PARAMS_TOPIC_WHEELS, "/");
+	this->declare_parameter(PARAMS_TOPIC_DYNAMICS_CMD, "/cmd");
+	this->get_parameter(PARAMS_TOPIC_DYNAMICS_CMD, dynamics_cmd_topic);
+    
 	this->get_parameter(PARAMS_TOPIC_WHEELS, wheels_topic);
-
+    this->declare_parameter(PARAMS_TOPIC_WHEELS, "/");
     //convert speed from km/h to m/s
     float speed_mps = desired_speed / 3.6;
     
     //calculate the desired rpm
-    desired_rpm = mps_to_rpm(speed_mps);
-    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_dd_pp);
+    desired_rpm = MS_TO_RPM(speed_mps);
+    //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
+    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
 
     //create publisher for ackermann drive
-	ackermann_publisher = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(ackermann_topic, 10);
+	dynamics_publisher = this->create_publisher<lart_msgs::msg::DynamicsCMD>(dynamics_cmd_topic, 10);
 
     //receives the current path and calls the path_callback function
-    subscription_path = this->create_subscription<nav_msgs::msg::Path>(
+    subscription_path = this->create_subscription<lart_msgs::msg::PathSpline>(
         path_topic, 10, std::bind(&SpacNode::path_callback, this, _1));
 
-    subscription_wheels = this->create_subscription<eufs_msgs::msg::WheelSpeedsStamped>(
-        wheels_topic, 10, std::bind(&SpacNode::wheels_callback, this, _1));
+    subscription_rpm = this->create_subscription<lart_msgs::msg::Dynamics>(
+        rpm_topic, 10, std::bind(&SpacNode::rpm_callback, this, _1));
+
+    //TODO: AXANATO PARA AGORA MAS PRECISA DE SER ALTERADO / NO ENTANTO ESTA VALIDAÇÃO É NECESSÁRIA
+    subscription_ready = this->create_subscription<std_msgs::msg::Bool>(
+        "acu_origin/res_ready", 10, [this](const std_msgs::msg::Bool::SharedPtr msg) {
+            if (msg->data)
+            {
+                RCLCPP_INFO(this->get_logger(), "Received ready signal");
+                this->target->set_ready();
+            }
+        });
+
+    //TODO APAGAR
+    //this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
     //creates a timer that calls the instance_CarrotControl function
-	RCLCPP_INFO(this->get_logger(), "Started carrot waypoint targeting routine on { %s }", __PRETTY_FUNCTION__ );
+	//RCLCPP_INFO(this->get_logger(), "Started carrot waypoint targeting routine on { %s }", __PRETTY_FUNCTION__ );
 	this->timer = this->create_wall_timer(interval, std::bind(&Target::instance_CarrotControl, this->target));
 
-    //creates a timer that calls the dispatchAckermannDrive function
-    RCLCPP_INFO(this->get_logger(), "Started ackermann drive dispatch routine on { %s }", __PRETTY_FUNCTION__ );
-	this->timer_publisher= this->create_wall_timer(interval, [this]()-> void {this->dispatchAckermannDrive();});
+    //creates a timer that calls the dispatchDynamicsCMD function
+    //RCLCPP_INFO(this->get_logger(), "Started dynamics command dispatch routine on { %s }", __PRETTY_FUNCTION__ );
+	this->timer_publisher= this->create_wall_timer(interval, [this]()-> void {this->dispatchDynamicsCMD();});
 
 }
 
-void SpacNode::dispatchAckermannDrive(){
+void SpacNode::dispatchDynamicsCMD(){
 	if(this->target->get_isDispatcherDirty()){
-		//RCLCPP_INFO(this->get_logger(), "Dispatching ackermann drive on { %s }", __PRETTY_FUNCTION__); 
-		this->ackermann_publisher->publish(this->target->get_dirtyDispatcherMail());
+		RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__); 
+		this->dynamics_publisher->publish(this->target->get_dirtyDispatcherMail());
 		this->target->set_throwDirtDispatcher(); 
 
 	}
 }
 
-void SpacNode::path_callback(const nav_msgs::msg::Path::SharedPtr msg)
+void SpacNode::path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
 {
     RCLCPP_INFO(this->get_logger(), "NEW MESSAGE");
     for(long unsigned int i=0; i < msg->poses.size(); i++){

@@ -1,10 +1,9 @@
 #include "spac2_0/target.h"
 
-Target::Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed, float kdd){
-    this->pure_pursuit = Pure_Pursuit(kdd);
+Target::Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
+    this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
     //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
-    //TODO: THERE IS THE NEED TO SET THE PARAMETERS FOR THE PID CONTROLLER: IT COMES FROM THE PARAMETERS -> TO IMPLEMENT
     this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
     this->desired_rpm = desired_rpm;
 }
@@ -16,30 +15,31 @@ Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
 
 void Target::instance_CarrotControl(){
     try{
+        if(get_ready() == false){
+            throw std::runtime_error("Not ready yet");
+        }
         //print the value of the k_dd of target->pure_pursuit
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "k_dd=%f", this->pure_pursuit.get_k_dd());
+        ////RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "k_dd=%f", this->pure_pursuit.get_k_dd());
         //current speed is being obtained from the rpm
         //and it is used to calculate how far is the look ahead point
         auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
-        steering_angle = std::clamp(steering_angle, (float)-MAX_STEERING,(float) MAX_STEERING);
+        steering_angle = std::clamp((float)(steering_angle), (float)-SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD),(float) SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD));
 
-        auto rpm = this->get_PID_rpm(desired_rpm, current_rpm);
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "desired speed (m/s)=%f", rpm_to_mps(desired_rpm));
+        float desired_rpm = this->get_desired_rpm(this->path);
+
+        auto rpm = this->get_PID_rpm(desired_rpm, this->current_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
         //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
-
-        //TODO: SETTING ROS MESSAGE WITH RPM AND STEERING ANGLE
-        //for now rpms obtained from the PID are being converted to m/s to send with the ackermann message
-        auto speed = rpm_to_mps(rpm);
-
-        dispatcherMailBox = ackermann_msgs::msg::AckermannDrive();
-        dispatcherMailBox.speed = speed;
+        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "DESIRED_rpm=%d", desired_rpm);
+        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "pid_rpm=%f", rpm);
+        //create dispatcher with rpm and steering
+        dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
+        dispatcherMailBox.rpm = rpm;
         dispatcherMailBox.steering_angle = steering_angle;
 
-        //for now lets keep it simple, this makes it as fast as possible
-        dispatcherMailBox.steering_angle_velocity = 0.0f;
+        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
 
         isDispatcherDirty = true;
     }catch(...){
@@ -49,10 +49,8 @@ void Target::instance_CarrotControl(){
     }
 }
 
-ackermann_msgs::msg::AckermannDriveStamped Target::get_dirtyDispatcherMail(){
-    //TODO: this is just for now
-    dispatcherMailBoxStamped.drive = dispatcherMailBox;
-    //This may look "optimizable" but the reason its like this is to keep a error by default approach 
+lart_msgs::msg::DynamicsCMD Target::get_dirtyDispatcherMail(){
+	//This may look "optimizable" but the reason its like this is to keep a error by default approach 
 	if(isDispatcherDirty){
 
         RCLCPP_WARN(rclcpp::get_logger("get_dirtyDispatcherMail"), " " );
@@ -64,6 +62,14 @@ ackermann_msgs::msg::AckermannDriveStamped Target::get_dirtyDispatcherMail(){
 	RCLCPP_WARN(rclcpp::get_logger("get_dirtyDispatcherMail"), "Dispatcher is trying to read clean data, this means that the dispatcher is trying to read data that has not been updated yet");
     return dispatcherMailBoxStamped;
 } 
+
+void Target::set_ready(){
+    ready = true;
+}
+
+bool Target::get_ready(){
+    return ready;
+}
 
 bool Target::get_isDispatcherDirty(){
 	return isDispatcherDirty;
@@ -78,11 +84,11 @@ int Target::set_throwDirtDispatcher(){
 	return 0;
 }
 
-void Target::set_path(nav_msgs::msg::Path path){
+void Target::set_path(lart_msgs::msg::PathSpline path){
     this->path = path;
 }
 
-nav_msgs::msg::Path Target::get_path(){
+lart_msgs::msg::PathSpline Target::get_path(){
     return this->path;
 }
 
@@ -95,8 +101,8 @@ int Target::get_rpm(){
 }
 
 
-float Target::get_steering_angle(nav_msgs::msg::Path path, int rpm){
-    auto speed = rpm_to_mps(rpm);
+float Target::get_steering_angle(lart_msgs::msg::PathSpline path, int rpm){
+    auto speed = RPM_TO_MS(rpm);
     float steering_angle = this->pure_pursuit.calculate_steering_angle(path, speed);
     return steering_angle;
 }
@@ -104,6 +110,12 @@ float Target::get_steering_angle(nav_msgs::msg::Path path, int rpm){
 float Target::get_PID_rpm(float desired, float current){
     float rpm = this->pid.compute(desired, current);
     return rpm;
+}
+
+float Target::get_desired_rpm(lart_msgs::msg::PathSpline path){
+    float speed = this->pure_pursuit.calculate_desiredSpeed(path);
+    float desired_rpm = MS_TO_RPM(speed);
+    return desired_rpm;
 }
 
 
