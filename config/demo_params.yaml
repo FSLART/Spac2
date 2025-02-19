@@ -3,16 +3,18 @@
     frequency: 10
     path_topic: "/planned_path_topic"
     dynamics_cmd_topic: "pc_origin/dynamics"
+    ackermann_topic: "/cmd"
     wheels_topic: "/ground_truth/wheel_speeds"
     rpm_topic: "/acu_origin/dynamics"
+    target_marker_topic: "/target_marker_topic"
     distance_imu_to_rear_axle: 1.15
     desired_speed: 2.0
-    kp_speed: 0.1
-    ki_speed: 0.0075
+    kp_speed: 0.3
+    ki_speed: 0.01
     kd_speed: 0.00
-    k_curv: 1.5
+    k_curv: 6.0
     k_dist: 10.0
-    k_dd: 5.2
+    k_dd: 7.0
     qos_overrides:
       /parameter_events:
         publisher:

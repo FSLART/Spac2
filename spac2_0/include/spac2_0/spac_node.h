@@ -12,10 +12,11 @@
 #include "target.h"
 #include "std_msgs/msg/float32.hpp"
 #include "eufs_msgs/msg/wheel_speeds_stamped.hpp"
-#include "lart_msgs/msg/dynamics_cmd.hpp"
-#include "lart_msgs/msg/dynamics.hpp"
+#include "ackermann_msgs/msg/ackermann_drive.hpp"
+#include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
 #include "lart_common.h"
 #include "lart_msgs/msg/path_spline.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 
 #define PARAMS_DISTANCE_IMU_TO_REAR_AXLE "distance_imu_to_rear_axle"
 #define PARAMS_FREQUENCY "frequency"
@@ -28,7 +29,8 @@
 #define PARAMS_K_DIST "k_dist"
 #define PARAMS_TOPIC_PATH "path_topic"
 #define PARAMS_TOPIC_WHEELS "wheels_topic"
-#define PARAMS_TOPIC_DYNAMICS_CMD "dynamics_cmd_topic"
+#define PARAMS_TOPIC_ACKERMANN "ackermann_topic"
+#define PARAMS_TARGET_MARKER "target_marker_topic"
 
 class SpacNode : public rclcpp::Node
 {
@@ -37,16 +39,16 @@ public:
     SpacNode();
 
 private:
-    
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_publisher;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
     rclcpp::Subscription<lart_msgs::msg::PathSpline>::SharedPtr subscription_path;
-    rclcpp::Publisher<lart_msgs::msg::DynamicsCMD>::SharedPtr dynamics_publisher;
+    rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr ackermann_publisher;
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_ready;
     rclcpp::Subscription<eufs_msgs::msg::WheelSpeedsStamped>::SharedPtr subscription_wheels;
 
 protected:
 
-    void dispatchDynamicsCMD();
+    void dispatchAckermannDrive();
     void timer_callback();
     void wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedPtr msg);
     void path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
@@ -66,7 +68,8 @@ protected:
     rclcpp::TimerBase::SharedPtr timer_publisher;
     std::string path_topic;
     std::string wheels_topic;
-    std::string dynamics_cmd_topic;
+    std::string ackermann_topic;
+    std::string target_marker_topic;
 };
 
 #endif
