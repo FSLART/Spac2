@@ -6,11 +6,11 @@
     rpm_topic: "/acu_origin/dynamics"
     distance_imu_to_rear_axle: 1.15
     desired_speed: 2.0
-    kp_speed: 0.3
-    ki_speed: 0.01
+    kp_speed: 0.176
+    ki_speed: 0.05
     kd_speed: 0.00
-    k_curv: 4.0
-    k_dist: 10.0
+    k_curv: 0.5
+    k_dist: 8.0
     k_dd: 7.0
     qos_overrides:
       /parameter_events:
