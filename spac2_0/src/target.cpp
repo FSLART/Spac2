@@ -31,9 +31,9 @@ void Target::instance_CarrotControl(){
         //clamp speed to -MAX_SPEED and MAX_SPEED
         //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
-        
+
         //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "DESIRED_rpm=%d", desired_rpm);
-        RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "pid_rpm=%f", rpm);
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "pid_rpm=%f", rpm);
 
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
