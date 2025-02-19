@@ -69,10 +69,13 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     //RCLCPP_INFO(rclcpp::get_logger("pure"), "k_dd=%f", k_dd);
     // Calculate look ahead point based on the speed with a min and max distances
     //TODO REVERTER
-    //float look_ahead_distance = clamp(speed * k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
-    float look_ahead_distance = clamp(k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+
+    float look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+    
+    //float look_ahead_distance = clamp(k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+    
     // Find the closest point to the look ahead distance intersecting the path with a circle
-    optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance, this->distance_imu_to_rear_axle);
+    optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance);
     // if there is no intersection with the path, keep the car straight (?) TODO: check if this is the best approach
     if (!closest_point.has_value())
     {
@@ -110,7 +113,7 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path){
     if(index > -1){
         float curvature = path.curvature[index + this->k_dist];
         float p_curv = min(1.0f, curvature * this->k_curv);
-        float desired_speed = MAX_SPEED * (1 - p_curv);
+        float desired_speed = TERMINAL_RPM * (1 - p_curv);
         return desired_speed;
     }
     return 0;
@@ -204,11 +207,11 @@ float PID_Controller::get_Derivative()
     return kd;
 }
 
-optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance, float distance_imu_to_rear_axle)
+optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance)
 {
     if(path_points.size() > MIN_INDEX)
     {
-        CommonBase::index = fastRound((look_ahead_distance + distance_imu_to_rear_axle)/AVG_DISTANCE) - 1;
+        CommonBase::index = fastRound((look_ahead_distance)/AVG_DISTANCE) - 1;
         return path_points[CommonBase::index];
     }
     CommonBase::index = -1;
@@ -217,4 +220,9 @@ optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points,
 
 int fastRound(float x) {
     return static_cast<int>(x + 0.5f);
+}
+
+float speed_to_lookahead(float speed){
+    float look_ahead_distance = 4.732881f * pow(1.000575, speed);
+    return look_ahead_distance;
 }

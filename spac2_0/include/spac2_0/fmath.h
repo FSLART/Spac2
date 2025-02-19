@@ -36,7 +36,7 @@ class Pure_Pursuit : public CommonBase{
         float distance_imu_to_rear_axle;
         float avg_angle[SIZE_AVG_ARRAY] = {0};
         int cycles = 0;
-};;
+};
 
 class PID_Controller{
     public:
@@ -53,7 +53,8 @@ class PID_Controller{
         float output_past, error, error_prev, error_sum;
 };
 
-optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance,float distance_imu_to_rear_axle);
+optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance);
 int fastRound(float x);
+float speed_to_lookahead(float speed);
 
 #endif

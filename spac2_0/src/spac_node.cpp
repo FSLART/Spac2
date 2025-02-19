@@ -33,12 +33,12 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
     
     //convert speed from km/h to m/s
-    float speed_mps = desired_speed / 3.6;
+    //float speed_mps = desired_speed / 3.6;
     
     //calculate the desired rpm
-    desired_rpm = MS_TO_RPM(speed_mps);
+    //desired_rpm = MS_TO_RPM(speed_mps);
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
+    target = new Target(kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
 
     //create publisher for ackermann drive
 	dynamics_publisher = this->create_publisher<lart_msgs::msg::DynamicsCMD>(dynamics_cmd_topic, 10);
@@ -60,8 +60,8 @@ SpacNode::SpacNode() : Node("spac_node")
             }
         });
 
-    //TODO APAGAR
-    //this->target->set_ready();
+    //TODO APENAS USAR NOS TESTES
+    this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 

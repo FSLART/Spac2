@@ -1,11 +1,10 @@
 #include "spac2_0/target.h"
 
-Target::Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
+Target::Target(float kp_speed, float ki_speed, float kd_speed, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
     this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
-    //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
     this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
-    this->desired_rpm = desired_rpm;
+    //this->desired_rpm = desired_rpm;
 }
 
 Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
@@ -24,7 +23,7 @@ void Target::instance_CarrotControl(){
         //and it is used to calculate how far is the look ahead point
         auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
-        steering_angle = std::clamp((float)(steering_angle), (float)-SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD),(float) SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD));
+        steering_angle = std::clamp((float)(steering_angle), (float)-MAX_WHEEL_ANGLE_RAD,(float) MAX_WHEEL_ANGLE_RAD);
 
         float desired_rpm = this->get_desired_rpm(this->path);
 
@@ -99,8 +98,7 @@ int Target::get_rpm(){
 
 
 float Target::get_steering_angle(lart_msgs::msg::PathSpline path, int rpm){
-    auto speed = RPM_TO_MS(rpm);
-    float steering_angle = this->pure_pursuit.calculate_steering_angle(path, speed);
+    float steering_angle = this->pure_pursuit.calculate_steering_angle(path, rpm);
     return steering_angle;
 }
 
@@ -110,8 +108,7 @@ float Target::get_PID_rpm(float desired, float current){
 }
 
 float Target::get_desired_rpm(lart_msgs::msg::PathSpline path){
-    float speed = this->pure_pursuit.calculate_desiredSpeed(path);
-    float desired_rpm = MS_TO_RPM(speed);
+    float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path);
     return desired_rpm;
 }
 
