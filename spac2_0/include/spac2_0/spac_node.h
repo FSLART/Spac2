@@ -55,7 +55,7 @@ protected:
 
     float distance_imu_to_rear_axle;
     int frequency=0;
-    float desired_speed;
+    //float desired_speed;
     float kp_speed;
     float ki_speed;
     float kd_speed;

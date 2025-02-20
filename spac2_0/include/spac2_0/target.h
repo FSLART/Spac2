@@ -15,7 +15,7 @@
 
 class Target{
     public:
-        Target(float desired_rpm, float kp_speed, float ki_speed, float kd_speed,float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle);
+        Target(float kp_speed, float ki_speed, float kd_speed,float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle);
         Target(Pure_Pursuit pure_pursuit, PID_Controller pid);
         float get_steering_angle(lart_msgs::msg::PathSpline path, int rpm);
         float get_desired_rpm(lart_msgs::msg::PathSpline path);
@@ -42,7 +42,7 @@ class Target{
         float current_rpm=0;
         ackermann_msgs::msg::AckermannDrive dispatcherMailBox;
         ackermann_msgs::msg::AckermannDriveStamped dispatcherMailBoxStamped;
-        float desired_rpm;
+        //float desired_rpm;
         float k_curv;
         float k_dist; 
         bool ready=false;
