@@ -109,11 +109,11 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     return getAvgAngle();
 }
 
-float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path){
+float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm){
     if(index > -1){
         float curvature = path.curvature[index + this->k_dist];
         float p_curv = min(1.0f, curvature * this->k_curv);
-        float desired_speed = TERMINAL_RPM * (1 - p_curv);
+        float desired_speed = max_rpm * (1 - p_curv);
 
         RCLCPP_INFO(rclcpp::get_logger("pure"), "Percentagem de velocidade=%f %%", (1 - p_curv) * 100);
         

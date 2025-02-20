@@ -13,10 +13,10 @@
 
 class Target{
     public:
-        Target(float kp_speed, float ki_speed, float kd_speed,float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle);
+        Target(float max_rpm, float kp_speed, float ki_speed, float kd_speed,float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle);
         Target(Pure_Pursuit pure_pursuit, PID_Controller pid);
         float get_steering_angle(lart_msgs::msg::PathSpline path, int rpm);
-        float get_desired_rpm(lart_msgs::msg::PathSpline path);
+        float get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm);
         float get_PID_rpm(float setpoint, float input);
         void instance_CarrotControl();
         lart_msgs::msg::DynamicsCMD get_dirtyDispatcherMail();
@@ -36,7 +36,7 @@ class Target{
         lart_msgs::msg::PathSpline path;
         float current_rpm=0;
 		lart_msgs::msg::DynamicsCMD dispatcherMailBox;
-        //float desired_rpm;
+        float max_rpm;
         float k_curv;
         float k_dist; 
         bool ready=false;

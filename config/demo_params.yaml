@@ -5,7 +5,7 @@
     dynamics_cmd_topic: "pc_origin/dynamics"
     rpm_topic: "/acu_origin/dynamics"
     distance_imu_to_rear_axle: 1.15
-    desired_speed: 5.0
+    max_speed: 5.0
     kp_speed: 0.176
     ki_speed: 0.05
     kd_speed: 0.00

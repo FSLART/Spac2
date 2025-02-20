@@ -18,7 +18,7 @@
 
 #define PARAMS_DISTANCE_IMU_TO_REAR_AXLE "distance_imu_to_rear_axle"
 #define PARAMS_FREQUENCY "frequency"
-#define PARAMS_DESIDERED_SPEED "desired_speed"
+#define PARAMS_MAX_SPEED "max_speed"
 #define PARAMS_KP_SPEED "kp_speed"
 #define PARAMS_KI_SPEED "ki_speed"
 #define PARAMS_KD_SPEED "kd_speed"
@@ -52,14 +52,14 @@ protected:
 
     float distance_imu_to_rear_axle;
     int frequency=0;
-    //float desired_speed;
+    float max_speed;
     float kp_speed;
     float ki_speed;
     float kd_speed;
     float k_dd_pp;
     float k_curv;
     float k_dist;
-    float desired_rpm;
+    float max_rpm;
     Target *target;
     rclcpp::TimerBase::SharedPtr timer;
     rclcpp::TimerBase::SharedPtr timer_publisher;
