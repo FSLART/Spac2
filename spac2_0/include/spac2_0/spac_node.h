@@ -62,7 +62,7 @@ protected:
     float k_dd_pp;
     float k_curv;
     float k_dist;
-    int desired_rpm;
+    float desired_rpm;
     Target *target;
     rclcpp::TimerBase::SharedPtr timer;
     rclcpp::TimerBase::SharedPtr timer_publisher;

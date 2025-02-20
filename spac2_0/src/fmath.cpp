@@ -4,6 +4,7 @@
 using namespace std;
 
 int CommonBase::index = 0;
+float CommonBase::prev_rpm_pid = 0;
 
 Pure_Pursuit::Pure_Pursuit(float k_dd, float k_curv, float k_dist,float distance_to_rear_axle)
 {
@@ -213,6 +214,9 @@ float PID_Controller::compute(float setpoint, float input)
     }
     //RCLCPP_INFO(rclcpp::get_logger("pid"), "output=%f", output);
 
+    // if(CommonBase::prev_rpm_pid > output){
+    //     return CommonBase::prev_rpm_pid;
+    // }
     return output;
 }
 

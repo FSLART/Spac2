@@ -19,6 +19,7 @@ using namespace std;
 class CommonBase {
 public:
     static int index;
+    static float prev_rpm_pid;
 };
 
 class Pure_Pursuit : public CommonBase{
