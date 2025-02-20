@@ -9,7 +9,7 @@
     kp_speed: 0.176
     ki_speed: 0.05
     kd_speed: 0.00
-    k_curv: 0.5
+    k_curv: 0.0
     k_dist: 8.0
     k_dd: 7.0
     qos_overrides:

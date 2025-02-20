@@ -1,10 +1,10 @@
 #include "spac2_0/target.h"
 
-Target::Target(float desired_rpm, float kp_speed, float ki_speed, float kd_speed, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
+Target::Target(float kp_speed, float ki_speed, float kd_speed, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
     this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
     this->pid = PID_Controller(0, TERMINAL_RPM);
     this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
-    this->desired_rpm = desired_rpm;
+    //this->desired_rpm = desired_rpm;
 }
 
 Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
@@ -26,7 +26,7 @@ void Target::instance_CarrotControl(){
         steering_angle = std::clamp((float)(steering_angle), (float)-MAX_WHEEL_ANGLE_RAD,(float) MAX_WHEEL_ANGLE_RAD);
 
         //TODO: REVERTER QUANDO ACABAREM OS TESTES
-        //float desired_rpm = this->get_desired_rpm(this->path);
+        float desired_rpm = this->get_desired_rpm(this->path);
 
         auto rpm = this->get_PID_rpm(desired_rpm, this->current_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
