@@ -52,7 +52,7 @@ TEST (tst_target, get_straight_angle){
         path.poses.push_back(pose_stamped);
     }
 
-    Target target(0.1, 0.1, 0.1, 0, 0, 5.2, 1.15);
+    Target target(0.0, 0.1, 0.1, 0.1, 0, 0, 5.2, 1.15);
     float steering_angle = target.get_steering_angle(path, current_rpm);
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)TWOCUTFLOATING(steering_angle), (int) TWOCUTFLOATING(expected_steering_angle),1);
@@ -92,7 +92,7 @@ TEST (tst_target, not_enough_points){
         path.poses.push_back(pose_stamped);
     }
 
-    Target target(0.1, 0.1, 0.1, 0, 0, 5.2, 1.15);
+    Target target(0.0, 0.1, 0.1, 0.1, 0, 0, 5.2, 1.15);
     float steering_angle = target.get_steering_angle(path, current_rpm);
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int)TWOCUTFLOATING(steering_angle), (int) TWOCUTFLOATING(expected_steering_angle),1);
@@ -221,10 +221,8 @@ TEST (tst_target, get_angle_example_path){
         path.poses.push_back(pose_stamped);
     }
 
-    Target target(0.1, 0.1, 0.1, 1.5, 10.0, 5.2, 1.15);
+    Target target(0.0, 0.1, 0.1, 0.1, 1.5, 10.0, 5.2, 1.15);
     float steering_angle = target.get_steering_angle(path, current_rpm);
-    float speed = target.get_desired_rpm(path);
-    std::cerr << "[          ] speed = " << speed << std::endl;
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
     ASSERT_NEAR((int) TWOCUTFLOATING(steering_angle), (int) TWOCUTFLOATING(expected_steering_angle), 1);
  }
@@ -276,10 +274,8 @@ TEST (tst_target, get_angle_three_cycles){
         // Add the PoseStamped to the pathspline
         path.poses.push_back(pose_stamped);
     }
-    Target target(0.1, 0.1, 0.1, 1.5, 1.0, 5.2, 1.15);
+    Target target(0.0, 0.1, 0.1, 0.1, 1.5, 1.0, 5.2, 1.15);
     float steering_angle = target.get_steering_angle(path, current_rpm);
-    float speed = target.get_desired_rpm(path);
-    std::cerr << "[          ] speed = " << speed << std::endl;
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
 
     std::vector<std::vector<float>> data2 = {
@@ -321,8 +317,6 @@ TEST (tst_target, get_angle_three_cycles){
     }
 
     steering_angle = target.get_steering_angle(path2, current_rpm);
-    speed = target.get_desired_rpm(path2);
-    std::cerr << "[          ] speed = " << speed << std::endl;
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
 
     std::vector<std::vector<float>> data3 = {
@@ -364,8 +358,6 @@ TEST (tst_target, get_angle_three_cycles){
     }
 
     steering_angle = target.get_steering_angle(path3, current_rpm);
-    speed = target.get_desired_rpm(path3);
-    std::cerr << "[          ] speed = " << speed << std::endl;
     std::cerr << "[          ] steering angle = " << steering_angle << std::endl;
 
     ASSERT_NEAR((int) TWOCUTFLOATING(steering_angle), (int) TWOCUTFLOATING(expected_steering_angle), 1);

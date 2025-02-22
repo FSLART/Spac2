@@ -1,11 +1,11 @@
 #include "spac2_0/target.h"
 
-Target::Target(float kp_speed, float ki_speed, float kd_speed, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
+Target::Target(float max_rpm, float kp_speed, float ki_speed, float kd_speed, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
     this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
     //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
     this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
-    //this->desired_rpm = desired_rpm;
+    this->max_rpm = max_rpm;
 }
 
 Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
@@ -32,7 +32,7 @@ void Target::instance_CarrotControl(){
         this->set_target_marker(target_point);
 
         //NOTE: COMENTED OUT BECAUSE IT IS NOT BEING USED IN THE TESTS
-        float desired_rpm = this->get_desired_rpm(this->path);
+        float desired_rpm = this->get_desired_rpm(this->path, this->max_rpm);
 
         auto rpm = this->get_PID_rpm(desired_rpm, this->current_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
@@ -158,8 +158,8 @@ float Target::get_PID_rpm(float desired, float current){
     return rpm;
 }
 
-float Target::get_desired_rpm(lart_msgs::msg::PathSpline path){
-    float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path);
+float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
+    float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path, max_rpm);
     //float desired_rpm = MS_TO_RPM(speed);
     RCLCPP_INFO(rclcpp::get_logger("get_desired_rpm"), "desiredRpm=%f", desired_rpm);
     return desired_rpm;

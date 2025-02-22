@@ -10,8 +10,8 @@ SpacNode::SpacNode() : Node("spac_node")
     //TODO: check if it makes sense to have the distance coming from the parameters, if so needs to be passed to the pure_pursuit object, for now using the default there
     this->declare_parameter(PARAMS_DISTANCE_IMU_TO_REAR_AXLE, DEFAULT_IMU_TO_REAR_AXLE);
 	this->get_parameter(PARAMS_DISTANCE_IMU_TO_REAR_AXLE, distance_imu_to_rear_axle);
-    // this->declare_parameter(PARAMS_DESIDERED_SPEED, DEFAULT_DESIRED_SPEED);
-    // this->get_parameter(PARAMS_DESIDERED_SPEED, desired_speed);
+    this->declare_parameter(PARAMS_MAX_SPEED, DEFAULT_MAX_SPEED);
+    this->get_parameter(PARAMS_MAX_SPEED, max_speed);
     this->declare_parameter(PARAMS_KP_SPEED, DEFAULT_KP_SPEED);
     this->get_parameter(PARAMS_KP_SPEED, kp_speed);
     this->declare_parameter(PARAMS_KI_SPEED, DEFAULT_KI_SPEED);
@@ -44,15 +44,15 @@ SpacNode::SpacNode() : Node("spac_node")
 
 
     //convert speed from km/h to m/s
-    //float speed_mps = desired_speed / 3.6;
-  
+    float speed_mps = max_speed / 3.6;
     
     //calculate the desired rpm
-    //desired_rpm = MS_TO_RPM(speed_mps);
-    //RCLCPP_INFO(this->get_logger(), "Path topic: %f", desired_rpm);
+    max_rpm = MS_TO_RPM(speed_mps);
+
+    RCLCPP_INFO(this->get_logger(), "MAX SPEED: %f", max_speed);
 
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
+    target = new Target(max_rpm, kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
 
     // Create a publisher for visualization markers
     marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);

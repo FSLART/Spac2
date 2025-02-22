@@ -19,7 +19,6 @@ using namespace std;
 class CommonBase {
 public:
     static int index;
-    static float prev_rpm_pid;
 };
 
 class Pure_Pursuit : public CommonBase{
@@ -28,7 +27,7 @@ class Pure_Pursuit : public CommonBase{
         Pure_Pursuit();
         float get_k_dd();
         float calculate_steering_angle(lart_msgs::msg::PathSpline path, float speed);
-        float calculate_desiredSpeed(lart_msgs::msg::PathSpline path);
+        float calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm);
         void keepAvgAngle(float steering_angle);
         float getAvgAngle();
         array<float, 2> get_target_point();
