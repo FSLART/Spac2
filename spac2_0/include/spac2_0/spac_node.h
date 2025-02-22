@@ -52,6 +52,7 @@ protected:
     void timer_callback();
     void wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedPtr msg);
     void path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
+    void cleanUp();
 
     float distance_imu_to_rear_axle;
     int frequency=0;

@@ -90,6 +90,12 @@ SpacNode::SpacNode() : Node("spac_node")
     //RCLCPP_INFO(this->get_logger(), "Started dynamics command dispatch routine on { %s }", __PRETTY_FUNCTION__ );
 	this->timer_publisher= this->create_wall_timer(interval, [this]()-> void {this->dispatchAckermannDrive();});
 
+
+    rclcpp::on_shutdown([this]() {
+        cleanUp();
+    });
+
+
 }
 
 void SpacNode::dispatchAckermannDrive(){
@@ -130,6 +136,19 @@ void SpacNode::wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedP
     //RCLCPP_INFO(this->get_logger(), "I heard: '%f'", msg->speeds.lb_speed);
     float speed = ((msg->speeds.lb_speed + msg->speeds.rb_speed)/2) / 37.8188;
     this->target->set_rpm(MS_TO_RPM(speed));
+}
+
+void SpacNode::cleanUp()
+{
+    RCLCPP_INFO(this->get_logger(), "Cleaning up");
+    ackermann_msgs::msg::AckermannDrive cleanUpMailBox = ackermann_msgs::msg::AckermannDrive();
+    cleanUpMailBox.speed = 0.0;
+    cleanUpMailBox.steering_angle = 0.0;
+
+    ackermann_msgs::msg::AckermannDriveStamped cleanUpMailBoxStamped;
+    cleanUpMailBoxStamped.drive = cleanUpMailBox;
+
+    this->ackermann_publisher->publish(cleanUpMailBoxStamped);
 }
 
 int main(int argc, char *argv[])
