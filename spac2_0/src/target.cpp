@@ -25,6 +25,12 @@ void Target::instance_CarrotControl(){
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
         steering_angle = std::clamp((float)(steering_angle), (float)-MAX_WHEEL_ANGLE_RAD,(float) MAX_WHEEL_ANGLE_RAD);
 
+
+        //CREATING THE TARGET POINT MARKER
+        array<float, 2> target_point = this->pure_pursuit.get_target_point();
+        this->set_target_marker(target_point);
+
+
         //TODO: REVERTER QUANDO ACABAREM OS TESTES
         float desired_rpm = this->get_desired_rpm(this->path, this->max_rpm);
 
@@ -61,6 +67,40 @@ lart_msgs::msg::DynamicsCMD Target::get_dirtyDispatcherMail(){
 	RCLCPP_WARN(rclcpp::get_logger("get_dirtyDispatcherMail"), "Dispatcher is trying to read clean data, this means that the dispatcher is trying to read data that has not been updated yet");
 	return dispatcherMailBox;
 } 
+
+void Target::set_target_marker(array<float, 2> target_point){
+
+    visualization_msgs::msg::Marker marker;
+    marker.header.frame_id = "base_footprint";
+    marker.header.stamp = rclcpp::Clock().now();
+    marker.ns = "pure_pursuit";
+    marker.id = 0;
+    marker.type = visualization_msgs::msg::Marker::CYLINDER;
+    marker.action = visualization_msgs::msg::Marker::ADD;
+    marker.pose.position.x = target_point[0];
+    marker.pose.position.y = target_point[1];
+    marker.pose.position.z = 0.0;
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+    marker.scale.x = 0.2;
+    marker.scale.y = 0.2;
+    marker.scale.z = 0.2;
+    marker.color.a = 1.0;
+    marker.color.r = 0.0;
+    marker.color.g = 1.0;
+    marker.color.b = 0.0;
+
+    marker.lifetime = rclcpp::Duration::from_seconds(1);
+    
+    this->target_marker = marker;
+}
+
+visualization_msgs::msg::Marker Target::get_target_marker(){
+    return this->target_marker;
+}
+
 
 void Target::set_ready(){
     ready = true;

@@ -9,6 +9,7 @@
 #include <cmath>
 #include "utils.h"
 #include <rclcpp/logging.hpp>
+#include "visualization_msgs/msg/marker.hpp"
 
 
 class Target{
@@ -28,14 +29,17 @@ class Target{
         int get_rpm();
         void set_ready();
         bool get_ready();
+        void set_target_marker(array<float, 2> target_point);
+        visualization_msgs::msg::Marker get_target_marker();
 
     protected:
+        visualization_msgs::msg::Marker target_marker;
         Pure_Pursuit pure_pursuit;
         PID_Controller pid;
         bool isDispatcherDirty=true;
         lart_msgs::msg::PathSpline path;
         float current_rpm=0;
-		lart_msgs::msg::DynamicsCMD dispatcherMailBox;
+        lart_msgs::msg::DynamicsCMD dispatcherMailBox;
         float max_rpm;
         float k_curv;
         float k_dist; 

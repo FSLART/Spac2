@@ -12,7 +12,7 @@
 #include <algorithm>
 #include "utils.h"
 #include <tf2/LinearMath/Transform.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 using namespace std;
 
@@ -30,12 +30,16 @@ class Pure_Pursuit : public CommonBase{
         float calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm);
         void keepAvgAngle(float steering_angle);
         float getAvgAngle();
+
+        array<float, 2> get_target_point();
+        void set_target_point(array<float, 2> closest_point);
     protected:
         float k_dd;
         float k_curv, k_dist;
         float distance_imu_to_rear_axle;
         float avg_angle[SIZE_AVG_ARRAY] = {0};
         int cycles = 0;
+        array<float, 2> target_point;
 };
 
 class PID_Controller{

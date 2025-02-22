@@ -15,6 +15,7 @@
 #include "lart_msgs/msg/dynamics.hpp"
 #include "lart_common.h"
 #include "lart_msgs/msg/path_spline.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 
 #define PARAMS_DISTANCE_IMU_TO_REAR_AXLE "distance_imu_to_rear_axle"
 #define PARAMS_FREQUENCY "frequency"
@@ -29,6 +30,8 @@
 #define PARAMS_TOPIC_DYNAMICS_CMD "dynamics_cmd_topic"
 #define PARAMS_TOPIC_RPM "rpm_topic"
 
+#define PARAMS_TARGET_MARKER "target_marker_topic"
+
 class SpacNode : public rclcpp::Node
 {
 public:
@@ -36,6 +39,8 @@ public:
     SpacNode();
 
 private:
+    
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_publisher;
     
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
     rclcpp::Subscription<lart_msgs::msg::PathSpline>::SharedPtr subscription_path;
@@ -49,6 +54,7 @@ protected:
     void timer_callback();
     void path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
     void rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg);
+    void cleanUp();
 
     float distance_imu_to_rear_axle;
     int frequency=0;
@@ -66,6 +72,8 @@ protected:
     std::string path_topic;
     std::string dynamics_cmd_topic;
     std::string rpm_topic;
+
+    std::string target_marker_topic;
 };
 
 #endif

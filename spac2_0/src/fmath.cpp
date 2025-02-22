@@ -86,6 +86,12 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     {
         // Keep previous angles to calculate the average
         keepAvgAngle(0.0f);
+
+        target_point[0] = (*closest_point)[0];
+        target_point[1] = (*closest_point)[1];
+
+        set_target_point(target_point);
+
         return getAvgAngle();
     }
 
@@ -98,6 +104,9 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     // Keep previous angles to calculate the average
     keepAvgAngle(steering_angle);
     
+    target_point[0] = (*closest_point)[0];
+    target_point[1] = (*closest_point)[1];
+    set_target_point(target_point);
 
     //write the steering angle and the point of intersection to a file
     ofstream myfile;
@@ -143,6 +152,16 @@ float Pure_Pursuit::getAvgAngle(){
         sum += avg_angle[i];
     }
     return sum / interval;
+}
+
+array<float, 2> Pure_Pursuit::get_target_point()
+{
+    return this->target_point;
+}
+
+void Pure_Pursuit::set_target_point(array<float, 2> closest_point)
+{
+    this->target_point = closest_point;
 }
 
 PID_Controller::PID_Controller(float min, float max)
@@ -226,6 +245,14 @@ int fastRound(float x) {
 }
 
 float speed_to_lookahead(float speed){
-    float look_ahead_distance = 4.732881f * pow(1.000575, speed);
+  //min lookahead = 7.0
+    //float look_ahead_distance = 6.6852f * pow(1.00041, speed);
+
+    //min lookahead = 5.0
+    //float look_ahead_distance = 4.732881f * pow(1.000575, speed);
+
+    //recent function
+    float look_ahead_distance = 4.62281f + 0.00495614f * speed;
+    
     return look_ahead_distance;
 }

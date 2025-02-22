@@ -33,6 +33,9 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_TOPIC_DYNAMICS_CMD, dynamics_cmd_topic);
     this->declare_parameter(PARAMS_TOPIC_RPM, "/rpm");
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
+
+    this->declare_parameter(PARAMS_TARGET_MARKER, "/target_marker_topic");
+    this->get_parameter(PARAMS_TARGET_MARKER, target_marker_topic);
     
     //convert speed from km/h to m/s
     float speed_mps = max_speed / 3.6;
@@ -42,6 +45,9 @@ SpacNode::SpacNode() : Node("spac_node")
     
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
     target = new Target(max_rpm, kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
+
+    // Create a publisher for visualization markers
+    marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);
 
     //create publisher for ackermann drive
 	dynamics_publisher = this->create_publisher<lart_msgs::msg::DynamicsCMD>(dynamics_cmd_topic, 10);
@@ -76,12 +82,21 @@ SpacNode::SpacNode() : Node("spac_node")
     //RCLCPP_INFO(this->get_logger(), "Started dynamics command dispatch routine on { %s }", __PRETTY_FUNCTION__ );
 	this->timer_publisher= this->create_wall_timer(interval, [this]()-> void {this->dispatchDynamicsCMD();});
 
+    rclcpp::on_shutdown([this]() {
+        cleanUp();
+    });
 }
 
 void SpacNode::dispatchDynamicsCMD(){
 	if(this->target->get_isDispatcherDirty()){
-		RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__); 
+		RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__);
 		this->dynamics_publisher->publish(this->target->get_dirtyDispatcherMail());
+
+        //Sending marker
+        visualization_msgs::msg::Marker marker = this->target->get_target_marker();
+        this->marker_publisher->publish(marker);
+
+
 		this->target->set_throwDirtDispatcher(); 
 
 	}
@@ -96,6 +111,16 @@ void SpacNode::path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
 void SpacNode::rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg)
 {
     this->target->set_rpm(msg->rpm);
+}
+
+void SpacNode::cleanUp()
+{
+    RCLCPP_INFO(this->get_logger(), "Cleaning up");
+    lart_msgs::msg::DynamicsCMD cleanUpMailBox = lart_msgs::msg::DynamicsCMD();
+    cleanUpMailBox.rpm = 0.0;
+    cleanUpMailBox.steering_angle = 0.0;
+
+    this->dynamics_publisher->publish(cleanUpMailBox);
 }
 
 int main(int argc, char *argv[])
