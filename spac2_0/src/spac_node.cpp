@@ -117,7 +117,7 @@ void SpacNode::cleanUp()
 {
     RCLCPP_INFO(this->get_logger(), "Cleaning up");
     lart_msgs::msg::DynamicsCMD cleanUpMailBox = lart_msgs::msg::DynamicsCMD();
-    cleanUpMailBox.rpm = 0.0;
+    cleanUpMailBox.rpm = 0;
     cleanUpMailBox.steering_angle = 0.0;
 
     this->dynamics_publisher->publish(cleanUpMailBox);
