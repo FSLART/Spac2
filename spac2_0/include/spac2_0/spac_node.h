@@ -17,6 +17,9 @@
 #include "lart_msgs/msg/path_spline.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 
+#include <ctime>
+#include <chrono>
+
 #define PARAMS_DISTANCE_IMU_TO_REAR_AXLE "distance_imu_to_rear_axle"
 #define PARAMS_FREQUENCY "frequency"
 #define PARAMS_MAX_SPEED "max_speed"
@@ -55,6 +58,7 @@ protected:
     void path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
     void rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg);
     void cleanUp();
+    void whatTimeIsIt();
 
     float distance_imu_to_rear_axle;
     int frequency=0;
@@ -74,6 +78,8 @@ protected:
     std::string rpm_topic;
 
     std::string target_marker_topic;
+
+    std::chrono::time_point<std::chrono::system_clock> last_time;
 };
 
 #endif

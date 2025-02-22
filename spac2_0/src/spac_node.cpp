@@ -2,6 +2,7 @@
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
+using namespace std::chrono;
 
 SpacNode::SpacNode() : Node("spac_node")
 {
@@ -106,6 +107,7 @@ void SpacNode::path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
 {
     //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg.c_str());
     this->target->set_path(*msg);
+    whatTimeIsIt();
 }
 
 void SpacNode::rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg)
@@ -121,6 +123,21 @@ void SpacNode::cleanUp()
     cleanUpMailBox.steering_angle = 0.0;
 
     this->dynamics_publisher->publish(cleanUpMailBox);
+}
+
+void SpacNode::whatTimeIsIt(){
+    auto now = std::chrono::system_clock::now();
+
+    auto duration = duration_cast<milliseconds>(now - this->last_time);
+    RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
+
+    this->last_time = now;
+
+    ofstream myfile;
+    myfile.open("testing_path_time.csv", ios::app);
+    myfile << duration.count() << "\n"; 
+    myfile.close();
+
 }
 
 int main(int argc, char *argv[])
