@@ -39,7 +39,7 @@ void Target::instance_CarrotControl(){
         //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
 
-        RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
+        //RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
 
         auto speed = RPM_TO_MS(rpm);
 
@@ -161,7 +161,7 @@ float Target::get_PID_rpm(float desired, float current){
 float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
     float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path, max_rpm);
     //float desired_rpm = MS_TO_RPM(speed);
-    RCLCPP_INFO(rclcpp::get_logger("get_desired_rpm"), "desiredRpm=%f", desired_rpm);
+    //RCLCPP_INFO(rclcpp::get_logger("get_desired_rpm"), "desiredRpm=%f", desired_rpm);
     return desired_rpm;
 }
 

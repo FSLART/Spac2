@@ -129,6 +129,8 @@ void SpacNode::path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
     //     RCLCPP_INFO(this->get_logger(), "I heard (Y): '%f'", msg->poses[i].pose.position.y);
     // }
     this->target->set_path(*msg);
+
+    whatTimeIsIt();
 }
 
 void SpacNode::wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedPtr msg)
@@ -149,6 +151,21 @@ void SpacNode::cleanUp()
     cleanUpMailBoxStamped.drive = cleanUpMailBox;
 
     this->ackermann_publisher->publish(cleanUpMailBoxStamped);
+}
+
+void SpacNode::whatTimeIsIt(){
+    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->last_time);
+    RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
+
+    this->last_time = now;
+
+    ofstream myfile;
+    myfile.open("testing_path_time.csv", ios::app);
+    myfile << duration.count() << "\n"; 
+    myfile.close();
+
 }
 
 int main(int argc, char *argv[])
