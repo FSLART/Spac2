@@ -1,3 +1,11 @@
+/**
+ * @file spac_node.h
+ * @author Tomás Santos (2230717@my.ipleiria.pt)
+ * @brief A ros node responsible for managing the control of the vehicle
+ * @version 0.1
+ * 
+ */
+
 #ifndef SPAC_NODE_H_
 #define SPAC_NODE_H_
 
@@ -52,7 +60,7 @@ private:
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_ready;
 
 protected:
-
+    //Functions
     void dispatchDynamicsCMD();
     void timer_callback();
     void path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
@@ -60,6 +68,7 @@ protected:
     void cleanUp();
     void whatTimeIsIt();
 
+    //Variables
     float distance_imu_to_rear_axle;
     int frequency=0;
     float max_speed;
