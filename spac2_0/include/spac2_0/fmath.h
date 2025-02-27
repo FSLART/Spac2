@@ -23,13 +23,58 @@ public:
 
 class Pure_Pursuit : public CommonBase{
     public:
+        //Functions
+        
+        /**
+        * @brief Constructor for the Pure_Pursuit class.
+        *
+        * @param k_dd
+        * @param k_curv
+        * @param k_dist
+        * @param distance_imu_to_rear_axle
+        * 
+        */
         Pure_Pursuit(float k_dd, float k_curv, float k_dist, float distance_imu_to_rear_axle);
+        /**
+        * @brief Empty constructor for the Pure_Pursuit class.
+        */
         Pure_Pursuit();
-        float get_k_dd();
+        /**
+        * @brief Fuction that calculates the steering angle using a target point (PurePursuit).
+        * It will return the average of the last 3 calculated steering angle, this is done to 
+        * achieve a smoother change between steering angles and to attenuate possible errors
+        * caused by wrongly calculated paths.
+        *  
+        * @param path
+        * @param speed
+        * 
+        * @return steering angle
+        */
         float calculate_steering_angle(lart_msgs::msg::PathSpline path, float speed);
+        /**
+        * @brief Function that calculates the the desired speed of the car in a certain point of the path,
+        * using the curvature that is associated with said point. 
+        * The value will be returned in rpm. 
+        * 
+        * @param path
+        * @param max_rpm
+        * 
+        * @return rpm
+        */
         float calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm);
+        /**
+        * @brief Function responsible for saving the last 3 calculated steering angles.
+        * 
+        * @param steering_angle
+        */
         void keepAvgAngle(float steering_angle);
+        /**
+        * @brief Function returns the average of the last 3 calculated steering angles.
+        *
+        * @return average steering angle.
+        */
         float getAvgAngle();
+        float get_k_dd();
 
         array<float, 2> get_target_point();
         void set_target_point(array<float, 2> closest_point);
@@ -37,15 +82,35 @@ class Pure_Pursuit : public CommonBase{
         float k_dd;
         float k_curv, k_dist;
         float distance_imu_to_rear_axle;
-        float avg_angle[SIZE_AVG_ARRAY] = {0};
-        int cycles = 0;
+        float avg_angle[SIZE_AVG_ARRAY] = {0};  /**< Array used to store the last 3 steering angles*/
+        int cycles = 0;                         /**< The number of the current iteration */
         array<float, 2> target_point;
 };
 
 class PID_Controller{
     public:
+        //Functions
+
+        /**
+        * @brief Empty constructor for the PID class.
+        */
         PID_Controller();
+        /**
+        * @brief Constructor for the PID class.
+        * 
+        * @param min
+        * @param max
+        * 
+        */
         PID_Controller(float min, float max);
+        /**
+        * @brief Main function of the PID controller.
+        * 
+        * @param setpoint
+        * @param input
+        * 
+        * @return The ideal value for a smooth change.
+        */
         float compute(float setpoint, float input);
         int set_Tunings(float kp, float ki, float kd);
         float get_Proportion();
@@ -57,8 +122,27 @@ class PID_Controller{
         float output_past, error, error_prev, error_sum;
 };
 
+/**
+* @brief This function will get a target point acording to the lookahead distance.
+* 
+* @param path_points
+* @param look_ahead_distance
+*
+* @return target point
+*/
 optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance);
+
+/**
+* @brief Optimized round function, to only take into acount positive values
+*/
 int fastRound(float x);
+/**
+ * @brief Function that calculates a lookahead distance acording to a certain speed in rpm
+ * 
+ * @param speed
+ * 
+ * @return lookahead
+ */
 float speed_to_lookahead(float speed);
 
 #endif

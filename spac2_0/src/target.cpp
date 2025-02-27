@@ -17,11 +17,9 @@ void Target::instance_CarrotControl(){
         if(get_ready() == false){
             throw std::runtime_error("Not ready yet");
         }
-        //print the value of the k_dd of target->pure_pursuit
-        ////RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "k_dd=%f", this->pure_pursuit.get_k_dd());
-        //current speed is being obtained from the rpm
-        //and it is used to calculate how far is the look ahead point
+        
         auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
+        
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
         steering_angle = std::clamp((float)(steering_angle), (float)-MAX_WHEEL_ANGLE_RAD,(float) MAX_WHEEL_ANGLE_RAD);
 
@@ -30,13 +28,13 @@ void Target::instance_CarrotControl(){
         array<float, 2> target_point = this->pure_pursuit.get_target_point();
         this->set_target_marker(target_point);
 
-
-        //TODO: REVERTER QUANDO ACABAREM OS TESTES
+        //gets the the ideal rpm that the car should have in a certain point of the path
         float desired_rpm = this->get_desired_rpm(this->path, this->max_rpm);
 
+        //use the desired_rpm as the setpoint for the pid controller, that will return the best value for a smooth change in speed
         auto rpm = this->get_PID_rpm(desired_rpm, this->current_rpm);
+
         //clamp speed to -MAX_SPEED and MAX_SPEED
-        //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
         rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
 
         //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "DESIRED_rpm=%d", desired_rpm);
@@ -44,7 +42,7 @@ void Target::instance_CarrotControl(){
 
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
-        dispatcherMailBox.rpm = rpm;
+        dispatcherMailBox.rpm = (int)rpm;
         dispatcherMailBox.steering_angle = steering_angle;
 
         //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
@@ -52,7 +50,7 @@ void Target::instance_CarrotControl(){
         isDispatcherDirty = true;
     }catch(...){
 
-		// Makes shure the dispatcher wont look for bad data
+		// Makes sure the dispatcher wont look for bad data
         isDispatcherDirty = false;
     }
 }

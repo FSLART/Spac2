@@ -61,24 +61,44 @@ private:
 
 protected:
     //Functions
+
+    /**
+    * @brief A function responsible for publishing the speed and steering angle
+    * to the state controller.
+    * 
+    */
     void dispatchDynamicsCMD();
-    void timer_callback();
+    /**
+    * @brief Receives the path from the path planner.
+    * 
+    * @param msg 
+    */
     void path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
+    /**
+    * @brief Receives the rpm from the state controller.
+    * 
+    * @param msg 
+    */
     void rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg);
+    /**
+    * @brief A function responsible for sending a clean up message
+    * to ensure that random values aren't left forgotten in the system 
+    * when the node is shutdown.
+    */
     void cleanUp();
     void whatTimeIsIt();
 
     //Variables
-    float distance_imu_to_rear_axle;
-    int frequency=0;
-    float max_speed;
-    float kp_speed;
-    float ki_speed;
-    float kd_speed;
-    float k_dd_pp;
-    float k_curv;
-    float k_dist;
-    float max_rpm;
+    float distance_imu_to_rear_axle;    /**< The distance from the IMU to the rear axle in meters */
+    int frequency=0;    /**< The frequency of the publisher */
+    float max_speed;    /**< The maximum desired speed in km/h*/
+    float kp_speed;     /**< PID proportional parameter */
+    float ki_speed;     /**< PID integral parameter */
+    float kd_speed;     /**< PID derivative parameter */
+    float k_dd_pp;      /**< Lookahead distance if the variable lookahead method isn't being used */
+    float k_curv;       /**< Factor of deceleration in function of the curvature of the path */
+    float k_dist;       /**< Extra value to be added to the index of the target point, used to get a new target point but only for the longitudinal control */
+    float max_rpm;      /**< The maximum desired speed in rpm */
     Target *target;
     rclcpp::TimerBase::SharedPtr timer;
     rclcpp::TimerBase::SharedPtr timer_publisher;
