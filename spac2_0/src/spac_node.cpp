@@ -157,7 +157,7 @@ void SpacNode::whatTimeIsIt(){
     std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->last_time);
-    RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
+    //RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
 
     this->last_time = now;
 

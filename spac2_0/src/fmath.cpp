@@ -214,7 +214,7 @@ float PID_Controller::compute(float setpoint, float input)
         error_sum -= error;
         output = min_signal_value;
     }
-    //RCLCPP_INFO(rclcpp::get_logger("pid"), "output=%f", output);
+    RCLCPP_INFO(rclcpp::get_logger("pid"), "output=%f", output);
 
     // if(CommonBase::prev_rpm_pid > output){
     //     return CommonBase::prev_rpm_pid;

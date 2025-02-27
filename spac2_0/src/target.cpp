@@ -5,7 +5,7 @@ Target::Target(float max_rpm, float kp_speed, float ki_speed, float kd_speed, fl
     //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
     this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
-    this->max_rpm = max_rpm;
+    this->max_rpm = std::clamp(max_rpm, (float)0.0, (float)TERMINAL_RPM);
 }
 
 Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
@@ -37,7 +37,7 @@ void Target::instance_CarrotControl(){
         auto rpm = this->get_PID_rpm(desired_rpm, this->current_rpm);
         //clamp speed to -MAX_SPEED and MAX_SPEED
         //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
-        rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
+        rpm = std::clamp(rpm, (float)0.0,(float)this->max_rpm);
 
         //RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
 
