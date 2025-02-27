@@ -6,7 +6,7 @@
 #define AVG_DISTANCE 0.50f
 #define MIN_INDEX 10
 //TODO this value needs to be increased for EBS test
-#define TERMINAL_RPM 210.0f
+#define TERMINAL_RPM 1500.0f
 #define DEFAULT_MAX_SPEED 5.0
 #define DEFAULT_FREQUENCY 10
 #define DEFAULT_IMU_TO_REAR_AXLE 0.990
