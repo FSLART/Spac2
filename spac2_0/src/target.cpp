@@ -41,13 +41,11 @@ void Target::instance_CarrotControl(){
 
         //RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
 
-        auto speed = RPM_TO_MS(rpm);
-
-        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "DESIRED_rpm=%d", desired_rpm);
-        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "pid_rpm=%f", rpm);
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "DESIRED_rpm=%f", desired_rpm);
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "pid_rpm=%f", rpm);
         //create dispatcher with rpm and steering
         dispatcherMailBox = ackermann_msgs::msg::AckermannDrive();
-        dispatcherMailBox.speed = speed;
+        dispatcherMailBox.speed = int(rpm);
         dispatcherMailBox.steering_angle = steering_angle;
 
         //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
