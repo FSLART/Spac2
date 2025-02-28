@@ -5,7 +5,7 @@ Target::Target(float max_rpm, float kp_speed, float ki_speed, float kd_speed, fl
     //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
     this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
-    this->max_rpm = max_rpm;
+    this->max_rpm = clamp(max_rpm,(float)0.0,(float)TERMINAL_RPM);
     RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "Constructor_rpm=%f",this->max_rpm);
 }
 
