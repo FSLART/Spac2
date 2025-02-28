@@ -34,7 +34,11 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_TOPIC_WHEELS, wheels_topic);
     this->declare_parameter(PARAMS_TARGET_MARKER, "/target_marker_topic");
     this->get_parameter(PARAMS_TARGET_MARKER, target_marker_topic);
- 
+    
+    // RCLCPP_INFO(this->get_logger(), "porp: %f", kp_speed);
+    // RCLCPP_INFO(this->get_logger(), "inte: %f", ki_speed);
+    // RCLCPP_INFO(this->get_logger(), "deriv: %f", kd_speed);
+
 
     // Debug statements to verify parameters
     // RCLCPP_INFO(this->get_logger(), "Path topic: %s", path_topic.c_str());
@@ -49,7 +53,10 @@ SpacNode::SpacNode() : Node("spac_node")
     //calculate the desired rpm
     max_rpm = MS_TO_RPM(speed_mps);
 
-    RCLCPP_INFO(this->get_logger(), "MAX SPEED: %f", max_speed);
+    //RCLCPP_INFO(this->get_logger(), "MAX SPEED: %f", max_speed);
+    RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
+
+    
 
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
     target = new Target(max_rpm, kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
@@ -103,12 +110,12 @@ void SpacNode::dispatchAckermannDrive(){
 		//RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__); 
 
         //debug
-        ackermann_msgs::msg::AckermannDriveStamped dispatcherMailBoxStamped = ackermann_msgs::msg::AckermannDriveStamped();
-        dispatcherMailBoxStamped = this->target->get_dirtyDispatcherMail();
-        ackermann_msgs::msg::AckermannDrive dispatcherMailBox = dispatcherMailBoxStamped.drive;
+        // ackermann_msgs::msg::AckermannDriveStamped dispatcherMailBoxStamped = ackermann_msgs::msg::AckermannDriveStamped();
+        // dispatcherMailBoxStamped = this->target->get_dirtyDispatcherMail();
+        // ackermann_msgs::msg::AckermannDrive dispatcherMailBox = dispatcherMailBoxStamped.drive;
 
-        RCLCPP_INFO(this->get_logger(), "Speed: %f", dispatcherMailBox.speed);
-        RCLCPP_INFO(this->get_logger(), "Steering: %f", dispatcherMailBox.steering_angle);
+        //RCLCPP_INFO(this->get_logger(), "Speed: %f", dispatcherMailBox.speed);
+        //RCLCPP_INFO(this->get_logger(), "Steering: %f", dispatcherMailBox.steering_angle);
 
 
 		this->ackermann_publisher->publish(this->target->get_dirtyDispatcherMail());

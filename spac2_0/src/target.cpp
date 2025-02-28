@@ -5,7 +5,8 @@ Target::Target(float max_rpm, float kp_speed, float ki_speed, float kd_speed, fl
     //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
     this->pid = PID_Controller(0, TERMINAL_RPM);
     this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
-    this->max_rpm = std::clamp(max_rpm, (float)0.0, (float)TERMINAL_RPM);
+    this->max_rpm = max_rpm;
+    RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "Constructor_rpm=%f",this->max_rpm);
 }
 
 Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
@@ -45,7 +46,7 @@ void Target::instance_CarrotControl(){
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "pid_rpm=%f", rpm);
         //create dispatcher with rpm and steering
         dispatcherMailBox = ackermann_msgs::msg::AckermannDrive();
-        dispatcherMailBox.speed = int(rpm);
+        dispatcherMailBox.speed = rpm;
         dispatcherMailBox.steering_angle = steering_angle;
 
         //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);

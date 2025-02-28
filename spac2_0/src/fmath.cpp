@@ -143,7 +143,7 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, floa
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "p_curv=%f", p_curv);
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "max_rpm=%f", max_rpm);
 
-        // RCLCPP_INFO(rclcpp::get_logger("pure"), "Percentagem de velocidade=%f %%", (1 - p_curv) * 100);
+        RCLCPP_INFO(rclcpp::get_logger("pure"), "Percentagem de velocidade=%f %%", (1 - p_curv) * 100);
 
         return desired_speed;
     }
@@ -193,7 +193,7 @@ PID_Controller::PID_Controller()
 
 float PID_Controller::compute(float setpoint, float input)
 {
-    //RCLCPP_INFO(rclcpp::get_logger("pid"), "setpoint=%f, input=%f, kp=%f, ki=%f, kd=%f", setpoint, input, kp, ki, kd);
+    RCLCPP_INFO(rclcpp::get_logger("pid"), "setpoint=%f, input=%f, kp=%f, ki=%f, kd=%f", setpoint, input, kp, ki, kd);
     error = setpoint - input;
     error_sum += error;
     error_prev = error;
@@ -214,7 +214,7 @@ float PID_Controller::compute(float setpoint, float input)
         error_sum -= error;
         output = min_signal_value;
     }
-    //RCLCPP_INFO(rclcpp::get_logger("pid"), "output=%f", output);
+    RCLCPP_INFO(rclcpp::get_logger("pid"), "output=%f", output);
 
     // if(CommonBase::prev_rpm_pid > output){
     //     return CommonBase::prev_rpm_pid;
