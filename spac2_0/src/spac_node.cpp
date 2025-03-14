@@ -66,7 +66,7 @@ SpacNode::SpacNode() : Node("spac_node")
 
     //TODO: AXANATO PARA AGORA MAS PRECISA DE SER ALTERADO / NO ENTANTO ESTA VALIDAÇÃO É NECESSÁRIA
     state_subscriber = this->create_subscription<lart_msgs::msg::State>(
-        "/ready", 10, std::bind(&SpacNode::state_callback, this, _1));
+        state_topic, 10, std::bind(&SpacNode::state_callback, this, _1));
 
     // APENAS USAR NOS TESTES
     //this->target->set_ready();
