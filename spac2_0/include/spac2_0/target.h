@@ -86,6 +86,7 @@ class Target{
         void set_rpm(int rpm);
         int get_rpm();
         void set_ready();
+        void disengage_ready();
         bool get_ready();
         void set_target_marker(array<float, 2> target_point);
         visualization_msgs::msg::Marker get_target_marker();

@@ -23,6 +23,7 @@
 #include "lart_msgs/msg/dynamics.hpp"
 #include "lart_common.h"
 #include "lart_msgs/msg/path_spline.hpp"
+#include "lart_msgs/msg/state.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 
 #include <ctime>
@@ -40,6 +41,7 @@
 #define PARAMS_TOPIC_PATH "path_topic"
 #define PARAMS_TOPIC_DYNAMICS_CMD "dynamics_cmd_topic"
 #define PARAMS_TOPIC_RPM "rpm_topic"
+#define PARAMS_TOPIC_STATE "state_topic"
 
 #define PARAMS_TARGET_MARKER "target_marker_topic"
 
@@ -57,7 +59,7 @@ private:
     rclcpp::Subscription<lart_msgs::msg::PathSpline>::SharedPtr subscription_path;
     rclcpp::Subscription<lart_msgs::msg::Dynamics>::SharedPtr subscription_rpm;
     rclcpp::Publisher<lart_msgs::msg::DynamicsCMD>::SharedPtr dynamics_publisher;
-    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_ready;
+    rclcpp::Subscription<lart_msgs::msg::State>::SharedPtr state_subscriber;
 
 protected:
     //Functions
@@ -80,6 +82,10 @@ protected:
     * @param msg 
     */
     void rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg);
+    /**
+    * @brief Receives the state from the state controller.
+    */
+    void state_callback(const lart_msgs::msg::State::SharedPtr msg);
     /**
     * @brief A function responsible for sending a clean up message
     * to ensure that random values aren't left forgotten in the system 
@@ -105,7 +111,7 @@ protected:
     std::string path_topic;
     std::string dynamics_cmd_topic;
     std::string rpm_topic;
-
+    std::string state_topic;
     std::string target_marker_topic;
 
     std::chrono::time_point<std::chrono::system_clock> last_time;

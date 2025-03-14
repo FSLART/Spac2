@@ -34,6 +34,10 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_TOPIC_DYNAMICS_CMD, dynamics_cmd_topic);
     this->declare_parameter(PARAMS_TOPIC_RPM, "/rpm");
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
+    this->declare_parameter(PARAMS_TOPIC_STATE, "/pc_origin/system_status/critical_as/state");
+    this->get_parameter(PARAMS_TOPIC_STATE, state_topic);
+
+    
 
     this->declare_parameter(PARAMS_TARGET_MARKER, "/target_marker_topic");
     this->get_parameter(PARAMS_TARGET_MARKER, target_marker_topic);
@@ -61,17 +65,11 @@ SpacNode::SpacNode() : Node("spac_node")
         rpm_topic, 10, std::bind(&SpacNode::rpm_callback, this, _1));
 
     //TODO: AXANATO PARA AGORA MAS PRECISA DE SER ALTERADO / NO ENTANTO ESTA VALIDAÇÃO É NECESSÁRIA
-    subscription_ready = this->create_subscription<std_msgs::msg::Bool>(
-        "acu_origin/res_ready", 10, [this](const std_msgs::msg::Bool::SharedPtr msg) {
-            if (msg->data)
-            {
-                RCLCPP_INFO(this->get_logger(), "Received ready signal");
-                this->target->set_ready();
-            }
-        });
+    state_subscriber = this->create_subscription<lart_msgs::msg::State>(
+        "/ready", 10, std::bind(&SpacNode::state_callback, this, _1));
 
-    //TODO APENAS USAR NOS TESTES
-    this->target->set_ready();
+    // APENAS USAR NOS TESTES
+    //this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
@@ -86,6 +84,18 @@ SpacNode::SpacNode() : Node("spac_node")
     rclcpp::on_shutdown([this]() {
         cleanUp();
     });
+}
+
+void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
+    if(msg->data == lart_msgs::msg::State::DRIVING){
+        RCLCPP_INFO(this->get_logger(), "Received DRIVING signal");
+        this->target->set_ready();
+    }
+    if(msg->data == lart_msgs::msg::State::EMERGENCY || msg->data == lart_msgs::msg::State::FINISH){
+        RCLCPP_INFO(this->get_logger(), "Received EMERGENCY/FINISH signal");
+        this->cleanUp();
+        this->target->disengage_ready();
+    }
 }
 
 void SpacNode::dispatchDynamicsCMD(){

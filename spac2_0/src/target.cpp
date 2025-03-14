@@ -104,6 +104,10 @@ void Target::set_ready(){
     ready = true;
 }
 
+void Target::disengage_ready(){
+    ready = false;
+}
+
 bool Target::get_ready(){
     return ready;
 }
