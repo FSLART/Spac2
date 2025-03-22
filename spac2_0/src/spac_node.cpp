@@ -87,6 +87,7 @@ SpacNode::SpacNode() : Node("spac_node")
 }
 
 void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
+    RCLCPP_INFO(this->get_logger(), "Received State: { %d }", msg->data);
     if(msg->data == lart_msgs::msg::State::DRIVING){
         RCLCPP_INFO(this->get_logger(), "Received DRIVING signal");
         this->target->set_ready();
@@ -139,7 +140,7 @@ void SpacNode::whatTimeIsIt(){
     auto now = std::chrono::system_clock::now();
 
     auto duration = duration_cast<milliseconds>(now - this->last_time);
-    RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
+    // RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
 
     this->last_time = now;
 
