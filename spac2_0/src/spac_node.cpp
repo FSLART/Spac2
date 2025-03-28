@@ -37,8 +37,6 @@ SpacNode::SpacNode() : Node("spac_node")
     this->declare_parameter(PARAMS_TOPIC_STATE, "/pc_origin/system_status/critical_as/state");
     this->get_parameter(PARAMS_TOPIC_STATE, state_topic);
 
-    
-
     this->declare_parameter(PARAMS_TARGET_MARKER, "/target_marker_topic");
     this->get_parameter(PARAMS_TARGET_MARKER, target_marker_topic);
     
@@ -60,11 +58,12 @@ SpacNode::SpacNode() : Node("spac_node")
     //receives the current path and calls the path_callback function
     subscription_path = this->create_subscription<lart_msgs::msg::PathSpline>(
         path_topic, 10, std::bind(&SpacNode::path_callback, this, _1));
-
+    
+    //receives the current rpm and calls the rpm_callback function
     subscription_rpm = this->create_subscription<lart_msgs::msg::Dynamics>(
         rpm_topic, 10, std::bind(&SpacNode::rpm_callback, this, _1));
 
-    //TODO: AXANATO PARA AGORA MAS PRECISA DE SER ALTERADO / NO ENTANTO ESTA VALIDAÇÃO É NECESSÁRIA
+    //receives the current state and calls the state_callback function
     state_subscriber = this->create_subscription<lart_msgs::msg::State>(
         state_topic, 10, std::bind(&SpacNode::state_callback, this, _1));
 
@@ -106,7 +105,6 @@ void SpacNode::dispatchDynamicsCMD(){
         //Sending marker
         visualization_msgs::msg::Marker marker = this->target->get_target_marker();
         this->marker_publisher->publish(marker);
-
 
 		this->target->set_throwDirtDispatcher(); 
 
