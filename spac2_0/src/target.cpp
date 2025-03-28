@@ -41,7 +41,6 @@ void Target::instance_CarrotControl(){
         //rpm = (rpm + this->current_rpm) / 2;
 
 
-
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = (int)rpm;
@@ -49,6 +48,12 @@ void Target::instance_CarrotControl(){
 
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%d", dispatcherMailBox.rpm);
+
+        //write the steering angle and speed to a file
+        ofstream myfile;
+        myfile.open("dynamics_logger.csv", ios::app);
+        myfile << steering_angle * 180 / M_PI << ", " << rpm << "\n"; 
+        myfile.close();
 
         isDispatcherDirty = true;
     }catch(...){
