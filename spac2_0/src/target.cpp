@@ -27,9 +27,20 @@ void Target::instance_CarrotControl(){
 
         //gets the the ideal rpm that the car should have in a certain point of the path
         float rpm = this->get_desired_rpm(this->path, this->max_rpm);
-
-        //clamp speed to 0 and the max_rpm
         rpm = std::clamp(rpm, (float)0.0, this->max_rpm);
+        
+
+        //experimental ways to keep the aceleration smooth
+
+        // if(abs(rpm - this->current_rpm) > 100){
+        //     rpm = this->current_rpm + 100;
+        // }
+        
+        //OR 
+
+        //rpm = (rpm + this->current_rpm) / 2;
+
+
 
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
