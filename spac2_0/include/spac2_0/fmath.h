@@ -87,41 +87,6 @@ class Pure_Pursuit : public CommonBase{
         array<float, 2> target_point;
 };
 
-class PID_Controller{
-    public:
-        //Functions
-
-        /**
-        * @brief Empty constructor for the PID class.
-        */
-        PID_Controller();
-        /**
-        * @brief Constructor for the PID class.
-        * 
-        * @param min
-        * @param max
-        * 
-        */
-        PID_Controller(float min, float max);
-        /**
-        * @brief Main function of the PID controller.
-        * 
-        * @param setpoint
-        * @param input
-        * 
-        * @return The ideal value for a smooth change.
-        */
-        float compute(float setpoint, float input);
-        int set_Tunings(float kp, float ki, float kd);
-        float get_Proportion();
-        float get_Integral();
-        float get_Derivative();
-            
-    protected:
-        float kp, ki, kd, min_signal_value, max_signal_value;
-        float output_past, error, error_prev, error_sum;
-};
-
 /**
 * @brief This function will get a target point acording to the lookahead distance.
 * 

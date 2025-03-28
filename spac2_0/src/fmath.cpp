@@ -66,10 +66,8 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 
         path_points.push_back(point);
     }
-    //RCLCPP_INFO(rclcpp::get_logger("pure"), "k_dd=%f", k_dd);
-    // Calculate look ahead point based on the speed with a min and max distances
-    //TODO REVERTER
 
+    // Calculate look ahead point based on the speed with a min and max distances
     float look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
     
     //float look_ahead_distance = clamp(k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
@@ -109,11 +107,10 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     set_target_point(target_point);
 
     //write the steering angle and the point of intersection to a file
-    ofstream myfile;
-    myfile.open("steer_point.csv", ios::app);
-    myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << "\n"; 
-    myfile.close();
-
+    // ofstream myfile;
+    // myfile.open("steer_point.csv", ios::app);
+    // myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << "\n"; 
+    // myfile.close();
 
     return getAvgAngle();
 }
@@ -124,11 +121,11 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, floa
         float p_curv = min(1.0f, curvature * this->k_curv);
         float desired_speed = max_rpm * (1 - p_curv);
 
-        RCLCPP_INFO(rclcpp::get_logger("pure"), "Percentagem de velocidade=%f %%", (1 - p_curv) * 100);
+        //RCLCPP_INFO(rclcpp::get_logger("pure"), "Percentagem de velocidade=%f %%", (1 - p_curv) * 100);
         
         return desired_speed;
     }
-    return 0;
+    return 0.0;
 }
 
 void Pure_Pursuit::keepAvgAngle(float steering_angle){
@@ -140,7 +137,8 @@ void Pure_Pursuit::keepAvgAngle(float steering_angle){
 float Pure_Pursuit::getAvgAngle(){
     float sum = 0;
     int interval = SIZE_AVG_ARRAY;
-    
+
+    //intialize the interval to the number of cycles if it is less than the size of the array
     if(cycles < SIZE_AVG_ARRAY){
         if (cycles == 0){
             return 0.0;
@@ -162,71 +160,6 @@ array<float, 2> Pure_Pursuit::get_target_point()
 void Pure_Pursuit::set_target_point(array<float, 2> closest_point)
 {
     this->target_point = closest_point;
-}
-
-PID_Controller::PID_Controller(float min, float max)
-{
-    PID_Controller();
-    min_signal_value = min;
-    max_signal_value = max;
-}
-
-PID_Controller::PID_Controller()
-{
-    kp = 0;
-    ki = 0;
-    kd = 0;
-    error = 0;
-    error_prev = 0;
-    error_sum = 0;
-    output_past = 0;
-}
-
-float PID_Controller::compute(float setpoint, float input)
-{
-    //RCLCPP_INFO(rclcpp::get_logger("pid"), "setpoint=%f, input=%f, kp=%f, ki=%f, kd=%f", setpoint, input, kp, ki, kd);
-    error = setpoint - input;
-    error_sum += error;
-    error_prev = error;
-    //float output = kp * error;
-    float output = kp * error + ki * error_sum + kd * (error - error_prev);
-    //output_past = output;
-    
-    //write the PID to a file
-    /*ofstream myfile;
-    myfile.open("pid.csv", ios::app);
-    myfile << input << ", " << setpoint << ", " << output << "\n"; 
-    myfile.close();*/
-
-    if(output > max_signal_value){
-        error_sum -= error;
-        output = max_signal_value;
-    }else if(output < min_signal_value){
-        error_sum -= error;
-        output = min_signal_value;
-    }
-    //RCLCPP_INFO(rclcpp::get_logger("pid"), "output=%f", output);
-    return output;
-}
-
-int PID_Controller::set_Tunings(float kp, float ki, float kd)
-{
-    this->kp = kp;
-    this->ki = ki;
-    this->kd = kd;
-    return 0;
-}
-float PID_Controller::get_Proportion()
-{
-    return kp;
-}
-float PID_Controller::get_Integral()
-{
-    return ki;
-}
-float PID_Controller::get_Derivative()
-{
-    return kd;
 }
 
 optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance)

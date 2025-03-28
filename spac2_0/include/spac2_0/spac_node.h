@@ -32,9 +32,6 @@
 #define PARAMS_DISTANCE_IMU_TO_REAR_AXLE "distance_imu_to_rear_axle"
 #define PARAMS_FREQUENCY "frequency"
 #define PARAMS_MAX_SPEED "max_speed"
-#define PARAMS_KP_SPEED "kp_speed"
-#define PARAMS_KI_SPEED "ki_speed"
-#define PARAMS_KD_SPEED "kd_speed"
 #define PARAMS_KDD "k_dd"
 #define PARAMS_K_CURV "k_curv"
 #define PARAMS_K_DIST "k_dist"
@@ -92,15 +89,12 @@ protected:
     * when the node is shutdown.
     */
     void cleanUp();
-    void whatTimeIsIt();
+    //void whatTimeIsIt();
 
     //Variables
     float distance_imu_to_rear_axle;    /**< The distance from the IMU to the rear axle in meters */
     int frequency=0;    /**< The frequency of the publisher */
     float max_speed;    /**< The maximum desired speed in km/h*/
-    float kp_speed;     /**< PID proportional parameter */
-    float ki_speed;     /**< PID integral parameter */
-    float kd_speed;     /**< PID derivative parameter */
     float k_dd_pp;      /**< Lookahead distance if the variable lookahead method isn't being used */
     float k_curv;       /**< Factor of deceleration in function of the curvature of the path */
     float k_dist;       /**< Extra value to be added to the index of the target point, used to get a new target point but only for the longitudinal control */
@@ -114,7 +108,7 @@ protected:
     std::string state_topic;
     std::string target_marker_topic;
 
-    std::chrono::time_point<std::chrono::system_clock> last_time;
+    //std::chrono::time_point<std::chrono::system_clock> last_time;
 };
 
 #endif

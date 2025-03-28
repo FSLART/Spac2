@@ -15,12 +15,7 @@ SpacNode::SpacNode() : Node("spac_node")
     this->declare_parameter(PARAMS_MAX_SPEED, DEFAULT_MAX_SPEED);
     this->get_parameter(PARAMS_MAX_SPEED, max_speed);
     
-    this->declare_parameter(PARAMS_KP_SPEED, DEFAULT_KP_SPEED);
-    this->get_parameter(PARAMS_KP_SPEED, kp_speed);
-    this->declare_parameter(PARAMS_KI_SPEED, DEFAULT_KI_SPEED);
-    this->get_parameter(PARAMS_KI_SPEED, ki_speed);
-    this->declare_parameter(PARAMS_KD_SPEED, DEFAULT_KD_SPEED);
-    this->get_parameter(PARAMS_KD_SPEED, kd_speed);
+    //Pure Pursuit parameters
     this->declare_parameter(PARAMS_KDD, DEFAULT_KDD);
     this->get_parameter(PARAMS_KDD, k_dd_pp);
     this->declare_parameter(PARAMS_K_CURV, DEFAULT_K_CURV);
@@ -47,7 +42,7 @@ SpacNode::SpacNode() : Node("spac_node")
     max_rpm = MS_TO_RPM(speed_mps);
     
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(max_rpm, kp_speed, ki_speed, kd_speed, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
+    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
 
     // Create a publisher for visualization markers
     marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);
@@ -86,7 +81,6 @@ SpacNode::SpacNode() : Node("spac_node")
 }
 
 void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
-    RCLCPP_INFO(this->get_logger(), "Received State: { %d }", msg->data);
     if(msg->data == lart_msgs::msg::State::DRIVING){
         RCLCPP_INFO(this->get_logger(), "Received DRIVING signal");
         this->target->set_ready();
@@ -116,7 +110,7 @@ void SpacNode::path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
 {
     //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg.c_str());
     this->target->set_path(*msg);
-    whatTimeIsIt();
+    //whatTimeIsIt();
 }
 
 void SpacNode::rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg)
@@ -134,20 +128,20 @@ void SpacNode::cleanUp()
     this->dynamics_publisher->publish(cleanUpMailBox);
 }
 
-void SpacNode::whatTimeIsIt(){
-    auto now = std::chrono::system_clock::now();
+// void SpacNode::whatTimeIsIt(){
+//     auto now = std::chrono::system_clock::now();
 
-    auto duration = duration_cast<milliseconds>(now - this->last_time);
-    // RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
+//     auto duration = duration_cast<milliseconds>(now - this->last_time);
+//     // RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
 
-    this->last_time = now;
+//     this->last_time = now;
 
-    ofstream myfile;
-    myfile.open("testing_path_time.csv", ios::app);
-    myfile << duration.count() << "\n"; 
-    myfile.close();
+//     ofstream myfile;
+//     myfile.open("testing_path_time.csv", ios::app);
+//     myfile << duration.count() << "\n"; 
+//     myfile.close();
 
-}
+// }
 
 int main(int argc, char *argv[])
 {

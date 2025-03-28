@@ -19,24 +19,20 @@ class Target{
         * @brief Constructor for the Target class.
         * 
         * @param max_rpm
-        * @param kp_speed 
-        * @param ki_speed
-        * @param kd_speed
         * @param k_curv 
         * @param k_dist 
         * @param kdd 
         * @param distance_imu_to_rear_axle
         * 
         */
-        Target(float max_rpm, float kp_speed, float ki_speed, float kd_speed,float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle);
+        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle);
         /**
         * @brief Constructor for the Target class.
         *
         * @param pure_pursuit
-        * @param pid
         * 
         */
-        Target(Pure_Pursuit pure_pursuit, PID_Controller pid);
+        Target(Pure_Pursuit pure_pursuit);
         /**
         * @brief Calls the the pure_pursuit.calculate_steering_angle function to calculate the steering angle.
         *
@@ -55,15 +51,6 @@ class Target{
         * @return desired speed in rpm
         */
         float get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm);
-        /**
-        * @brief Calls the pid.compute function to calculate the rpm.
-        * 
-        * @param setpoint
-        * @param input
-        * 
-        * @return rpm
-        */
-        float get_PID_rpm(float setpoint, float input);
         /**
         * @brief Function that is periodically called to get the
         * calculated values of the steering angle and speed needed
@@ -94,7 +81,6 @@ class Target{
     protected:
         //Variables
         Pure_Pursuit pure_pursuit;                      /**< Object of the class Pure_Pursuit */
-        PID_Controller pid;                             /**< Object of the class PID */
         bool isDispatcherDirty=true;                    /**< Flag used in the get_dirtyDispatcherMail function */
         lart_msgs::msg::PathSpline path;                /**< The path obtained from the path planner at a certain moment */
         float current_rpm=0;                            /**< The rpm of the motor in at a certain moment */
