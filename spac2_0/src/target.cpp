@@ -32,19 +32,24 @@ void Target::instance_CarrotControl(){
 
         //experimental ways to keep the aceleration smooth
 
-        // if(abs(rpm - this->current_rpm) > 100){
-        //     rpm = this->current_rpm + 100;
-        // }
-        
-        //OR 
-
-        //rpm = (rpm + this->current_rpm) / 2;
+        if(abs(rpm - this->current_rpm) > 100){ 
+            if(rpm > this->max_rpm){
+                rpm = this->current_rpm + 100;
+            }else{
+                rpm = this->current_rpm - 100;
+            }
+        }
 
 
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = (int)rpm;
         dispatcherMailBox.steering_angle = steering_angle;
+
+        //in case that the mission is acceleration
+        if(this->acel_flag){
+            dispatcherMailBox.steering_angle = steering_angle/4;
+        }
 
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%d", dispatcherMailBox.rpm);
@@ -107,6 +112,9 @@ visualization_msgs::msg::Marker Target::get_target_marker(){
     return this->target_marker;
 }
 
+void Target::set_acceleration_mission(){
+    acel_flag = true;
+}
 
 void Target::set_ready(){
     ready = true;

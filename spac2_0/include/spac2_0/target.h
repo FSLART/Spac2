@@ -65,6 +65,8 @@ class Target{
         * 
         * @return DispatcherMailBox
         */
+
+        void set_acceleration_mission();
         lart_msgs::msg::DynamicsCMD get_dirtyDispatcherMail();
         bool get_isDispatcherDirty();
         int set_throwDirtDispatcher();
@@ -89,6 +91,7 @@ class Target{
         float k_curv;
         float k_dist;
         bool ready=false;
+        bool acel_flag=false;
 
         visualization_msgs::msg::Marker target_marker;
 };

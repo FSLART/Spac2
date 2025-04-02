@@ -31,6 +31,9 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
     this->declare_parameter(PARAMS_TOPIC_STATE, "/pc_origin/system_status/critical_as/state");
     this->get_parameter(PARAMS_TOPIC_STATE, state_topic);
+    this->declare_parameter(PARAMS_TOPIC_MISSION, "/mission");
+    this->get_parameter(PARAMS_TOPIC_MISSION, mission_topic);
+
 
     this->declare_parameter(PARAMS_TARGET_MARKER, "/target_marker_topic");
     this->get_parameter(PARAMS_TARGET_MARKER, target_marker_topic);
@@ -62,6 +65,9 @@ SpacNode::SpacNode() : Node("spac_node")
     state_subscriber = this->create_subscription<lart_msgs::msg::State>(
         state_topic, 10, std::bind(&SpacNode::state_callback, this, _1));
 
+    mission_subscriber = this->create_subscription<lart_msgs::msg::Mission>(
+        mission_topic, 10, std::bind(&SpacNode::mission_callback, this, _1));
+
     // APENAS USAR NOS TESTES
     //this->target->set_ready();
 
@@ -89,6 +95,13 @@ void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
         RCLCPP_INFO(this->get_logger(), "Received EMERGENCY/FINISH signal");
         this->cleanUp();
         this->target->disengage_ready();
+    }
+}
+
+void SpacNode::mission_callback(const lart_msgs::msg::Mission::SharedPtr msg){
+    if(msg->data == lart_msgs::msg::Mission::ACCELERATION){
+        RCLCPP_INFO(this->get_logger(), "Received ACCELERATION MISSION");
+        this->target->set_acceleration_mission();
     }
 }
 
