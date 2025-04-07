@@ -30,7 +30,7 @@ void Target::instance_CarrotControl(){
         rpm = std::clamp(rpm, (float)0.0, this->max_rpm);
         
 
-        //experimental ways to keep the aceleration smooth
+        //experimental way to keep the aceleration smooth
 
         if(abs(rpm - this->current_rpm) > 100){ 
             if(rpm > this->max_rpm){
@@ -44,10 +44,12 @@ void Target::instance_CarrotControl(){
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = (int)rpm;
-        dispatcherMailBox.steering_angle = steering_angle;
 
-        //in case that the mission is acceleration
-        if(this->acel_flag){
+        if(!this->acel_flag){
+            //if the car is not in acceleration mission, set the steering angle to the calculated one
+            dispatcherMailBox.steering_angle = steering_angle;
+        }else{
+            //in case that the mission is acceleration
             dispatcherMailBox.steering_angle = steering_angle/4;
         }
 
