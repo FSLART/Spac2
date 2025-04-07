@@ -1,17 +1,16 @@
 /DriveModelNode:
   ros__parameters:
-    frequency: 10
+    frequency: 100
     path_topic: "/planned_path_topic"
     dynamics_cmd_topic: "pc_origin/dynamics"
     ackermann_topic: "/cmd"
     wheels_topic: "/ground_truth/wheel_speeds"
     rpm_topic: "/acu_origin/dynamics"
+    state_topic: "/pc_origin/system_status/critical_as/state"
+    mission_topic: "/pc_origin/system_status/critical_as/mission"
     target_marker_topic: "/target_marker_topic"
     distance_imu_to_rear_axle: 1.15
     max_speed: 20.0
-    kp_speed: 0.176
-    ki_speed: 0.05
-    kd_speed: 0.00
     k_curv: 1.5
     k_dist: 8.0
     k_dd: 9.0

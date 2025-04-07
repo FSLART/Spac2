@@ -17,6 +17,8 @@
 #include "lart_common.h"
 #include "lart_msgs/msg/path_spline.hpp"
 #include "visualization_msgs/msg/marker.hpp"
+#include "lart_msgs/msg/state.hpp"
+#include "lart_msgs/msg/mission.hpp"
 
 #include <ctime>
 
@@ -32,6 +34,9 @@
 #define PARAMS_TOPIC_PATH "path_topic"
 #define PARAMS_TOPIC_WHEELS "wheels_topic"
 #define PARAMS_TOPIC_ACKERMANN "ackermann_topic"
+#define PARAMS_TOPIC_STATE "state_topic"
+#define PARAMS_TOPIC_MISSION "mission_topic"
+
 #define PARAMS_TARGET_MARKER "target_marker_topic"
 
 class SpacNode : public rclcpp::Node
@@ -45,7 +50,8 @@ private:
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
     rclcpp::Subscription<lart_msgs::msg::PathSpline>::SharedPtr subscription_path;
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr ackermann_publisher;
-    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr subscription_ready;
+    rclcpp::Subscription<lart_msgs::msg::State>::SharedPtr state_subscriber;
+    rclcpp::Subscription<lart_msgs::msg::Mission>::SharedPtr mission_subscriber;
     rclcpp::Subscription<eufs_msgs::msg::WheelSpeedsStamped>::SharedPtr subscription_wheels;
 
 protected:
@@ -55,14 +61,13 @@ protected:
     void wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedPtr msg);
     void path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
     void cleanUp();
-    void whatTimeIsIt();
+    void state_callback(const lart_msgs::msg::State::SharedPtr msg);
+    void mission_callback(const lart_msgs::msg::Mission::SharedPtr msg);
+    //void whatTimeIsIt();
 
     float distance_imu_to_rear_axle;
     int frequency=0;
     float max_speed;
-    float kp_speed;
-    float ki_speed;
-    float kd_speed;
     float k_dd_pp;
     float k_curv;
     float k_dist;
@@ -73,9 +78,11 @@ protected:
     std::string path_topic;
     std::string wheels_topic;
     std::string ackermann_topic;
+    std::string state_topic;
+    std::string mission_topic;
     std::string target_marker_topic;
 
-    std::chrono::time_point<std::chrono::system_clock> last_time;
+    //std::chrono::time_point<std::chrono::system_clock> last_time;
 };
 
 #endif

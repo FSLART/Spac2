@@ -41,21 +41,6 @@ class Pure_Pursuit : public CommonBase{
         array<float, 2> target_point;
 };
 
-class PID_Controller{
-    public:
-        PID_Controller();
-        PID_Controller(float min, float max);
-        float compute(float setpoint, float input);
-        int set_Tunings(float kp, float ki, float kd);
-        float get_Proportion();
-        float get_Integral();
-        float get_Derivative();
-            
-    protected:
-        float kp, ki, kd, min_signal_value, max_signal_value;
-        float output_past, error, error_prev, error_sum;
-};
-
 optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points, float look_ahead_distance);
 int fastRound(float x);
 float speed_to_lookahead(float speed);
