@@ -50,9 +50,9 @@ private:
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
     rclcpp::Subscription<lart_msgs::msg::PathSpline>::SharedPtr subscription_path;
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr ackermann_publisher;
-    rclcpp::Subscription<lart_msgs::msg::State>::SharedPtr state_subscriber;
-    rclcpp::Subscription<lart_msgs::msg::Mission>::SharedPtr mission_subscriber;
     rclcpp::Subscription<eufs_msgs::msg::WheelSpeedsStamped>::SharedPtr subscription_wheels;
+
+
 
 protected:
 
@@ -61,8 +61,6 @@ protected:
     void wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedPtr msg);
     void path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg);
     void cleanUp();
-    void state_callback(const lart_msgs::msg::State::SharedPtr msg);
-    void mission_callback(const lart_msgs::msg::Mission::SharedPtr msg);
     //void whatTimeIsIt();
 
     float distance_imu_to_rear_axle;

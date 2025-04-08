@@ -31,29 +31,26 @@ void Target::instance_CarrotControl(){
         float rpm = this->get_desired_rpm(this->path, this->max_rpm);
         rpm = std::clamp(rpm, (float)0.0, this->max_rpm);
 
+        //RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
+        // RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "abs=%f", abs(rpm - this->current_rpm));
+
         if(abs(rpm - this->current_rpm) > 100){ 
-            if(rpm > this->max_rpm){
+            if(rpm > this->current_rpm){
                 rpm = this->current_rpm + 100;
             }else{
                 rpm = this->current_rpm - 100;
             }
         }
 
-        //RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
+        RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
         auto speed = RPM_TO_MS(rpm);
 
         //create dispatcher with rpm and steering
         dispatcherMailBox = ackermann_msgs::msg::AckermannDrive();
         dispatcherMailBox.speed = speed;
-
-        if(!this->acel_flag){
-            //if the car is not in acceleration mission, set the steering angle to the calculated one
-            dispatcherMailBox.steering_angle = steering_angle;
-        }else{
-            //in case that the mission is acceleration
-            dispatcherMailBox.steering_angle = steering_angle/4;
-        }
-
+        dispatcherMailBox.steering_angle = steering_angle;
+            
+ 
         //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
         //write the steering angle and speed to a file
         ofstream myfile;

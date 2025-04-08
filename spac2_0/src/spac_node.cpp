@@ -49,7 +49,8 @@ SpacNode::SpacNode() : Node("spac_node")
 
     //convert speed from km/h to m/s
     float speed_mps = max_speed / 3.6;
-    
+    RCLCPP_INFO(this->get_logger(), "Defined max speed: %f", speed_mps);
+
     //calculate the desired rpm
     max_rpm = MS_TO_RPM(speed_mps);
 
@@ -73,13 +74,6 @@ SpacNode::SpacNode() : Node("spac_node")
 
     subscription_wheels = this->create_subscription<eufs_msgs::msg::WheelSpeedsStamped>(
         wheels_topic, 10, std::bind(&SpacNode::wheels_callback, this, _1));
-
-    //receives the current state and calls the state_callback function
-    state_subscriber = this->create_subscription<lart_msgs::msg::State>(
-        state_topic, 10, std::bind(&SpacNode::state_callback, this, _1));
-
-    mission_subscriber = this->create_subscription<lart_msgs::msg::Mission>(
-        mission_topic, 10, std::bind(&SpacNode::mission_callback, this, _1));
 
     //PARA TESTES
     this->target->set_ready();
@@ -107,9 +101,9 @@ void SpacNode::dispatchAckermannDrive(){
 		//RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__); 
 
         //debug
-        // ackermann_msgs::msg::AckermannDriveStamped dispatcherMailBoxStamped = ackermann_msgs::msg::AckermannDriveStamped();
-        // dispatcherMailBoxStamped = this->target->get_dirtyDispatcherMail();
-        // ackermann_msgs::msg::AckermannDrive dispatcherMailBox = dispatcherMailBoxStamped.drive;
+        ackermann_msgs::msg::AckermannDriveStamped dispatcherMailBoxStamped = ackermann_msgs::msg::AckermannDriveStamped();
+        dispatcherMailBoxStamped = this->target->get_dirtyDispatcherMail();
+        ackermann_msgs::msg::AckermannDrive dispatcherMailBox = dispatcherMailBoxStamped.drive;
 
         //RCLCPP_INFO(this->get_logger(), "Speed: %f", dispatcherMailBox.speed);
         //RCLCPP_INFO(this->get_logger(), "Steering: %f", dispatcherMailBox.steering_angle);
@@ -144,24 +138,6 @@ void SpacNode::wheels_callback(const eufs_msgs::msg::WheelSpeedsStamped::SharedP
     this->target->set_rpm(MS_TO_RPM(speed));
 }
 
-void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
-    if(msg->data == lart_msgs::msg::State::DRIVING){
-        RCLCPP_INFO(this->get_logger(), "Received DRIVING signal");
-        this->target->set_ready();
-    }
-    if(msg->data == lart_msgs::msg::State::EMERGENCY || msg->data == lart_msgs::msg::State::FINISH){
-        RCLCPP_INFO(this->get_logger(), "Received EMERGENCY/FINISH signal");
-        this->cleanUp();
-        this->target->disengage_ready();
-    }
-}
-
-void SpacNode::mission_callback(const lart_msgs::msg::Mission::SharedPtr msg){
-    if(msg->data == lart_msgs::msg::Mission::ACCELERATION){
-        RCLCPP_INFO(this->get_logger(), "Received ACCELERATION MISSION");
-        this->target->set_acceleration_mission();
-    }
-}
 
 
 void SpacNode::cleanUp()
