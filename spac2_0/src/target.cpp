@@ -2,7 +2,7 @@
 
 Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
     this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
-    this->max_rpm = clamp(max_rpm,(float)0.0,(float)TERMINAL_RPM);
+    this->max_rpm = clamp(max_rpm,(float)0.0,10000.0f);
     RCLCPP_WARN(rclcpp::get_logger("instance_CarrotControl"), "Constructor_rpm=%f",this->max_rpm);
 }
 
@@ -168,6 +168,7 @@ float Target::get_steering_angle(lart_msgs::msg::PathSpline path, int rpm){
 }
 
 float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
+    
     float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path, max_rpm);
     //float desired_rpm = MS_TO_RPM(speed);
     //RCLCPP_INFO(rclcpp::get_logger("get_desired_rpm"), "desiredRpm=%f", desired_rpm);

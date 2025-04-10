@@ -32,9 +32,11 @@ class Pure_Pursuit : public CommonBase{
         float getAvgAngle();
         array<float, 2> get_target_point();
         void set_target_point(array<float, 2> closest_point);
+        //float speed_to_kcurv(float speed);
     protected:
         float k_dd;
-        float k_curv, k_dist;
+        float k_curv;
+        float k_dist;
         float distance_imu_to_rear_axle;
         float avg_angle[SIZE_AVG_ARRAY] = {0};
         int cycles = 0;

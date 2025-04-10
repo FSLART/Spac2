@@ -138,7 +138,6 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, floa
 
         //debug
         //RCLCPP_INFO(rclcpp::get_logger("pure"), "curvature=%f", curvature);
-        //RCLCPP_INFO(rclcpp::get_logger("pure"), "p_curv=%f", p_curv);
 
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "p_curv=%f", p_curv);
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "max_rpm=%f", max_rpm);
@@ -200,6 +199,17 @@ float speed_to_lookahead(float speed){
     //recent function
     float look_ahead_distance = (4.62281f + 0.00495614f * speed);
 
-    //RCLCPP_INFO(rclcpp::get_logger("pure"), "lookahead=%f", look_ahead_distance);
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "lookahead=%f", look_ahead_distance);
     return look_ahead_distance;
 }
+
+// float Pure_Pursuit::speed_to_kcurv(float speed){
+//     float k_curv = 0.00435996 * speed - 1.513;
+
+//     RCLCPP_INFO(rclcpp::get_logger("pure"), "kcurv=%f", k_curv);
+
+//     if(k_curv < 0.0f){
+//         k_curv = 0.0f;
+//     }
+//     return k_curv;
+// }

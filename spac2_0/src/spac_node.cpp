@@ -101,9 +101,9 @@ void SpacNode::dispatchAckermannDrive(){
 		//RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__); 
 
         //debug
-        ackermann_msgs::msg::AckermannDriveStamped dispatcherMailBoxStamped = ackermann_msgs::msg::AckermannDriveStamped();
-        dispatcherMailBoxStamped = this->target->get_dirtyDispatcherMail();
-        ackermann_msgs::msg::AckermannDrive dispatcherMailBox = dispatcherMailBoxStamped.drive;
+        // ackermann_msgs::msg::AckermannDriveStamped dispatcherMailBoxStamped = ackermann_msgs::msg::AckermannDriveStamped();
+        // dispatcherMailBoxStamped = this->target->get_dirtyDispatcherMail();
+        // ackermann_msgs::msg::AckermannDrive dispatcherMailBox = dispatcherMailBoxStamped.drive;
 
         //RCLCPP_INFO(this->get_logger(), "Speed: %f", dispatcherMailBox.speed);
         //RCLCPP_INFO(this->get_logger(), "Steering: %f", dispatcherMailBox.steering_angle);
