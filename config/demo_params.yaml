@@ -8,8 +8,8 @@
     mission_topic: "/pc_origin/system_status/critical_as/mission"
     target_marker_topic: "/target_marker_topic"
     distance_imu_to_rear_axle: 1.15
-    max_speed: 8.0
-    k_curv: 0.0
+    max_speed: 10.0
+    k_curv: 4.0
     k_dist: 8.0
     k_dd: 5.5
     qos_overrides:
