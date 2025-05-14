@@ -54,7 +54,7 @@ void Target::instance_CarrotControl(){
         }
 
         //RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
-        //RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%d", dispatcherMailBox.rpm);
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%d", dispatcherMailBox.rpm);
 
         //write the steering angle and speed to a file
         ofstream myfile;

@@ -43,6 +43,9 @@ SpacNode::SpacNode() : Node("spac_node")
     
     //calculate the desired rpm
     max_rpm = MS_TO_RPM(speed_mps);
+
+    //DEBUG
+    RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
     
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
     target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
@@ -69,7 +72,7 @@ SpacNode::SpacNode() : Node("spac_node")
         mission_topic, 10, std::bind(&SpacNode::mission_callback, this, _1));
 
     // APENAS USAR NOS TESTES
-    //this->target->set_ready();
+    this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
@@ -107,8 +110,10 @@ void SpacNode::mission_callback(const lart_msgs::msg::Mission::SharedPtr msg){
 
 void SpacNode::dispatchDynamicsCMD(){
 	if(this->target->get_isDispatcherDirty()){
-		RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__);
-		this->dynamics_publisher->publish(this->target->get_dirtyDispatcherMail());
+		//RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__);
+		
+
+        this->dynamics_publisher->publish(this->target->get_dirtyDispatcherMail());
 
         //Sending marker
         visualization_msgs::msg::Marker marker = this->target->get_target_marker();
