@@ -137,7 +137,7 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, floa
         float desired_speed = max_rpm * (1 - p_curv);
 
         //debug
-        //RCLCPP_INFO(rclcpp::get_logger("pure"), "curvature=%f", curvature);
+        RCLCPP_INFO(rclcpp::get_logger("pure"), "curvature=%f", curvature);
 
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "p_curv=%f", p_curv);
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "max_rpm=%f", max_rpm);
