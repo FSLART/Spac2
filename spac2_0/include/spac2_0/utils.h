@@ -1,7 +1,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#define MAX_LOOKAHEAD 20.0f
+#define MAX_LOOKAHEAD 12.0f
 #define MIN_LOOKAHEAD 5.0f
 #define AVG_DISTANCE 0.50f
 #define MIN_INDEX 10
