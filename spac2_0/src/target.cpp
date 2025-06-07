@@ -32,13 +32,13 @@ void Target::instance_CarrotControl(){
 
         //experimental way to keep the aceleration smooth
 
-        if(abs(rpm - this->current_rpm) > 100){ 
-            if(rpm > this->current_rpm){
-                rpm = this->current_rpm + 100;
-            }else{
-                rpm = this->current_rpm - 100;
-            }
-        }
+        // if(abs(rpm - this->current_rpm) > 100){ 
+        //     if(rpm > this->current_rpm){
+        //         rpm = this->current_rpm + 100;
+        //     }else{
+        //         rpm = this->current_rpm - 100;
+        //     }
+        // }
 
 
         //create dispatcher with rpm and steering
