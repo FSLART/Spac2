@@ -121,10 +121,10 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, floa
         float p_curv = min(1.0f, curvature * this->k_curv);
         float desired_speed = max_rpm * (1 - p_curv);
         
-        RCLCPP_INFO(rclcpp::get_logger("pure"), "max speed fmath=%f", max_rpm);
-        RCLCPP_INFO(rclcpp::get_logger("pure"), "curvature=%f", curvature);
-        RCLCPP_INFO(rclcpp::get_logger("pure"), "p_curv=%f", p_curv);
-        RCLCPP_INFO(rclcpp::get_logger("pure"), "desired_speed from fmath=%f", desired_speed);
+        // RCLCPP_INFO(rclcpp::get_logger("pure"), "max speed fmath=%f", max_rpm);
+        // RCLCPP_INFO(rclcpp::get_logger("pure"), "curvature=%f", curvature);
+        // RCLCPP_INFO(rclcpp::get_logger("pure"), "p_curv=%f", p_curv);
+        // RCLCPP_INFO(rclcpp::get_logger("pure"), "desired_speed from fmath=%f", desired_speed);
 
         //RCLCPP_INFO(rclcpp::get_logger("pure"), "Percentagem de velocidade=%f %%", (1 - p_curv) * 100);
         
@@ -190,7 +190,9 @@ float speed_to_lookahead(float speed){
     //float look_ahead_distance = 4.732881f * pow(1.000575, speed);
 
     //recent function
-    float look_ahead_distance = 4.62281f + 0.00495614f * speed;
+    // float look_ahead_distance = 4.62281f + 0.00495614f * speed;
+    float look_ahead_distance = 3.6f + 0.00495614f * speed;
+
     
     return look_ahead_distance;
 }
