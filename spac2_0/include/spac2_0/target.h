@@ -91,6 +91,9 @@ class Target{
         float k_curv;
         float k_dist;
         float last_rpm=0.0;                             /**< The last rpm of the motor */
+        int iteration = 0;                              /**< Consequent iteration of an acceleration step */
+        float growth_factor = 1.005;                    /**< The exponencial amount that the limit of change will increase per iteration */
+        float max_limit = 15.0;                         /**< The maximum allowed change of rpm speed between iterations */
         bool ready=false;
         bool acel_flag=false;
 
