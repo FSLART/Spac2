@@ -28,7 +28,6 @@ void Target::instance_CarrotControl(){
         //gets the the ideal rpm that the car should have in a certain point of the path
         float rpm = this->get_desired_rpm(this->path, this->max_rpm);
         rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
 
         //exponecial acceleration
         iteration++;
@@ -45,6 +44,8 @@ void Target::instance_CarrotControl(){
                 iteration = 0;
             }
         }
+
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
 
         this->last_rpm = rpm;
 
