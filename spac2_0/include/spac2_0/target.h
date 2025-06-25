@@ -90,7 +90,7 @@ class Target{
         float max_rpm;
         float k_curv;
         float k_dist;
-        float last_rpm=0.0;                          /**< The last rpm of the motor */
+        float last_rpm=0.0;                             /**< The last rpm of the motor */
         bool ready=false;
         bool acel_flag=false;
 
