@@ -27,19 +27,24 @@ void Target::instance_CarrotControl(){
 
         //gets the the ideal rpm that the car should have in a certain point of the path
         float rpm = this->get_desired_rpm(this->path, this->max_rpm);
-        rpm = std::clamp(rpm, (float)0.0, this->max_rpm);
+        rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
+
+        if (rpm > (float)TERMINAL_RPM)
+            rpm = (float)TERMINAL_RPM;
         
 
         //experimental way to keep the aceleration smooth
 
-        // if(abs(rpm - this->current_rpm) > 100){ 
-        //     if(rpm > this->current_rpm){
-        //         rpm = this->current_rpm + 100;
-        //     }else{
-        //         rpm = this->current_rpm - 100;
-        //     }
-        // }
+        if(abs(rpm - this->last_rpm) > 1.0){ 
+            if(rpm > this->last_rpm){
+                rpm = this->last_rpm + 1.0;
+            }else{
+                rpm = this->last_rpm - 1.0;
+            }
+        }
 
+        this->last_rpm = rpm;
 
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
@@ -54,7 +59,7 @@ void Target::instance_CarrotControl(){
         }
 
         //RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%d", dispatcherMailBox.rpm);
+        // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl after"), "rpm=%f", rpm);
 
         //write the steering angle and speed to a file
         ofstream myfile;
