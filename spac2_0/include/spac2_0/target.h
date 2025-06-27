@@ -23,9 +23,11 @@ class Target{
         * @param k_dist 
         * @param kdd 
         * @param distance_imu_to_rear_axle
+        * @param growth_factor
+        * @param acc_limiter
         * 
         */
-        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle);
+        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float max_limit);
         /**
         * @brief Constructor for the Target class.
         *
@@ -92,8 +94,8 @@ class Target{
         float k_dist;
         float last_rpm=0.0;                             /**< The last rpm of the motor */
         int iteration = 0;                              /**< Consequent iteration of an acceleration step */
-        float growth_factor = 1.005;                    /**< The exponencial amount that the limit of change will increase per iteration */
-        float max_limit = 15.0;                         /**< The maximum allowed change of rpm speed between iterations */
+        float growth_factor;                    /**< The exponencial amount that the limit of change will increase per iteration */
+        float max_limit;                         /**< The maximum allowed change of rpm speed between iterations */
         bool ready=false;
         bool acel_flag=false;
 

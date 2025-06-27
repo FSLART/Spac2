@@ -41,6 +41,8 @@
 #define PARAMS_TOPIC_RPM "rpm_topic"
 #define PARAMS_TOPIC_STATE "state_topic"
 #define PARAMS_TOPIC_MISSION "mission_topic"
+#define PARAMS_GROWTH_FACTOR "growth_factor"
+#define PARAMS_LIMITER "acc_limiter"
 
 #define PARAMS_TARGET_MARKER "target_marker_topic"
 
@@ -106,6 +108,8 @@ protected:
     float k_curv;       /**< Factor of deceleration in function of the curvature of the path */
     float k_dist;       /**< Extra value to be added to the index of the target point, used to get a new target point but only for the longitudinal control */
     float max_rpm;      /**< The maximum desired speed in rpm */
+    float growth_factor;
+    float acc_limiter; 
     Target *target;
     rclcpp::TimerBase::SharedPtr timer;
     rclcpp::TimerBase::SharedPtr timer_publisher;

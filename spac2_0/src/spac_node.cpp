@@ -8,9 +8,9 @@ SpacNode::SpacNode() : Node("spac_node")
 {
     this->declare_parameter(PARAMS_FREQUENCY, DEFAULT_FREQUENCY);
 	this->get_parameter(PARAMS_FREQUENCY, frequency);
-    //TODO: check if it makes sense to have the distance coming from the parameters, if so needs to be passed to the pure_pursuit object, for now using the default there
     this->declare_parameter(PARAMS_DISTANCE_IMU_TO_REAR_AXLE, DEFAULT_IMU_TO_REAR_AXLE);
     this->get_parameter(PARAMS_DISTANCE_IMU_TO_REAR_AXLE, distance_imu_to_rear_axle);
+    
     //MAX SPEED
     this->declare_parameter(PARAMS_MAX_SPEED, DEFAULT_MAX_SPEED);
     this->get_parameter(PARAMS_MAX_SPEED, max_speed);
@@ -22,6 +22,7 @@ SpacNode::SpacNode() : Node("spac_node")
     this->get_parameter(PARAMS_K_CURV, k_curv);
     this->declare_parameter(PARAMS_K_DIST, DEFAULT_K_DIST);
     this->get_parameter(PARAMS_K_DIST, k_dist);
+    
     //topics
     this->declare_parameter(PARAMS_TOPIC_PATH, "/path");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
@@ -34,7 +35,13 @@ SpacNode::SpacNode() : Node("spac_node")
     this->declare_parameter(PARAMS_TOPIC_MISSION, "/mission");
     this->get_parameter(PARAMS_TOPIC_MISSION, mission_topic);
 
+    // soft start variables
+    this->declare_parameter(PARAMS_GROWTH_FACTOR, DEFAULT_GROWTH_FACTOR);
+    this->get_parameter(PARAMS_LIMITER,growth_factor);
+    this->declare_parameter(PARAMS_LIMITER, DEFAULT_LIMITER);
+    this->get_parameter(PARAMS_LIMITER, acc_limiter);
 
+    //Visualization
     this->declare_parameter(PARAMS_TARGET_MARKER, "/target_marker_topic");
     this->get_parameter(PARAMS_TARGET_MARKER, target_marker_topic);
     
@@ -45,10 +52,10 @@ SpacNode::SpacNode() : Node("spac_node")
     max_rpm = MS_TO_RPM(speed_mps);
 
     //DEBUG
-    RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
+    //RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
     
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle);
+    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle, growth_factor, acc_limiter);
 
     // Create a publisher for visualization markers
     marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);

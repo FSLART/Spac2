@@ -1,12 +1,14 @@
 #include "spac2_0/target.h"
 
-Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle){
+Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float max_limit){
     this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
     this->max_rpm = std::clamp(max_rpm, (float)0.0, (float)TERMINAL_RPM);
+    this->growth_factor = growth_factor;
 }
 
 Target::Target(Pure_Pursuit pure_pursuit){
     this->pure_pursuit = pure_pursuit;
+    this->max_limit = max_limit;
 }
 
 void Target::instance_CarrotControl(){
@@ -30,8 +32,8 @@ void Target::instance_CarrotControl(){
         rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
 
         //exponecial acceleration
-        iteration++;
-        float limit = 1.0 * pow(growth_factor,iteration);
+        this->iteration++;
+        float limit = 1.0 * pow(this->growth_factor,this->iteration);
         if(limit > max_limit){
             limit = max_limit;
         }

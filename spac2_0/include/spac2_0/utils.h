@@ -21,6 +21,9 @@
 #define DEFAULT_K_DIST 10.0
 #define MAX_SPEED 10.0
 
+#define DEFAULT_GROWTH_FACTOR 1.004 // 7 seconds to achieve DEFAULT_LIMITER at 100HZ
+#define DEFAULT_LIMITER 15.0
+
 #define SIZE_AVG_ARRAY 3
 
 #endif // UTILS_H_
