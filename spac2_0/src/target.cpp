@@ -32,20 +32,28 @@ void Target::instance_CarrotControl(){
         rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
 
         //exponecial acceleration
-        this->iteration++;
-        float limit = 1.0 * pow(this->growth_factor,this->iteration);
-        if(limit > max_limit){
-            limit = max_limit;
-        }
+        // this->iteration++;
+        // float limit = 1.0 * pow(this->growth_factor,this->iteration);
+        // if(limit > max_limit){
+        //     limit = max_limit;
+        // }
 
-        if(abs(rpm - this->last_rpm) > limit){ 
+        if(abs(rpm - this->last_rpm) > 1.0){ 
             if(rpm > this->last_rpm){
-                rpm = this->last_rpm + limit;
+                rpm = this->last_rpm + 1.0;
             }else{
-                rpm = this->last_rpm - max_limit; //allows decelerations to be quick
-                iteration = 0;
+                rpm = this->last_rpm - 1.0; //allows decelerations to be quick
             }
         }
+
+        // if(abs(rpm - this->last_rpm) > limit){ 
+        //     if(rpm > this->last_rpm){
+        //         rpm = this->last_rpm + limit;
+        //     }else{
+        //         rpm = this->last_rpm - max_limit; //allows decelerations to be quick
+        //         iteration = 0;
+        //     }
+        // }
 
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
 
