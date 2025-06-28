@@ -78,6 +78,7 @@ class Pure_Pursuit : public CommonBase{
 
         array<float, 2> get_target_point();
         void set_target_point(array<float, 2> closest_point);
+        void set_ekf(geometry_msgs::msg::Pose pose);
     protected:
         float k_dd;
         float k_curv, k_dist;
@@ -85,6 +86,7 @@ class Pure_Pursuit : public CommonBase{
         float avg_angle[SIZE_AVG_ARRAY] = {0};  /**< Array used to store the last 3 steering angles*/
         int cycles = 0;                         /**< The number of the current iteration */
         array<float, 2> target_point;
+        geometry_msgs::msg::Pose current_pose; /**< The current pose of the car */
 };
 
 /**

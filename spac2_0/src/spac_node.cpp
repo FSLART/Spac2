@@ -78,6 +78,10 @@ SpacNode::SpacNode() : Node("spac_node")
     mission_subscriber = this->create_subscription<lart_msgs::msg::Mission>(
         mission_topic, 10, std::bind(&SpacNode::mission_callback, this, _1));
 
+    //receives ekf imu data
+    ekf_subscriber = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+        "/ekf/state", 10, std::bind(&SpacNode::ekf_callback, this, _1));
+
     // APENAS USAR NOS TESTES
     //this->target->set_ready();
 
@@ -94,6 +98,12 @@ SpacNode::SpacNode() : Node("spac_node")
     rclcpp::on_shutdown([this]() {
         cleanUp();
     });
+}
+
+void SpacNode::ekf_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
+{
+    //RCLCPP_INFO(this->get_logger(), "EKF callback received");
+    this->target->set_ekf(msg->pose);
 }
 
 void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){

@@ -28,7 +28,11 @@ float Pure_Pursuit::get_k_dd()
 float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, float speed)
 {
     // Create a pose with the current position  of the car.
+    //WARNING: THIS WILL BE NECESSARY FOR ANYOTHER MISSION APART FROM THE SKIDPAD UNTIL THE SLAM IS DONE
     array<float, 2> position = {0.0, 0.0};
+    position[0] = static_cast<float>(current_pose.position.x);
+    position[1] = static_cast<float>(current_pose.position.y);
+    
 
     // adds the current position to an array with all the points of the path
     // discarding Z axis
@@ -195,4 +199,8 @@ float speed_to_lookahead(float speed){
 
     
     return look_ahead_distance;
+}
+
+void Pure_Pursuit::set_ekf(geometry_msgs::msg::Pose pose){
+    this->current_pose = pose;
 }

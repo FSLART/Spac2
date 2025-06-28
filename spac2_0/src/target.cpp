@@ -188,4 +188,7 @@ float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
     return desired_rpm;
 }
 
+void Target::set_ekf(geometry_msgs::msg::Pose pose){
+    this->pure_pursuit.set_ekf(pose);
+}
 

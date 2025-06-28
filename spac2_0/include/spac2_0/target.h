@@ -67,7 +67,7 @@ class Target{
         * 
         * @return DispatcherMailBox
         */
-
+        void set_ekf(geometry_msgs::msg::Pose pose);
         void set_acceleration_mission();
         lart_msgs::msg::DynamicsCMD get_dirtyDispatcherMail();
         bool get_isDispatcherDirty();

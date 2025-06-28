@@ -25,6 +25,7 @@
 #include "lart_msgs/msg/path_spline.hpp"
 #include "lart_msgs/msg/state.hpp"
 #include "lart_msgs/msg/mission.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 
 #include <ctime>
@@ -62,6 +63,7 @@ private:
     rclcpp::Publisher<lart_msgs::msg::DynamicsCMD>::SharedPtr dynamics_publisher;
     rclcpp::Subscription<lart_msgs::msg::State>::SharedPtr state_subscriber;
     rclcpp::Subscription<lart_msgs::msg::Mission>::SharedPtr mission_subscriber;
+    rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr ekf_subscriber;
 
 protected:
     //Functions
@@ -97,6 +99,9 @@ protected:
     * to ensure that random values aren't left forgotten in the system 
     * when the node is shutdown.
     */
+
+    void ekf_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
+    
     void cleanUp();
     //void whatTimeIsIt();
 
