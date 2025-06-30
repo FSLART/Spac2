@@ -27,7 +27,7 @@ class Target{
         * @param acc_limiter
         * 
         */
-        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float max_limit);
+        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float base_limit, float max_limit);
         /**
         * @brief Constructor for the Target class.
         *
@@ -93,8 +93,8 @@ class Target{
         float k_curv;
         float k_dist;
         float last_rpm=0.0;                             /**< The last rpm of the motor */
-        int iteration = 0;                              /**< Consequent iteration of an acceleration step */
         float growth_factor;                    /**< The exponencial amount that the limit of change will increase per iteration */
+        float base_limit;                         /**< The base limit of the soft start, used to calculate the maximum allowed change of rpm speed between iterations */
         float max_limit;                         /**< The maximum allowed change of rpm speed between iterations */
         bool ready=false;
         bool acel_flag=false;

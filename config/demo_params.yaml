@@ -12,8 +12,9 @@
     k_curv: 1.0
     k_dist: 8.0
     k_dd: 5.5
-    growth_factor: 1.004
-    acc_limiter: 15.0
+    growth_factor: 1.001069
+    base_limit: 1.8
+    max_limit: 25.0
     qos_overrides:
       /parameter_events:
         publisher:

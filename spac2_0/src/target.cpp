@@ -1,14 +1,15 @@
 #include "spac2_0/target.h"
 
-Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float max_limit){
+Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float base_limit, float max_limit){
     this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
     this->max_rpm = std::clamp(max_rpm, (float)0.0, (float)TERMINAL_RPM);
     this->growth_factor = growth_factor;
+    this->base_limit = base_limit;
+    this->max_limit = max_limit;
 }
 
 Target::Target(Pure_Pursuit pure_pursuit){
     this->pure_pursuit = pure_pursuit;
-    this->max_limit = max_limit;
 }
 
 void Target::instance_CarrotControl(){
@@ -30,21 +31,41 @@ void Target::instance_CarrotControl(){
         //gets the the ideal rpm that the car should have in a certain point of the path
         float rpm = this->get_desired_rpm(this->path, this->max_rpm);
         rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
+        
+        /* BLOCO PARA OPCAO EXPONECIAL */
 
-        //exponecial acceleration
-        // this->iteration++;
-        // float limit = 1.0 * pow(this->growth_factor,this->iteration);
-        // if(limit > max_limit){
-        //     limit = max_limit;
-        // }
+        //Smooth the rpm change
+        float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->last_rpm);// Increase limit with speed
 
-        if(abs(rpm - this->last_rpm) > 1.0){ 
-            if(rpm > this->last_rpm){
-                rpm = this->last_rpm + 1.0;
-            }else{
-                rpm = this->last_rpm - 1.0; //allows decelerations to be quick
-            }
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
+
+        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
+
+        if (rpm - this->last_rpm > rpm_change_limit) {
+            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            rpm = this->last_rpm + rpm_change_limit;
         }
+
+        /* BLOCO PARA OPCAO LINEAR */
+        /*
+        // CHANGE THIS PARAMETERS
+        this->growth_factor = 0.0110457
+        this->base_limit = 1.05148;
+
+        //Smooth the rpm change
+        float rpm_change_limit = this->growth_factor * rpm + this->base_limit;
+
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
+
+        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
+
+        if (rpm - this->last_rpm > rpm_change_limit) {
+            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            rpm = this->last_rpm + rpm_change_limit;
+        }
+        */
+
+
 
         // if(abs(rpm - this->last_rpm) > limit){ 
         //     if(rpm > this->last_rpm){

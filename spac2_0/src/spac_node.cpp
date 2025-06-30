@@ -37,9 +37,11 @@ SpacNode::SpacNode() : Node("spac_node")
 
     // soft start variables
     this->declare_parameter(PARAMS_GROWTH_FACTOR, DEFAULT_GROWTH_FACTOR);
-    this->get_parameter(PARAMS_LIMITER,growth_factor);
+    this->get_parameter(PARAMS_GROWTH_FACTOR, growth_factor);
+    this->declare_parameter(PARAMS_BASE_LIMIT, DEFAULT_BASE_LIMIT);
+    this->get_parameter(PARAMS_BASE_LIMIT, base_limit);
     this->declare_parameter(PARAMS_LIMITER, DEFAULT_LIMITER);
-    this->get_parameter(PARAMS_LIMITER, acc_limiter);
+    this->get_parameter(PARAMS_LIMITER, max_limit);
 
     //Visualization
     this->declare_parameter(PARAMS_TARGET_MARKER, "/target_marker_topic");
@@ -55,7 +57,7 @@ SpacNode::SpacNode() : Node("spac_node")
     //RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
     
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle, growth_factor, acc_limiter);
+    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle, growth_factor, base_limit, max_limit);
 
     // Create a publisher for visualization markers
     marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);
@@ -83,7 +85,7 @@ SpacNode::SpacNode() : Node("spac_node")
         "/ekf/state", 10, std::bind(&SpacNode::ekf_callback, this, _1));
 
     // APENAS USAR NOS TESTES
-    //this->target->set_ready();
+    this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
