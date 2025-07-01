@@ -31,20 +31,28 @@ void Target::instance_CarrotControl(){
         //gets the the ideal rpm that the car should have in a certain point of the path
         float rpm = this->get_desired_rpm(this->path, this->max_rpm);
         rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
+
+
+
+
         
         /* BLOCO PARA OPCAO EXPONECIAL */
 
         //Smooth the rpm change
-        float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->last_rpm);// Increase limit with speed
+        float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->current_rpm);// Increase limit with speed
 
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
 
         rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
 
-        if (rpm - this->last_rpm > rpm_change_limit) {
+        if (rpm - this->current_rpm > rpm_change_limit) {
             RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
-            rpm = this->last_rpm + rpm_change_limit;
+            rpm = this->current_rpm + rpm_change_limit;
         }
+
+
+
+
 
         /* BLOCO PARA OPCAO LINEAR */
         /*
@@ -65,16 +73,24 @@ void Target::instance_CarrotControl(){
         }
         */
 
+        
 
 
-        // if(abs(rpm - this->last_rpm) > limit){ 
-        //     if(rpm > this->last_rpm){
-        //         rpm = this->last_rpm + limit;
-        //     }else{
-        //         rpm = this->last_rpm - max_limit; //allows decelerations to be quick
-        //         iteration = 0;
-        //     }
-        // }
+        /* BLOCO DE LAST EXPONECIAL */
+        
+        /*
+        float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->last_rpm);// Increase limit with speed
+
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
+
+        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
+
+        if (rpm - this->last_rpm > rpm_change_limit) {
+            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            rpm = this->last_rpm + rpm_change_limit;
+        }
+        */
+
 
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
 
@@ -191,7 +207,8 @@ lart_msgs::msg::PathSpline Target::get_path(){
 }
 
 void Target::set_rpm(int rpm){
-    this->current_rpm = rpm;
+    this->current_rpm = (float)rpm;
+    RCLCPP_INFO(rclcpp::get_logger("set_rpm"), "rpm=%f", this->current_rpm);
 }
 
 int Target::get_rpm(){
