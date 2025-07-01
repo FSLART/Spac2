@@ -11,7 +11,7 @@
     max_speed: 10.0
     k_curv: 0.3
     k_dist: 8.0
-    k_dd: 5.5
+    k_dd: 3.6
     growth_factor: 1.000951
     base_limit: 32.01766
     max_limit: 25.0

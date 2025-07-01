@@ -73,6 +73,16 @@ class Pure_Pursuit : public CommonBase{
         *
         * @return average steering angle.
         */
+
+        /**
+         * @brief Function that calculates a lookahead distance acording to a certain speed in rpm
+         * 
+         * @param speed
+         * 
+         * @return lookahead
+         */
+        float speed_to_lookahead(float speed);
+        
         float getAvgAngle();
         float get_k_dd();
 
@@ -103,13 +113,5 @@ optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points,
 * @brief Optimized round function, to only take into acount positive values
 */
 int fastRound(float x);
-/**
- * @brief Function that calculates a lookahead distance acording to a certain speed in rpm
- * 
- * @param speed
- * 
- * @return lookahead
- */
-float speed_to_lookahead(float speed);
 
 #endif

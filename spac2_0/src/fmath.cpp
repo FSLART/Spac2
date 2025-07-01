@@ -161,6 +161,7 @@ float Pure_Pursuit::getAvgAngle(){
     return sum / interval;
 }
 
+
 array<float, 2> Pure_Pursuit::get_target_point()
 {
     return this->target_point;
@@ -186,7 +187,8 @@ int fastRound(float x) {
     return static_cast<int>(x + 0.5f);
 }
 
-float speed_to_lookahead(float speed){
+float Pure_Pursuit::speed_to_lookahead(float speed){
+
   //min lookahead = 7.0
     //float look_ahead_distance = 6.6852f * pow(1.00041, speed);
 
@@ -195,7 +197,8 @@ float speed_to_lookahead(float speed){
 
     //recent function
     // float look_ahead_distance = 4.62281f + 0.00495614f * speed;
-    float look_ahead_distance = 3.6f + 0.00495614f * speed;
+    float look_ahead_distance = this->k_dd + 0.00495614f * speed;
+    RCLCPP_INFO(rclcpp::get_logger("speed_to_lookahead"), "kdd=%f", this->k_dd);
 
     
     return look_ahead_distance;
