@@ -42,7 +42,10 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     // Define the transformation
     tf2::Transform transform;
     transform.setOrigin(tf2::Vector3(this->distance_imu_to_rear_axle, 0.0, 0.0));
-    transform.setRotation(tf2::Quaternion(0, 0, 0, 1));
+
+    tf2::Quaternion rotation;
+    rotation.setRPY(0, 0, this->current_pose.orientation.w); // No rotation
+    transform.setRotation(rotation);
 
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
@@ -125,9 +128,15 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     set_target_point(target_point);
 
     //write the steering angle and the point of intersection to a file
+    // ofstream myfile;
+    // myfile.open("steer_point.csv", ios::app);
+    // myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << "\n"; 
+    // myfile.close();
+
+    //write reference point to a file
     ofstream myfile;
-    myfile.open("steer_point.csv", ios::app);
-    myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << "\n"; 
+    myfile.open("spac_analytics.csv", ios::app);
+    myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << ", " << first_point[0] << ", " << first_point[1] << ", " << look_ahead_distance << "\n"; 
     myfile.close();
 
     return getAvgAngle();

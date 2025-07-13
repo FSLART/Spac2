@@ -105,8 +105,7 @@ SpacNode::SpacNode() : Node("spac_node")
 void SpacNode::ekf_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
 {
     //RCLCPP_INFO(this->get_logger(), "EKF callback received");
-    //this->target->set_ekf(msg->pose);
-    (void) msg; // Suppress unused variable warning
+    this->target->set_ekf(msg->pose);
 }
 
 void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
