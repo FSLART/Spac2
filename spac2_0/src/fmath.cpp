@@ -109,6 +109,14 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     // Calculate steering angle (pure pursuit algorithm)
     float steering_angle = atan2(2 * WHEELBASE_M * sin(alpha), look_ahead_distance);
 
+
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "first point x=%f first point y=%f", first_point[0], first_point[1]);
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "closest point x=%f closest point y=%f", (*closest_point)[0], (*closest_point)[1]);
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "relative x=%f relative y=%f", relative_x, relative_y);
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "look_ahead_distance=%f", look_ahead_distance);
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "alpha=%f", alpha);
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "steering_angle=%f", steering_angle);
+
     // Keep previous angles to calculate the average
     keepAvgAngle(steering_angle);
     
@@ -117,10 +125,10 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     set_target_point(target_point);
 
     //write the steering angle and the point of intersection to a file
-    // ofstream myfile;
-    // myfile.open("steer_point.csv", ios::app);
-    // myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << "\n"; 
-    // myfile.close();
+    ofstream myfile;
+    myfile.open("steer_point.csv", ios::app);
+    myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << "\n"; 
+    myfile.close();
 
     return getAvgAngle();
 }
@@ -204,7 +212,7 @@ float Pure_Pursuit::speed_to_lookahead(float speed){
     //recent function
     // float look_ahead_distance = 4.62281f + 0.00495614f * speed;
     float look_ahead_distance = this->k_dd + 0.00495614f * speed;
-    RCLCPP_INFO(rclcpp::get_logger("speed_to_lookahead"), "kdd=%f", this->k_dd);
+    //RCLCPP_INFO(rclcpp::get_logger("speed_to_lookahead"), "kdd=%f", this->k_dd);
 
     
     return look_ahead_distance;

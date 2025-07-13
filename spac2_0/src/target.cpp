@@ -45,10 +45,10 @@ void Target::instance_CarrotControl(){
 
         rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
 
-        if (rpm - this->current_rpm > rpm_change_limit) {
-            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
-            rpm = this->current_rpm + rpm_change_limit;
-        }
+        // if (rpm - this->current_rpm > rpm_change_limit) {
+        //     RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+        //     rpm = this->current_rpm + rpm_change_limit;
+        // }
 
 
 
@@ -90,6 +90,13 @@ void Target::instance_CarrotControl(){
             rpm = this->last_rpm + rpm_change_limit;
         }
         */
+
+         
+        /*ORIGINAL CODE*/
+        if (rpm - this->last_rpm > 2.0) {
+            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            rpm = this->last_rpm + 2.0;
+        }
 
 
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);

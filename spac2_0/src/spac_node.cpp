@@ -85,7 +85,7 @@ SpacNode::SpacNode() : Node("spac_node")
         "/ekf/state", 10, std::bind(&SpacNode::ekf_callback, this, _1));
 
     // APENAS USAR NOS TESTES
-    this->target->set_ready();
+    // this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
@@ -114,8 +114,13 @@ void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
         RCLCPP_INFO(this->get_logger(), "Received DRIVING signal");
         this->target->set_ready();
     }
-    if(msg->data == lart_msgs::msg::State::EMERGENCY || msg->data == lart_msgs::msg::State::FINISH){
-        RCLCPP_INFO(this->get_logger(), "Received EMERGENCY/FINISH signal");
+    if(msg->data == lart_msgs::msg::State::FINISH){
+        RCLCPP_INFO(this->get_logger(), "Received FINISH signal");
+        this->cleanUp();
+        this->target->disengage_ready();
+    }
+    if(msg->data == lart_msgs::msg::State::EMERGENCY){
+        RCLCPP_INFO(this->get_logger(), "Received EMERGENCY signal");
         this->cleanUp();
         this->target->disengage_ready();
     }
