@@ -29,15 +29,15 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 {
     // Create a pose with the current position  of the car.
     //WARNING: THIS WILL BE NECESSARY FOR ANYOTHER MISSION APART FROM THE SKIDPAD UNTIL THE SLAM IS DONE
-    array<float, 2> position = {0.0, 0.0};
-    position[0] = static_cast<float>(current_pose.position.x);
-    position[1] = static_cast<float>(current_pose.position.y);
+    // array<float, 2> position = {0.0, 0.0};
+    // position[0] = static_cast<float>(current_pose.position.x);
+    // position[1] = static_cast<float>(current_pose.position.y);
     
 
     // adds the current position to an array with all the points of the path
     // discarding Z axis
     vector<array<float, 2>> path_points;
-    path_points.push_back(position);
+    // path_points.push_back(position);
 
     // Define the transformation
     tf2::Transform transform;
@@ -98,7 +98,13 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     }
 
     // Calculate angle between the closest point and (0,0) (because the point is returned relative to (0,0)) instead of the rear!!
-    float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
+    //float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
+
+    // Calculate angle between the closest point and the first point of the path
+    std::array<float, 2> first_point = path_points[0]; // Assuming path_points is not empty
+    float relative_x = (*closest_point)[0] - first_point[0];
+    float relative_y = (*closest_point)[1] - first_point[1];
+    float alpha = atan2(relative_y, relative_x);
 
     // Calculate steering angle (pure pursuit algorithm)
     float steering_angle = atan2(2 * WHEELBASE_M * sin(alpha), look_ahead_distance);
