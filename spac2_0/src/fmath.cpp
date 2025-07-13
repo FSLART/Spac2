@@ -10,7 +10,7 @@ Pure_Pursuit::Pure_Pursuit(float k_dd, float k_curv, float k_dist,float distance
     this->k_dd = k_dd;
     this->k_curv = k_curv;
     this->k_dist = k_dist;
-    this->distance_imu_to_rear_axle = distance_to_rear_axle;
+    this->distance_imu_to_rear_axle = -distance_to_rear_axle;
 }
 
 //TODO: check how to not have the need for a empty constructor
