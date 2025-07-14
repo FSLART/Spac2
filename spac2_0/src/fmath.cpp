@@ -47,6 +47,29 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     rotation.setRPY(0, 0, this->current_pose.orientation.w); // No rotation
     transform.setRotation(rotation);
 
+
+    // DEBUG: CREATE MARKERS FOR THE PATH
+    // Create the marker
+    visualization_msgs::msg::Marker path_viz_marker;
+    path_viz_marker.header.frame_id = "base_footprint"; // or "base_link", depending on your use case
+    path_viz_marker.header.stamp = rclcpp::Clock().now();
+    path_viz_marker.ns = "path";
+    path_viz_marker.id = 0;
+    path_viz_marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
+    path_viz_marker.action = visualization_msgs::msg::Marker::ADD;
+
+
+
+    // Set marker properties
+    path_viz_marker.scale.x = 0.1; // Line width
+
+    // Line color (RGBA)
+    path_viz_marker.color.r = 1.0;
+    path_viz_marker.color.g = 0.0;
+    path_viz_marker.color.b = 0.0;
+    path_viz_marker.color.a = 1.0;
+
+
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
         // Create an array with X and Y position of the path, shifting the X value to the rear of the car
@@ -70,9 +93,18 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
             static_cast<float>(transformed_pose.position.x),
             static_cast<float>(transformed_pose.position.y)
         };
+        
+        // DEBUG: ADD POINTS TO THE PATH MARKER
+        geometry_msgs::msg::Point p;
+        p.x = static_cast<float>(transformed_pose.position.x);
+        p.y = static_cast<float>(transformed_pose.position.y);
+        path_viz_marker.points.push_back(p);
 
         path_points.push_back(point);
     }
+
+    // DEBBUG: SAVE THE PATH MARKER
+    this->path_marker = path_viz_marker;
 
     // Calculate look ahead point based on the speed with a min and max distances
     float look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
@@ -229,4 +261,8 @@ float Pure_Pursuit::speed_to_lookahead(float speed){
 
 void Pure_Pursuit::set_ekf(geometry_msgs::msg::Pose pose){
     this->current_pose = pose;
+}
+
+visualization_msgs::msg::Marker Pure_Pursuit::get_path_marker(){
+    return this->path_marker;
 }

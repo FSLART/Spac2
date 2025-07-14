@@ -81,6 +81,7 @@ class Target{
         bool get_ready();
         void set_target_marker(array<float, 2> target_point);
         visualization_msgs::msg::Marker get_target_marker();
+        visualization_msgs::msg::Marker get_path_marker();
 
     protected:
         //Variables
@@ -99,6 +100,7 @@ class Target{
         bool ready=false;
         bool acel_flag=false;
 
+        visualization_msgs::msg::Marker path_marker;
         visualization_msgs::msg::Marker target_marker;
 };
 

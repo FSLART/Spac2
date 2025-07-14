@@ -237,3 +237,7 @@ void Target::set_ekf(geometry_msgs::msg::Pose pose){
     this->pure_pursuit.set_ekf(pose);
 }
 
+visualization_msgs::msg::Marker Target::get_path_marker(){
+    return this->pure_pursuit.get_path_marker();
+}
+

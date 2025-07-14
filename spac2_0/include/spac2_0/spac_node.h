@@ -62,6 +62,7 @@ private:
     rclcpp::Subscription<lart_msgs::msg::PathSpline>::SharedPtr subscription_path;
     rclcpp::Subscription<lart_msgs::msg::Dynamics>::SharedPtr subscription_rpm;
     rclcpp::Publisher<lart_msgs::msg::DynamicsCMD>::SharedPtr dynamics_publisher;
+    rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr path_marker_publisher;
     rclcpp::Subscription<lart_msgs::msg::State>::SharedPtr state_subscriber;
     rclcpp::Subscription<lart_msgs::msg::Mission>::SharedPtr mission_subscriber;
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr ekf_subscriber;

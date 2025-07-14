@@ -14,6 +14,9 @@
 #include <tf2/LinearMath/Transform.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
+#include <visualization_msgs/msg/marker.hpp>
+#include <geometry_msgs/msg/point.hpp>
+
 using namespace std;
 
 class CommonBase {
@@ -89,6 +92,8 @@ class Pure_Pursuit : public CommonBase{
         array<float, 2> get_target_point();
         void set_target_point(array<float, 2> closest_point);
         void set_ekf(geometry_msgs::msg::Pose pose);
+        visualization_msgs::msg::Marker get_path_marker();
+
     protected:
         float k_dd;
         float k_curv, k_dist;
@@ -97,6 +102,7 @@ class Pure_Pursuit : public CommonBase{
         int cycles = 0;                         /**< The number of the current iteration */
         array<float, 2> target_point;
         geometry_msgs::msg::Pose current_pose; /**< The current pose of the car */
+        visualization_msgs::msg::Marker path_marker;
 };
 
 /**
@@ -113,5 +119,6 @@ optional<array<float, 2>> get_closest_point(vector<array<float, 2>> path_points,
 * @brief Optimized round function, to only take into acount positive values
 */
 int fastRound(float x);
+
 
 #endif
