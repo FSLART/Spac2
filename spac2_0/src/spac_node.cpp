@@ -67,7 +67,7 @@ SpacNode::SpacNode() : Node("spac_node")
 
     // Create a publisher for visualization markers
     marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);
-    path_marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>("/spac/path_markerx", 10);
+    path_marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>("/spac/path_marker", 10);
 
     //create publisher for ackermann drive
 	dynamics_publisher = this->create_publisher<lart_msgs::msg::DynamicsCMD>(dynamics_cmd_topic, 10);
