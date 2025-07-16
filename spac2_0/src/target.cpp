@@ -22,7 +22,7 @@ void Target::instance_CarrotControl(){
         
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
         steering_angle = std::clamp((float)(steering_angle), (float)-MAX_WHEEL_ANGLE_RAD,(float) MAX_WHEEL_ANGLE_RAD);
-
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering_angle=%f", RAD_TO_DEG(steering_angle));
 
         //CREATING THE TARGET POINT MARKER
         array<float, 2> target_point = this->pure_pursuit.get_target_point();
@@ -34,16 +34,15 @@ void Target::instance_CarrotControl(){
 
 
 
-
         
         /* BLOCO PARA OPCAO EXPONECIAL */
 
         //Smooth the rpm change
-        float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->current_rpm);// Increase limit with speed
+        // float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->current_rpm);// Increase limit with speed
 
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
+        // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
 
-        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
+        // rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
 
         // if (rpm - this->current_rpm > rpm_change_limit) {
         //     RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
@@ -52,7 +51,7 @@ void Target::instance_CarrotControl(){
 
 
 
-
+        //10 e 8
 
         /* BLOCO PARA OPCAO LINEAR */
         /*
@@ -94,7 +93,7 @@ void Target::instance_CarrotControl(){
          
         /*ORIGINAL CODE*/
         if (rpm - this->last_rpm > 2.0) {
-            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
             rpm = this->last_rpm + 2.0;
         }
 
@@ -230,6 +229,7 @@ float Target::get_steering_angle(lart_msgs::msg::PathSpline path, int rpm){
 
 float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
     float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path, max_rpm);
+    //RCLCPP_INFO(rclcpp::get_logger("Target"),"ESTOU A PEDIR ESTA VELOCIDADE -> %f",desired_rpm);
     return desired_rpm;
 }
 

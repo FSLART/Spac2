@@ -35,16 +35,23 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     
 
     // adds the current position to an array with all the points of the path
-    // discarding Z axis
     vector<array<float, 2>> path_points;
-    // path_points.push_back(position);
+
+    float first_x=0.0;
+    float first_y=0.0;
+
+    if(path.poses.size() > MIN_INDEX){
+        first_x = path.poses[0].pose.position.x;
+        first_y = path.poses[0].pose.position.y;
+    }
 
     // Define the transformation
     tf2::Transform transform;
     transform.setOrigin(tf2::Vector3(this->distance_imu_to_rear_axle, 0.0, 0.0));
 
+    //transform.setRotation(tf2::Quaternion(0, 0, 0, 1));
     tf2::Quaternion rotation;
-    rotation.setRPY(0, 0, this->current_pose.orientation.w); // No rotation
+    rotation.setRPY(0, 0, -this->current_pose.orientation.w);
     transform.setRotation(rotation);
 
 
@@ -69,13 +76,25 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     path_viz_marker.color.b = 0.0;
     path_viz_marker.color.a = 1.0;
 
-
+    
+    // RCLCPP_INFO(rclcpp::get_logger("pure"),"Pose: x=%f y=%f",this->current_pose.position.x,this->current_pose.position.y);
+    // RCLCPP_INFO(rclcpp::get_logger("pure"),"Heading = %f",this->current_pose.orientation.w);
+    // RCLCPP_INFO(rclcpp::get_logger("pure"),"New Paths");
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
+        //RCLCPP_INFO(rclcpp::get_logger("pure"),"Before transformation (%f,%f)",path.poses[i].pose.position.x, path.poses[i].pose.position.y);
+
+        // tf to negate the postion of the car in the map
+        // path.poses[i].pose.position.x = path.poses[i].pose.position.x - first_x;
+        // path.poses[i].pose.position.y = path.poses[i].pose.position.y - first_y;
+        path.poses[i].pose.position.x -= first_x;
+        path.poses[i].pose.position.y -= first_y;
+
         // Create an array with X and Y position of the path, shifting the X value to the rear of the car
         geometry_msgs::msg::PoseStamped input_pose = path.poses[i];
         tf2::Transform input_transform;
         tf2::fromMsg(input_pose.pose, input_transform);
+
 
         // Apply the transformation
         tf2::Transform transformed_transform = transform * input_transform;
@@ -101,7 +120,48 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
         path_viz_marker.points.push_back(p);
 
         path_points.push_back(point);
+        
+        //RCLCPP_INFO(rclcpp::get_logger("pure"),"After transformation (%f,%f)",static_cast<float>(transformed_pose.position.x),static_cast<float>(transformed_pose.position.y));
     }
+
+        // path.poses[i].pose.position.x -= first_x;
+        // path.poses[i].pose.position.y -= first_y;
+
+        // geometry_msgs::msg::PoseStamped input_pose = path.poses[i];
+        // tf2::Transform input_transform;
+        // tf2::fromMsg(input_pose.pose, input_transform);
+
+        // // Shift 1.15 meters behind (along local X-axis)
+        // tf2::Vector3 local_offset(-1.15, 0.0, 0.0);  // Move backward
+        // input_transform.setOrigin(input_transform.getOrigin() + local_offset);
+
+        // // Apply rotation transformation
+        // tf2::Transform transformed_transform = transform * input_transform;
+
+        // geometry_msgs::msg::Pose transformed_pose;
+        // transformed_pose.position.x = transformed_transform.getOrigin().x();
+        // transformed_pose.position.y = transformed_transform.getOrigin().y();
+        // transformed_pose.position.z = transformed_transform.getOrigin().z();
+        // transformed_pose.orientation.x = transformed_transform.getRotation().x();
+        // transformed_pose.orientation.y = transformed_transform.getRotation().y();
+        // transformed_pose.orientation.z = transformed_transform.getRotation().z();
+        // transformed_pose.orientation.w = transformed_transform.getRotation().w();
+
+        // std::array<float, 2> point = {
+        //     static_cast<float>(transformed_pose.position.x),
+        //     static_cast<float>(transformed_pose.position.y)
+        // };
+
+        // geometry_msgs::msg::Point p;
+        // p.x = point[0];
+        // p.y = point[1];
+        // path_viz_marker.points.push_back(p);
+
+        // path_points.push_back(point);
+
+        // if(i == 0){
+        //     RCLCPP_INFO(rclcpp::get_logger("pure"),"x=%f, y=%f",path.poses[i].pose.position.x, path.poses[i].pose.position.y);
+        // }
 
     // DEBBUG: SAVE THE PATH MARKER
     this->path_marker = path_viz_marker;
@@ -114,10 +174,11 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     // Find the closest point to the look ahead distance intersecting the path with a circle
     optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance);
     // if there is no intersection with the path, keep the car straight (?) TODO: check if this is the best approach
-    if (!closest_point.has_value())
+    if (!closest_point.has_value()) 
     {
         return getAvgAngle();
     }
+
     //if the x value is 0 (straight line) return 0 (no steering angle needed) or else it will give the wrong angle in the atan2
     if ((*closest_point)[0] == 0)
     {
@@ -136,21 +197,16 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     //float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
 
     // Calculate angle between the closest point and the first point of the path
-    std::array<float, 2> first_point = path_points[0]; // Assuming path_points is not empty
-    float relative_x = (*closest_point)[0] - first_point[0];
-    float relative_y = (*closest_point)[1] - first_point[1];
-    float alpha = atan2(relative_y, relative_x);
+    float alpha = atan2((*closest_point)[1], (*closest_point)[0]);
 
     // Calculate steering angle (pure pursuit algorithm)
     float steering_angle = atan2(2 * WHEELBASE_M * sin(alpha), look_ahead_distance);
 
 
-    RCLCPP_INFO(rclcpp::get_logger("pure"), "first point x=%f first point y=%f", first_point[0], first_point[1]);
-    RCLCPP_INFO(rclcpp::get_logger("pure"), "closest point x=%f closest point y=%f", (*closest_point)[0], (*closest_point)[1]);
-    RCLCPP_INFO(rclcpp::get_logger("pure"), "relative x=%f relative y=%f", relative_x, relative_y);
-    RCLCPP_INFO(rclcpp::get_logger("pure"), "look_ahead_distance=%f", look_ahead_distance);
-    RCLCPP_INFO(rclcpp::get_logger("pure"), "alpha=%f", alpha);
-    RCLCPP_INFO(rclcpp::get_logger("pure"), "steering_angle=%f", steering_angle);
+    // RCLCPP_INFO(rclcpp::get_logger("pure"), "closest point x=%f closest point y=%f", (*closest_point)[0], (*closest_point)[1]);
+    // RCLCPP_INFO(rclcpp::get_logger("pure"), "look_ahead_distance=%f", look_ahead_distance);
+    // RCLCPP_INFO(rclcpp::get_logger("pure"), "alpha=%f", alpha);
+    // RCLCPP_INFO(rclcpp::get_logger("pure"), "steering_angle=%f", steering_angle);
 
     // Keep previous angles to calculate the average
     keepAvgAngle(steering_angle);
@@ -168,7 +224,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     //write reference point to a file
     ofstream myfile;
     myfile.open("spac_analytics.csv", ios::app);
-    myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << ", " << first_point[0] << ", " << first_point[1] << ", " << look_ahead_distance << "\n"; 
+    myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << ", " << ", " << look_ahead_distance << "\n"; 
     myfile.close();
 
     return getAvgAngle();

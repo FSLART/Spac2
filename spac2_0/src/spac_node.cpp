@@ -86,7 +86,7 @@ SpacNode::SpacNode() : Node("spac_node")
         "/ekf/state", 10, std::bind(&SpacNode::ekf_callback, this, _1));
 
     // APENAS USAR NOS TESTES
-    // this->target->set_ready();
+    this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
