@@ -1,10 +1,10 @@
 #include "spac2_0/target.h"
 
-Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float base_limit, float max_limit){
+Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float increment, float max_limit){
     this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
     this->max_rpm = std::clamp(max_rpm, (float)0.0, (float)TERMINAL_RPM);
     this->growth_factor = growth_factor;
-    this->base_limit = base_limit;
+    this->increment = increment;
     this->max_limit = max_limit;
 }
 
@@ -32,6 +32,7 @@ void Target::instance_CarrotControl(){
         float rpm = this->get_desired_rpm(this->path, this->max_rpm);
         rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
 
+        //define the limit of speed change acording to the mission
 
 
         
@@ -92,9 +93,9 @@ void Target::instance_CarrotControl(){
 
          
         /*ORIGINAL CODE*/
-        if (rpm - this->last_rpm > 2.0) {
+        if (rpm - this->last_rpm > this->increment) {
             // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
-            rpm = this->last_rpm + 2.0;
+            rpm = this->last_rpm + this->increment;
         }
 
 
@@ -106,7 +107,7 @@ void Target::instance_CarrotControl(){
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = (int)rpm;
 
-        if(!this->acel_flag){
+        if(!this->turn_flag){
             //if the car is not in acceleration mission, set the steering angle to the calculated one
             dispatcherMailBox.steering_angle = steering_angle;
         }else{
@@ -175,8 +176,14 @@ visualization_msgs::msg::Marker Target::get_target_marker(){
     return this->target_marker;
 }
 
-void Target::set_acceleration_mission(){
-    acel_flag = true;
+void Target::set_mission(float max_speed, float increment){
+    //Calculate the equivalent rpm speed
+    float speed_mps = max_speed / 3.6;
+    float rpm_speed = MS_TO_RPM(speed_mps);
+    this->max_rpm = std::clamp(rpm_speed, (float)0.0, (float)TERMINAL_RPM);
+    //Update the value of the increment
+    this->increment = increment;
+    turn_flag = true;
 }
 
 void Target::set_ready(){
@@ -214,7 +221,7 @@ lart_msgs::msg::PathSpline Target::get_path(){
 
 void Target::set_rpm(int rpm){
     this->current_rpm = (float)rpm;
-    RCLCPP_INFO(rclcpp::get_logger("set_rpm"), "rpm=%f", this->current_rpm);
+    //RCLCPP_INFO(rclcpp::get_logger("set_rpm"), "rpm=%f", this->current_rpm);
 }
 
 int Target::get_rpm(){

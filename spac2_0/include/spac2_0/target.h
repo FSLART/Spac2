@@ -27,7 +27,7 @@ class Target{
         * @param acc_limiter
         * 
         */
-        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float base_limit, float max_limit);
+        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float icrement, float max_limit);
         /**
         * @brief Constructor for the Target class.
         *
@@ -68,7 +68,7 @@ class Target{
         * @return DispatcherMailBox
         */
         void set_ekf(geometry_msgs::msg::Pose pose);
-        void set_acceleration_mission();
+        void set_mission(float max_speed, float increment);
         lart_msgs::msg::DynamicsCMD get_dirtyDispatcherMail();
         bool get_isDispatcherDirty();
         int set_throwDirtDispatcher();
@@ -95,10 +95,10 @@ class Target{
         float k_dist;
         float last_rpm=0.0;                             /**< The last rpm of the motor */
         float growth_factor;                    /**< The exponencial amount that the limit of change will increase per iteration */
-        float base_limit;                         /**< The base limit of the soft start, used to calculate the maximum allowed change of rpm speed between iterations */
+        float increment;                         /**< The base limit of the soft start, used to calculate the maximum allowed change of rpm speed between iterations */
         float max_limit;                         /**< The maximum allowed change of rpm speed between iterations */
         bool ready=false;
-        bool acel_flag=false;
+        bool turn_flag=false;
 
         visualization_msgs::msg::Marker path_marker;
         visualization_msgs::msg::Marker target_marker;
