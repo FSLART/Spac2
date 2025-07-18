@@ -58,7 +58,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     // DEBUG: CREATE MARKERS FOR THE PATH
     // Create the marker
     visualization_msgs::msg::Marker path_viz_marker;
-    path_viz_marker.header.frame_id = "world"; // or "base_link", depending on your use case
+    path_viz_marker.header.frame_id = "base_footprint"; // or "base_link", depending on your use case
     path_viz_marker.header.stamp = rclcpp::Clock().now();
     path_viz_marker.ns = "path";
     path_viz_marker.id = 0;
