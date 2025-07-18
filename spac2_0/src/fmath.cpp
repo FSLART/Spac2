@@ -78,7 +78,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 
     
     // RCLCPP_INFO(rclcpp::get_logger("pure"),"Pose: x=%f y=%f",this->current_pose.position.x,this->current_pose.position.y);
-    // RCLCPP_INFO(rclcpp::get_logger("pure"),"Heading = %f",this->current_pose.orientation.w);
+    RCLCPP_INFO(rclcpp::get_logger("pure"),"Heading = %f",this->current_pose.orientation.w);
     RCLCPP_INFO(rclcpp::get_logger("pure"),"New Paths");
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
