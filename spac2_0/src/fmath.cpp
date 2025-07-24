@@ -78,8 +78,8 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 
     
     // RCLCPP_INFO(rclcpp::get_logger("pure"),"Pose: x=%f y=%f",this->current_pose.position.x,this->current_pose.position.y);
-    RCLCPP_INFO(rclcpp::get_logger("pure"),"Heading = %f",this->current_pose.orientation.w);
-    RCLCPP_INFO(rclcpp::get_logger("pure"),"New Paths");
+    // RCLCPP_INFO(rclcpp::get_logger("pure"),"Heading = %f",this->current_pose.orientation.w);
+    // RCLCPP_INFO(rclcpp::get_logger("pure"),"New Paths");
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
         //RCLCPP_INFO(rclcpp::get_logger("pure"),"Before transformation (%f,%f)",path.poses[i].pose.position.x, path.poses[i].pose.position.y);
@@ -203,10 +203,10 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     float steering_angle = atan2(2 * WHEELBASE_M * sin(alpha), look_ahead_distance);
 
 
-    // RCLCPP_INFO(rclcpp::get_logger("pure"), "closest point x=%f closest point y=%f", (*closest_point)[0], (*closest_point)[1]);
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "closest point x=%f closest point y=%f", (*closest_point)[0], (*closest_point)[1]);
     // RCLCPP_INFO(rclcpp::get_logger("pure"), "look_ahead_distance=%f", look_ahead_distance);
     // RCLCPP_INFO(rclcpp::get_logger("pure"), "alpha=%f", alpha);
-    // RCLCPP_INFO(rclcpp::get_logger("pure"), "steering_angle=%f", steering_angle);
+    RCLCPP_INFO(rclcpp::get_logger("pure"), "steering_angle=%f", steering_angle);
 
     // Keep previous angles to calculate the average
     keepAvgAngle(steering_angle);
@@ -239,7 +239,7 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, floa
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "max speed fmath=%f", max_rpm);
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "curvature=%f", curvature);
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "p_curv=%f", p_curv);
-        // RCLCPP_INFO(rclcpp::get_logger("pure"), "desired_speed from fmath=%f", desired_speed);
+        RCLCPP_INFO(rclcpp::get_logger("pure"), "desired_speed from fmath=%f", desired_speed);
 
         //RCLCPP_INFO(rclcpp::get_logger("pure"), "Percentagem de velocidade=%f %%", (1 - p_curv) * 100);
         

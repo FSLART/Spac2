@@ -44,7 +44,7 @@ SpacNode::SpacNode() : Node("spac_node")
     this->get_parameter(PARAMS_GROWTH_FACTOR, growth_factor);
     this->declare_parameter(PARAMS_INCREMENT, DEFAULT_INCREMENT);
     this->get_parameter(PARAMS_INCREMENT, increment);
-        this->declare_parameter(PARAMS_ACC_INCREMENT, DEFAULT_ACC_INCREMENT);
+    this->declare_parameter(PARAMS_ACC_INCREMENT, DEFAULT_ACC_INCREMENT);
     this->get_parameter(PARAMS_ACC_INCREMENT, acc_increment);
     this->declare_parameter(PARAMS_LIMITER, DEFAULT_LIMITER);
     this->get_parameter(PARAMS_LIMITER, max_limit);

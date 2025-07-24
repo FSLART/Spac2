@@ -188,6 +188,7 @@ void Target::set_mission(float max_speed, float increment){
 
 void Target::set_ready(){
     ready = true;
+    RCLCPP_INFO(rclcpp::get_logger("set_ready"), "Target is ready");
 }
 
 void Target::disengage_ready(){
