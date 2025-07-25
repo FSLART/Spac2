@@ -58,7 +58,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     // DEBUG: CREATE MARKERS FOR THE PATH
     // Create the marker
     visualization_msgs::msg::Marker path_viz_marker;
-    path_viz_marker.header.frame_id = "base_footprint"; // or "base_link", depending on your use case
+    path_viz_marker.header.frame_id = "base_footprint";
     path_viz_marker.header.stamp = rclcpp::Clock().now();
     path_viz_marker.ns = "path";
     path_viz_marker.id = 0;
@@ -79,14 +79,11 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     
     // RCLCPP_INFO(rclcpp::get_logger("pure"),"Pose: x=%f y=%f",this->current_pose.position.x,this->current_pose.position.y);
     // RCLCPP_INFO(rclcpp::get_logger("pure"),"Heading = %f",this->current_pose.orientation.w);
-    // RCLCPP_INFO(rclcpp::get_logger("pure"),"New Paths");
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
         //RCLCPP_INFO(rclcpp::get_logger("pure"),"Before transformation (%f,%f)",path.poses[i].pose.position.x, path.poses[i].pose.position.y);
 
         // tf to negate the postion of the car in the map
-        // path.poses[i].pose.position.x = path.poses[i].pose.position.x - first_x;
-        // path.poses[i].pose.position.y = path.poses[i].pose.position.y - first_y;
         path.poses[i].pose.position.x -= first_x;
         path.poses[i].pose.position.y -= first_y;
 
@@ -215,17 +212,11 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     target_point[1] = (*closest_point)[1];
     set_target_point(target_point);
 
-    //write the steering angle and the point of intersection to a file
-    // ofstream myfile;
-    // myfile.open("steer_point.csv", ios::app);
-    // myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << "\n"; 
-    // myfile.close();
-
     //write reference point to a file
-    ofstream myfile;
-    myfile.open("spac_analytics.csv", ios::app);
-    myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << ", " << ", " << look_ahead_distance << "\n"; 
-    myfile.close();
+    // ofstream myfile;
+    // myfile.open("spac_analytics.csv", ios::app);
+    // myfile << steering_angle * 180 / M_PI << ", " << (*closest_point)[0] << ", " << (*closest_point)[1] << ", " << look_ahead_distance << "\n"; 
+    // myfile.close();
 
     return getAvgAngle();
 }
@@ -233,15 +224,13 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm){
     if(index > -1){
         float curvature = abs(path.curvature[index + this->k_dist]);
-        float p_curv = min(1.0f, curvature * this->k_curv);
+        float p_curv = min(0.95f, curvature * this->k_curv);
         float desired_speed = max_rpm * (1 - p_curv);
         
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "max speed fmath=%f", max_rpm);
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "curvature=%f", curvature);
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "p_curv=%f", p_curv);
         RCLCPP_INFO(rclcpp::get_logger("pure"), "desired_speed from fmath=%f", desired_speed);
-
-        //RCLCPP_INFO(rclcpp::get_logger("pure"), "Percentagem de velocidade=%f %%", (1 - p_curv) * 100);
         
         return desired_speed;
     }
@@ -300,14 +289,11 @@ int fastRound(float x) {
 
 float Pure_Pursuit::speed_to_lookahead(float speed){
 
-  //min lookahead = 7.0
-    //float look_ahead_distance = 6.6852f * pow(1.00041, speed);
-
     //min lookahead = 5.0
     //float look_ahead_distance = 4.732881f * pow(1.000575, speed);
 
     //recent function
-    // float look_ahead_distance = 4.62281f + 0.00495614f * speed;
+    // Sfloat look_ahead_distance = 4.62281f + 0.00495614f * speed;
     float look_ahead_distance = this->k_dd + 0.00495614f * speed;
     //RCLCPP_INFO(rclcpp::get_logger("speed_to_lookahead"), "kdd=%f", this->k_dd);
 

@@ -116,7 +116,7 @@ protected:
     float max_speed;    /**< The maximum desired speed in km/h*/
     float acc_speed;    /**< The max speed for the aceleration mission */
     float ebs_speed;    /**<The max speed for the EBS test */
-    float k_dd_pp;      /**< Lookahead distance if the variable lookahead method isn't being used */
+    float k_dd;         /**< Lookahead distance if the variable lookahead method isn't being used */
     float k_curv;       /**< Factor of deceleration in function of the curvature of the path */
     float k_dist;       /**< Extra value to be added to the index of the target point, used to get a new target point but only for the longitudinal control */
     float max_rpm;      /**< The maximum desired speed in rpm */

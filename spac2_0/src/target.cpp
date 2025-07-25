@@ -119,10 +119,10 @@ void Target::instance_CarrotControl(){
         // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl after"), "rpm=%f", rpm);
 
         //write the steering angle and speed to a file
-        ofstream myfile;
-        myfile.open("dynamics_logger.csv", ios::app);
-        myfile << steering_angle * 180 / M_PI << ", " << rpm << "\n"; 
-        myfile.close();
+        // ofstream myfile;
+        // myfile.open("dynamics_logger.csv", ios::app);
+        // myfile << steering_angle * 180 / M_PI << ", " << rpm << "\n"; 
+        // myfile.close();
 
         isDispatcherDirty = true;
     }catch(...){
@@ -237,7 +237,6 @@ float Target::get_steering_angle(lart_msgs::msg::PathSpline path, int rpm){
 
 float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
     float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path, max_rpm);
-    //RCLCPP_INFO(rclcpp::get_logger("Target"),"ESTOU A PEDIR ESTA VELOCIDADE -> %f",desired_rpm);
     return desired_rpm;
 }
 

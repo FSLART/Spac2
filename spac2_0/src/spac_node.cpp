@@ -21,14 +21,14 @@ SpacNode::SpacNode() : Node("spac_node")
     
     //Pure Pursuit parameters
     this->declare_parameter(PARAMS_KDD, DEFAULT_KDD);
-    this->get_parameter(PARAMS_KDD, k_dd_pp);
+    this->get_parameter(PARAMS_KDD, k_dd);
     this->declare_parameter(PARAMS_K_CURV, DEFAULT_K_CURV);
     this->get_parameter(PARAMS_K_CURV, k_curv);
     this->declare_parameter(PARAMS_K_DIST, DEFAULT_K_DIST);
     this->get_parameter(PARAMS_K_DIST, k_dist);
     
     //topics
-    this->declare_parameter(PARAMS_TOPIC_PATH, "/path");
+    this->declare_parameter(PARAMS_TOPIC_PATH, "/planned_path_topic");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
 	this->declare_parameter(PARAMS_TOPIC_DYNAMICS_CMD, "/cmd");
 	this->get_parameter(PARAMS_TOPIC_DYNAMICS_CMD, dynamics_cmd_topic);
@@ -63,7 +63,7 @@ SpacNode::SpacNode() : Node("spac_node")
     //RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
     
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle, growth_factor, increment, max_limit);
+    target = new Target(max_rpm, k_curv, k_dist, k_dd, distance_imu_to_rear_axle, growth_factor, increment, max_limit);
 
     // Create a publisher for visualization markers
     marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);
