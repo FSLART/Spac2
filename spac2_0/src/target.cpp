@@ -1,16 +1,15 @@
 #include "spac2_0/target.h"
 
-Target::Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed, float kdd){
-    this->pure_pursuit = Pure_Pursuit(kdd);
-    //TODO: CHANGE TO SET A MAX VALUE THAT IS NOT THE TERMINAL RPM (?)
-    this->pid = PID_Controller(0, TERMINAL_RPM);
-    this->pid.set_Tunings(kp_speed, ki_speed, kd_speed);
-    this->desired_rpm = desired_rpm;
+Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float increment, float max_limit){
+    this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
+    this->max_rpm = std::clamp(max_rpm, (float)0.0, (float)TERMINAL_RPM);
+    this->growth_factor = growth_factor;
+    this->increment = increment;
+    this->max_limit = max_limit;
 }
 
-Target::Target(Pure_Pursuit pure_pursuit, PID_Controller pid){
+Target::Target(Pure_Pursuit pure_pursuit){
     this->pure_pursuit = pure_pursuit;
-    this->pid = pid;
 }
 
 void Target::instance_CarrotControl(){
@@ -18,31 +17,117 @@ void Target::instance_CarrotControl(){
         if(get_ready() == false){
             throw std::runtime_error("Not ready yet");
         }
-        //print the value of the k_dd of target->pure_pursuit
-        ////RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "k_dd=%f", this->pure_pursuit.get_k_dd());
-        //current speed is being obtained from the rpm
-        //and it is used to calculate how far is the look ahead point
+        
         auto steering_angle = this->get_steering_angle(this->path, this->current_rpm);
+        
         //clamp steering angle to -MAX_STEERING and MAX_STEERING
-        steering_angle = std::clamp((float)(steering_angle), (float)-SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD),(float) SW_ANGLE_TO_ST_ANGLE(MAX_STEERING_ANGLE_RAD));
+        steering_angle = std::clamp((float)(steering_angle), (float)-MAX_WHEEL_ANGLE_RAD,(float) MAX_WHEEL_ANGLE_RAD);
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering_angle=%f", RAD_TO_DEG(steering_angle));
 
-        auto rpm = this->get_PID_rpm(desired_rpm, this->current_rpm);
-        //clamp speed to -MAX_SPEED and MAX_SPEED
-        //TODO: -TERMINAL_RPM DOES NOT MAKE THAT MUCH SENSE
-        rpm = std::clamp(rpm, (float)-TERMINAL_RPM,(float) TERMINAL_RPM);
-        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "DESIRED_rpm=%d", desired_rpm);
-        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "pid_rpm=%f", rpm);
+        //CREATING THE TARGET POINT MARKER
+        array<float, 2> target_point = this->pure_pursuit.get_target_point();
+        this->set_target_marker(target_point);
+
+        //gets the the ideal rpm that the car should have in a certain point of the path
+        float rpm = this->get_desired_rpm(this->path, this->max_rpm);
+        rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
+
+        //define the limit of speed change acording to the mission
+
+
+        
+        /* BLOCO PARA OPCAO EXPONECIAL */
+
+        //Smooth the rpm change
+        // float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->current_rpm);// Increase limit with speed
+
+        // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
+
+        // rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
+
+        // if (rpm - this->current_rpm > rpm_change_limit) {
+        //     RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+        //     rpm = this->current_rpm + rpm_change_limit;
+        // }
+
+
+
+        //10 e 8
+
+        /* BLOCO PARA OPCAO LINEAR */
+        /*
+        // CHANGE THIS PARAMETERS
+        this->growth_factor = 0.0110457
+        this->base_limit = 1.05148;
+
+        //Smooth the rpm change
+        float rpm_change_limit = this->growth_factor * rpm + this->base_limit;
+
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
+
+        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
+
+        if (rpm - this->last_rpm > rpm_change_limit) {
+            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            rpm = this->last_rpm + rpm_change_limit;
+        }
+        */
+
+        
+
+
+        /* BLOCO DE LAST EXPONECIAL */
+        
+        /*
+        float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->last_rpm);// Increase limit with speed
+
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
+
+        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
+
+        if (rpm - this->last_rpm > rpm_change_limit) {
+            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            rpm = this->last_rpm + rpm_change_limit;
+        }
+        */
+
+         
+        /*ORIGINAL CODE*/
+        if (rpm - this->last_rpm > this->increment) {
+            // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            rpm = this->last_rpm + this->increment;
+        }
+
+
+        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
+
+        this->last_rpm = rpm;
+
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
-        dispatcherMailBox.rpm = rpm;
-        dispatcherMailBox.steering_angle = steering_angle;
+        dispatcherMailBox.rpm = (int)rpm;
 
-        //RCLCPP(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
+        if(!this->turn_flag){
+            //if the car is not in acceleration mission, set the steering angle to the calculated one
+            dispatcherMailBox.steering_angle = steering_angle;
+        }else{
+            //in case that the mission is acceleration
+            dispatcherMailBox.steering_angle = steering_angle/4;
+        }
+
+        //RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
+        // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl after"), "rpm=%f", rpm);
+
+        //write the steering angle and speed to a file
+        // ofstream myfile;
+        // myfile.open("dynamics_logger.csv", ios::app);
+        // myfile << steering_angle * 180 / M_PI << ", " << rpm << "\n"; 
+        // myfile.close();
 
         isDispatcherDirty = true;
     }catch(...){
 
-		// Makes shure the dispatcher wont look for bad data
+		// Makes sure the dispatcher wont look for bad data
         isDispatcherDirty = false;
     }
 }
@@ -58,8 +143,56 @@ lart_msgs::msg::DynamicsCMD Target::get_dirtyDispatcherMail(){
 	return dispatcherMailBox;
 } 
 
+void Target::set_target_marker(array<float, 2> target_point){
+
+    visualization_msgs::msg::Marker marker;
+    marker.header.frame_id = "base_footprint";
+    marker.header.stamp = rclcpp::Clock().now();
+    marker.ns = "pure_pursuit";
+    marker.id = 0;
+    marker.type = visualization_msgs::msg::Marker::CYLINDER;
+    marker.action = visualization_msgs::msg::Marker::ADD;
+    marker.pose.position.x = target_point[0];
+    marker.pose.position.y = target_point[1];
+    marker.pose.position.z = 0.0;
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+    marker.scale.x = 0.2;
+    marker.scale.y = 0.2;
+    marker.scale.z = 0.2;
+    marker.color.a = 1.0;
+    marker.color.r = 0.0;
+    marker.color.g = 1.0;
+    marker.color.b = 0.0;
+
+    marker.lifetime = rclcpp::Duration::from_seconds(1);
+    
+    this->target_marker = marker;
+}
+
+visualization_msgs::msg::Marker Target::get_target_marker(){
+    return this->target_marker;
+}
+
+void Target::set_mission(float max_speed, float increment){
+    //Calculate the equivalent rpm speed
+    float speed_mps = max_speed / 3.6;
+    float rpm_speed = MS_TO_RPM(speed_mps);
+    this->max_rpm = std::clamp(rpm_speed, (float)0.0, (float)TERMINAL_RPM);
+    //Update the value of the increment
+    this->increment = increment;
+    turn_flag = true;
+}
+
 void Target::set_ready(){
     ready = true;
+    RCLCPP_INFO(rclcpp::get_logger("set_ready"), "Target is ready");
+}
+
+void Target::disengage_ready(){
+    ready = false;
 }
 
 bool Target::get_ready(){
@@ -79,32 +212,39 @@ int Target::set_throwDirtDispatcher(){
 	return 0;
 }
 
-void Target::set_path(nav_msgs::msg::Path path){
+void Target::set_path(lart_msgs::msg::PathSpline path){
     this->path = path;
 }
 
-nav_msgs::msg::Path Target::get_path(){
+lart_msgs::msg::PathSpline Target::get_path(){
     return this->path;
 }
 
 void Target::set_rpm(int rpm){
-    this->current_rpm = rpm;
+    this->current_rpm = (float)rpm;
+    //RCLCPP_INFO(rclcpp::get_logger("set_rpm"), "rpm=%f", this->current_rpm);
 }
 
 int Target::get_rpm(){
     return this->current_rpm;
 }
 
-
-float Target::get_steering_angle(nav_msgs::msg::Path path, int rpm){
-    auto speed = RPM_TO_MS(rpm);
-    float steering_angle = this->pure_pursuit.calculate_steering_angle(path, speed);
+float Target::get_steering_angle(lart_msgs::msg::PathSpline path, int rpm){
+    float steering_angle = this->pure_pursuit.calculate_steering_angle(path, rpm);
     return steering_angle;
 }
 
-float Target::get_PID_rpm(float desired, float current){
-    float rpm = this->pid.compute(desired, current);
-    return rpm;
+
+float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
+    float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path, max_rpm);
+    return desired_rpm;
 }
 
+void Target::set_ekf(geometry_msgs::msg::Pose pose){
+    this->pure_pursuit.set_ekf(pose);
+}
+
+visualization_msgs::msg::Marker Target::get_path_marker(){
+    return this->pure_pursuit.get_path_marker();
+}
 

@@ -3,39 +3,105 @@
 #define TARGET_H_
 
 #include "fmath.h"
-#include "../lart_common/lart_common.h" 
+#include "lart_common.h"
 #include "lart_msgs/msg/dynamics_cmd.hpp"
 #include <cmath>
 #include "utils.h"
 #include <rclcpp/logging.hpp>
+#include "visualization_msgs/msg/marker.hpp"
 
 
 class Target{
     public:
-        Target(int desired_rpm, float kp_speed, float ki_speed, float kd_speed, float kdd);
-        Target(Pure_Pursuit pure_pursuit, PID_Controller pid);
-        float get_steering_angle(nav_msgs::msg::Path path, int rpm);
-        float get_PID_rpm(float setpoint, float input);
+        // Functions
+
+        /**
+        * @brief Constructor for the Target class.
+        * 
+        * @param max_rpm
+        * @param k_curv 
+        * @param k_dist 
+        * @param kdd 
+        * @param distance_imu_to_rear_axle
+        * @param growth_factor
+        * @param acc_limiter
+        * 
+        */
+        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float icrement, float max_limit);
+        /**
+        * @brief Constructor for the Target class.
+        *
+        * @param pure_pursuit
+        * 
+        */
+        Target(Pure_Pursuit pure_pursuit);
+        /**
+        * @brief Calls the the pure_pursuit.calculate_steering_angle function to calculate the steering angle.
+        *
+        * @param path
+        * @param rpm
+        *
+        * @return steering angle
+        */
+        float get_steering_angle(lart_msgs::msg::PathSpline path, int rpm);
+        /**
+        * @brief Calls the the pure_pursuit.calculate_desiredSpeed function to calculate the desired speed in rpm.
+        * 
+        * @param path
+        * @param max_rpm
+        * 
+        * @return desired speed in rpm
+        */
+        float get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm);
+        /**
+        * @brief Function that is periodically called to get the
+        * calculated values of the steering angle and speed needed
+        * in a certain point.
+        * 
+        * These two values are used to fill a dynamicsCMD msg. 
+        */
         void instance_CarrotControl();
+        /**
+        * @brief This fuction is used to return the values that were
+        * obtained in the instace_CarrotControl.
+        * 
+        * @return DispatcherMailBox
+        */
+        void set_ekf(geometry_msgs::msg::Pose pose);
+        void set_mission(float max_speed, float increment);
         lart_msgs::msg::DynamicsCMD get_dirtyDispatcherMail();
         bool get_isDispatcherDirty();
         int set_throwDirtDispatcher();
-        void set_path(nav_msgs::msg::Path path);
-        nav_msgs::msg::Path get_path();
+        void set_path(lart_msgs::msg::PathSpline path);
+        lart_msgs::msg::PathSpline get_path();
         void set_rpm(int rpm);
         int get_rpm();
         void set_ready();
+        void disengage_ready();
         bool get_ready();
+        void set_target_marker(array<float, 2> target_point);
+        visualization_msgs::msg::Marker get_target_marker();
+        visualization_msgs::msg::Marker get_path_marker();
 
     protected:
-        Pure_Pursuit pure_pursuit;
-        PID_Controller pid;
-        bool isDispatcherDirty=true;
-        nav_msgs::msg::Path path;
-        float current_rpm=0;
-		lart_msgs::msg::DynamicsCMD dispatcherMailBox;
-        int desired_rpm; 
+        //Variables
+        Pure_Pursuit pure_pursuit;                      /**< Object of the class Pure_Pursuit */
+        bool isDispatcherDirty=true;                    /**< Flag used in the get_dirtyDispatcherMail function */
+        lart_msgs::msg::PathSpline path;                /**< The path obtained from the path planner at a certain moment */
+        float current_rpm=0;                            /**< The rpm of the motor in at a certain moment */
+        lart_msgs::msg::DynamicsCMD dispatcherMailBox;  /**< This is a DynamicsCMD msg that will store the speed and rpm */
+        float max_rpm;
+        float k_curv;
+        float k_dist;
+        float last_rpm=0.0;                             /**< The last rpm of the motor */
+        float growth_factor;                    /**< The exponencial amount that the limit of change will increase per iteration */
+        float increment;                         /**< The base limit of the soft start, used to calculate the maximum allowed change of rpm speed between iterations */
+        float max_limit;                         /**< The maximum allowed change of rpm speed between iterations */
         bool ready=false;
+        bool turn_flag=false;
+
+        visualization_msgs::msg::Marker path_marker;
+        visualization_msgs::msg::Marker target_marker;
 };
 
 #endif

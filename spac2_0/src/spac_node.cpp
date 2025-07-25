@@ -2,61 +2,96 @@
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
+using namespace std::chrono;
 
 SpacNode::SpacNode() : Node("spac_node")
 {
     this->declare_parameter(PARAMS_FREQUENCY, DEFAULT_FREQUENCY);
 	this->get_parameter(PARAMS_FREQUENCY, frequency);
-    //TODO: check if it makes sense to have the distance coming from the parameters, if so needs to be passed to the pure_pursuit object, for now using the default there
     this->declare_parameter(PARAMS_DISTANCE_IMU_TO_REAR_AXLE, DEFAULT_IMU_TO_REAR_AXLE);
-	this->get_parameter(PARAMS_DISTANCE_IMU_TO_REAR_AXLE, distance_imu_to_rear_axle);
-    this->declare_parameter(PARAMS_DESIDERED_SPEED, DEFAULT_DESIRED_SPEED);
-    this->get_parameter(PARAMS_DESIDERED_SPEED, desired_speed);
-    this->declare_parameter(PARAMS_KP_SPEED, DEFAULT_KP_SPEED);
-    this->get_parameter(PARAMS_KP_SPEED, kp_speed);
-    this->declare_parameter(PARAMS_KI_SPEED, DEFAULT_KI_SPEED);
-    this->get_parameter(PARAMS_KI_SPEED, ki_speed);
-    this->declare_parameter(PARAMS_KD_SPEED, DEFAULT_KD_SPEED);
-    this->get_parameter(PARAMS_KD_SPEED, kd_speed);
+    this->get_parameter(PARAMS_DISTANCE_IMU_TO_REAR_AXLE, distance_imu_to_rear_axle);
+    
+    //MAX SPEED
+    this->declare_parameter(PARAMS_MAX_SPEED, DEFAULT_MAX_SPEED);
+    this->get_parameter(PARAMS_MAX_SPEED, max_speed);
+    this->declare_parameter(PARAMS_ACC_SPEED, DEFAULT_ACC_SPEED);
+    this->get_parameter(PARAMS_ACC_SPEED, acc_speed);
+    this->declare_parameter(PARAMS_EBS_SPEED, DEFAULT_EBS_SPEED);
+    this->get_parameter(PARAMS_EBS_SPEED, ebs_speed);
+    
+    //Pure Pursuit parameters
     this->declare_parameter(PARAMS_KDD, DEFAULT_KDD);
-    this->get_parameter(PARAMS_KDD, k_dd_pp);
+    this->get_parameter(PARAMS_KDD, k_dd);
+    this->declare_parameter(PARAMS_K_CURV, DEFAULT_K_CURV);
+    this->get_parameter(PARAMS_K_CURV, k_curv);
+    this->declare_parameter(PARAMS_K_DIST, DEFAULT_K_DIST);
+    this->get_parameter(PARAMS_K_DIST, k_dist);
+    
     //topics
-    this->declare_parameter(PARAMS_TOPIC_PATH, "/path");
+    this->declare_parameter(PARAMS_TOPIC_PATH, "/planned_path_topic");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
 	this->declare_parameter(PARAMS_TOPIC_DYNAMICS_CMD, "/cmd");
 	this->get_parameter(PARAMS_TOPIC_DYNAMICS_CMD, dynamics_cmd_topic);
     this->declare_parameter(PARAMS_TOPIC_RPM, "/rpm");
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
+    this->declare_parameter(PARAMS_TOPIC_STATE, "/pc_origin/system_status/critical_as/state");
+    this->get_parameter(PARAMS_TOPIC_STATE, state_topic);
+    this->declare_parameter(PARAMS_TOPIC_MISSION, "/mission");
+    this->get_parameter(PARAMS_TOPIC_MISSION, mission_topic);
+
+    // soft start variables
+    this->declare_parameter(PARAMS_GROWTH_FACTOR, DEFAULT_GROWTH_FACTOR);
+    this->get_parameter(PARAMS_GROWTH_FACTOR, growth_factor);
+    this->declare_parameter(PARAMS_INCREMENT, DEFAULT_INCREMENT);
+    this->get_parameter(PARAMS_INCREMENT, increment);
+    this->declare_parameter(PARAMS_ACC_INCREMENT, DEFAULT_ACC_INCREMENT);
+    this->get_parameter(PARAMS_ACC_INCREMENT, acc_increment);
+    this->declare_parameter(PARAMS_LIMITER, DEFAULT_LIMITER);
+    this->get_parameter(PARAMS_LIMITER, max_limit);
+
+    //Visualization
+    this->declare_parameter(PARAMS_TARGET_MARKER, "/target_marker_topic");
+    this->get_parameter(PARAMS_TARGET_MARKER, target_marker_topic);
     
     //convert speed from km/h to m/s
-    float speed_mps = desired_speed / 3.6;
+    float speed_mps = max_speed / 3.6;
     
     //calculate the desired rpm
-    desired_rpm = MS_TO_RPM(speed_mps);
+    max_rpm = MS_TO_RPM(speed_mps);
+
+    //DEBUG
+    //RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
+    
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(desired_rpm, kp_speed, ki_speed, kd_speed, k_dd_pp);
+    target = new Target(max_rpm, k_curv, k_dist, k_dd, distance_imu_to_rear_axle, growth_factor, increment, max_limit);
+
+    // Create a publisher for visualization markers
+    marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);
+    path_marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>("/spac/path_marker", 10);
 
     //create publisher for ackermann drive
 	dynamics_publisher = this->create_publisher<lart_msgs::msg::DynamicsCMD>(dynamics_cmd_topic, 10);
 
     //receives the current path and calls the path_callback function
-    subscription_path = this->create_subscription<nav_msgs::msg::Path>(
+    subscription_path = this->create_subscription<lart_msgs::msg::PathSpline>(
         path_topic, 10, std::bind(&SpacNode::path_callback, this, _1));
-
+    
+    //receives the current rpm and calls the rpm_callback function
     subscription_rpm = this->create_subscription<lart_msgs::msg::Dynamics>(
         rpm_topic, 10, std::bind(&SpacNode::rpm_callback, this, _1));
 
-    //TODO: AXANATO PARA AGORA MAS PRECISA DE SER ALTERADO / NO ENTANTO ESTA VALIDAÇÃO É NECESSÁRIA
-    subscription_ready = this->create_subscription<std_msgs::msg::Bool>(
-        "acu_origin/res_ready", 10, [this](const std_msgs::msg::Bool::SharedPtr msg) {
-            if (msg->data)
-            {
-                RCLCPP_INFO(this->get_logger(), "Received ready signal");
-                this->target->set_ready();
-            }
-        });
+    //receives the current state and calls the state_callback function
+    state_subscriber = this->create_subscription<lart_msgs::msg::State>(
+        state_topic, 10, std::bind(&SpacNode::state_callback, this, _1));
 
-    //TODO APAGAR
+    mission_subscriber = this->create_subscription<lart_msgs::msg::Mission>(
+        mission_topic, 10, std::bind(&SpacNode::mission_callback, this, _1));
+
+    //receives ekf imu data
+    ekf_subscriber = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+        "/ekf/state", 10, std::bind(&SpacNode::ekf_callback, this, _1));
+
+    // APENAS USAR NOS TESTES
     //this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
@@ -69,27 +104,109 @@ SpacNode::SpacNode() : Node("spac_node")
     //RCLCPP_INFO(this->get_logger(), "Started dynamics command dispatch routine on { %s }", __PRETTY_FUNCTION__ );
 	this->timer_publisher= this->create_wall_timer(interval, [this]()-> void {this->dispatchDynamicsCMD();});
 
+    rclcpp::on_shutdown([this]() {
+        cleanUp();
+    });
+}
+
+void SpacNode::ekf_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
+{
+    //RCLCPP_INFO(this->get_logger(), "EKF callback received");
+    this->target->set_ekf(msg->pose);
+}
+
+void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
+    switch (msg->data)
+    {
+        case lart_msgs::msg::State::DRIVING:
+            RCLCPP_INFO(this->get_logger(), "Received DRIVING signal");
+            this->target->set_ready();
+            break;
+        case lart_msgs::msg::State::FINISH:
+            RCLCPP_INFO(this->get_logger(), "Received FINISH signal");
+            this->cleanUp();
+            this->target->disengage_ready();
+            break;
+        case lart_msgs::msg::State::EMERGENCY:
+            RCLCPP_INFO(this->get_logger(), "Received EMERGENCY signal");
+            this->cleanUp();
+            this->target->disengage_ready();
+            break;
+        default:
+            break;
+    }
+
+}
+
+void SpacNode::mission_callback(const lart_msgs::msg::Mission::SharedPtr msg){
+    switch(msg->data){
+        case lart_msgs::msg::Mission::ACCELERATION:
+            RCLCPP_INFO(this->get_logger(), "Received ACCELERATION MISSION");
+            this->target->set_mission(this->acc_speed, this->acc_increment);
+            break;
+        case lart_msgs::msg::Mission::EBS_TEST:
+            RCLCPP_INFO(this->get_logger(), "Received EBS TEST MISSION");
+            this->target->set_mission(this->ebs_speed, this->acc_increment);
+            break;
+        default:
+            break;
+    }
 }
 
 void SpacNode::dispatchDynamicsCMD(){
 	if(this->target->get_isDispatcherDirty()){
-		RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__); 
-		this->dynamics_publisher->publish(this->target->get_dirtyDispatcherMail());
+		//RCLCPP_INFO(this->get_logger(), "Dispatching dynamics cmd on { %s }", __PRETTY_FUNCTION__);
+		
+        this->dynamics_publisher->publish(this->target->get_dirtyDispatcherMail());
+
+        //Sending marker
+        visualization_msgs::msg::Marker marker = this->target->get_target_marker();
+        this->marker_publisher->publish(marker);
+        //Sending path marker
+        visualization_msgs::msg::Marker path_marker = this->target->get_path_marker();
+        this->path_marker_publisher->publish(path_marker);
+
 		this->target->set_throwDirtDispatcher(); 
 
 	}
 }
 
-void SpacNode::path_callback(const nav_msgs::msg::Path::SharedPtr msg)
+void SpacNode::path_callback(const lart_msgs::msg::PathSpline::SharedPtr msg)
 {
     //RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg.c_str());
     this->target->set_path(*msg);
+    //whatTimeIsIt();
 }
 
 void SpacNode::rpm_callback(const lart_msgs::msg::Dynamics::SharedPtr msg)
 {
     this->target->set_rpm(msg->rpm);
 }
+
+void SpacNode::cleanUp()
+{
+    RCLCPP_INFO(this->get_logger(), "Cleaning up");
+    lart_msgs::msg::DynamicsCMD cleanUpMailBox = lart_msgs::msg::DynamicsCMD();
+    cleanUpMailBox.rpm = 0;
+    cleanUpMailBox.steering_angle = 0.0;
+
+    this->dynamics_publisher->publish(cleanUpMailBox);
+}
+
+// void SpacNode::whatTimeIsIt(){
+//     auto now = std::chrono::system_clock::now();
+
+//     auto duration = duration_cast<milliseconds>(now - this->last_time);
+//     // RCLCPP_INFO(this->get_logger(), "Time since last path: %ld ms", duration.count());
+
+//     this->last_time = now;
+
+//     ofstream myfile;
+//     myfile.open("testing_path_time.csv", ios::app);
+//     myfile << duration.count() << "\n"; 
+//     myfile.close();
+
+// }
 
 int main(int argc, char *argv[])
 {
