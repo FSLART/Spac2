@@ -107,13 +107,14 @@ void Target::instance_CarrotControl(){
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = (int)rpm;
 
-        if(!this->turn_flag){
-            //if the car is not in acceleration mission, set the steering angle to the calculated one
-            dispatcherMailBox.steering_angle = steering_angle;
-        }else{
-            //in case that the mission is acceleration
-            dispatcherMailBox.steering_angle = steering_angle/4;
-        }
+        // if(!this->turn_flag){
+        //     //if the car is not in acceleration mission, set the steering angle to the calculated one
+        //     dispatcherMailBox.steering_angle = steering_angle;
+        // }else{
+        //     //in case that the mission is acceleration
+        //     dispatcherMailBox.steering_angle = steering_angle/4;
+        // }
+        dispatcherMailBox.steering_angle = steering_angle;
 
         //RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
         // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl after"), "rpm=%f", rpm);

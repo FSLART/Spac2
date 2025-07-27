@@ -30,13 +30,13 @@ SpacNode::SpacNode() : Node("spac_node")
     //topics
     this->declare_parameter(PARAMS_TOPIC_PATH, "/planned_path_topic");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
-	this->declare_parameter(PARAMS_TOPIC_DYNAMICS_CMD, "/cmd");
+	this->declare_parameter(PARAMS_TOPIC_DYNAMICS_CMD, "/pc_origin/dynamics");
 	this->get_parameter(PARAMS_TOPIC_DYNAMICS_CMD, dynamics_cmd_topic);
-    this->declare_parameter(PARAMS_TOPIC_RPM, "/rpm");
+    this->declare_parameter(PARAMS_TOPIC_RPM, "/acu_origin/dynamics");
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
     this->declare_parameter(PARAMS_TOPIC_STATE, "/pc_origin/system_status/critical_as/state");
     this->get_parameter(PARAMS_TOPIC_STATE, state_topic);
-    this->declare_parameter(PARAMS_TOPIC_MISSION, "/mission");
+    this->declare_parameter(PARAMS_TOPIC_MISSION, "/pc_origin/system_status/critical_as/mission");
     this->get_parameter(PARAMS_TOPIC_MISSION, mission_topic);
 
     // soft start variables
@@ -111,7 +111,7 @@ SpacNode::SpacNode() : Node("spac_node")
 
 void SpacNode::ekf_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
 {
-    //RCLCPP_INFO(this->get_logger(), "EKF callback received");
+    RCLCPP_INFO(this->get_logger(), "EKF callback received");
     this->target->set_ekf(msg->pose);
 }
 

@@ -11,6 +11,9 @@ Pure_Pursuit::Pure_Pursuit(float k_dd, float k_curv, float k_dist,float distance
     this->k_curv = k_curv;
     this->k_dist = k_dist;
     this->distance_imu_to_rear_axle = -distance_to_rear_axle;
+
+    //ensure that the initial heading is 0
+    this->current_pose.orientation.w = 0.0;
 }
 
 //TODO: check how to not have the need for a empty constructor
@@ -78,7 +81,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 
     
     // RCLCPP_INFO(rclcpp::get_logger("pure"),"Pose: x=%f y=%f",this->current_pose.position.x,this->current_pose.position.y);
-    // RCLCPP_INFO(rclcpp::get_logger("pure"),"Heading = %f",this->current_pose.orientation.w);
+    //RCLCPP_INFO(rclcpp::get_logger("pure"),"Heading = %f",this->current_pose.orientation.w);
     for (long unsigned int i = 0; i < path.poses.size(); i++)
     {
         //RCLCPP_INFO(rclcpp::get_logger("pure"),"Before transformation (%f,%f)",path.poses[i].pose.position.x, path.poses[i].pose.position.y);
