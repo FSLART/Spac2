@@ -10,7 +10,7 @@ Pure_Pursuit::Pure_Pursuit(float k_dd, float k_curv, float k_dist,float distance
     this->k_dd = k_dd;
     this->k_curv = k_curv;
     this->k_dist = k_dist;
-    this->distance_imu_to_rear_axle = distance_to_rear_axle;
+    this->distance_imu_to_rear_axle = -distance_to_rear_axle;
 }
 
 //TODO: check how to not have the need for a empty constructor
@@ -122,7 +122,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm){
     if(index > -1){
         float curvature = abs(path.curvature[index + this->k_dist]);
-        float p_curv = min(1.0f, curvature * this->k_curv);
+        float p_curv = min(0.95f, curvature * this->k_curv);
         float desired_speed = max_rpm * (1 - p_curv);
         
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "max speed fmath=%f", max_rpm);
@@ -202,5 +202,5 @@ float speed_to_lookahead(float speed){
 }
 
 void Pure_Pursuit::set_ekf(geometry_msgs::msg::Pose pose){
-    this->current_pose = pose;
+    this->current_pose = {0.0,0.0};
 }

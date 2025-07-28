@@ -34,62 +34,11 @@ void Target::instance_CarrotControl(){
 
 
 
-
-        
-        /* BLOCO PARA OPCAO EXPONECIAL */
-
-        //Smooth the rpm change
-        float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->current_rpm);// Increase limit with speed
-
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
-
-        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
-
-        if (rpm - this->current_rpm > rpm_change_limit) {
-            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
-            rpm = this->current_rpm + rpm_change_limit;
+        /*ORIGINAL CODE*/
+        if (rpm - this->last_rpm > this->increment) {
+            // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
+            rpm = this->last_rpm + this->increment;
         }
-
-
-
-
-
-        /* BLOCO PARA OPCAO LINEAR */
-        /*
-        // CHANGE THIS PARAMETERS
-        this->growth_factor = 0.0110457
-        this->base_limit = 1.05148;
-
-        //Smooth the rpm change
-        float rpm_change_limit = this->growth_factor * rpm + this->base_limit;
-
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
-
-        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
-
-        if (rpm - this->last_rpm > rpm_change_limit) {
-            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
-            rpm = this->last_rpm + rpm_change_limit;
-        }
-        */
-
-        
-
-
-        /* BLOCO DE LAST EXPONECIAL */
-        
-        /*
-        float rpm_change_limit = this->base_limit*pow(this->growth_factor, this->last_rpm);// Increase limit with speed
-
-        RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "CHANGE=%f", rpm_change_limit);
-
-        rpm_change_limit = std::clamp(rpm_change_limit, base_limit, max_limit);
-
-        if (rpm - this->last_rpm > rpm_change_limit) {
-            RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "USED LIMIT");
-            rpm = this->last_rpm + rpm_change_limit;
-        }
-        */
 
 
         RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "rpm=%f", rpm);
@@ -100,22 +49,24 @@ void Target::instance_CarrotControl(){
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = (int)rpm;
 
-        if(!this->acel_flag){
-            //if the car is not in acceleration mission, set the steering angle to the calculated one
-            dispatcherMailBox.steering_angle = steering_angle;
-        }else{
-            //in case that the mission is acceleration
-            dispatcherMailBox.steering_angle = steering_angle/4;
-        }
+        // if(!this->acel_flag){
+        //     //if the car is not in acceleration mission, set the steering angle to the calculated one
+        //     dispatcherMailBox.steering_angle = steering_angle;
+        // }else{
+        //     //in case that the mission is acceleration
+        //     dispatcherMailBox.steering_angle = steering_angle/4;
+        // }
+
+        dispatcherMailBox.steering_angle = steering_angle;
 
         //RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
         // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl after"), "rpm=%f", rpm);
 
         //write the steering angle and speed to a file
-        ofstream myfile;
-        myfile.open("dynamics_logger.csv", ios::app);
-        myfile << steering_angle * 180 / M_PI << ", " << rpm << "\n"; 
-        myfile.close();
+        // ofstream myfile;
+        // myfile.open("dynamics_logger.csv", ios::app);
+        // myfile << steering_angle * 180 / M_PI << ", " << rpm << "\n"; 
+        // myfile.close();
 
         isDispatcherDirty = true;
     }catch(...){
