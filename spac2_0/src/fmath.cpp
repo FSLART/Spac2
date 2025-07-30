@@ -202,5 +202,6 @@ float speed_to_lookahead(float speed){
 }
 
 void Pure_Pursuit::set_ekf(geometry_msgs::msg::Pose pose){
-    this->current_pose = {0.0,0.0};
+    //this->current_pose = {0.0,0.0};
+    (void)pose;
 }

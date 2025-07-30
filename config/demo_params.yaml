@@ -13,7 +13,7 @@
     k_dist: 8.0
     k_dd: 5.5
     growth_factor: 1.000951
-    base_limit: 32.01766
+    increment: 3.0
     max_limit: 25.0
     qos_overrides:
       /parameter_events:

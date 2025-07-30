@@ -21,7 +21,7 @@
 
 // Values for the soft start [0->1.8, 426->2.8, 852->4.4, 1700->11.1]
 #define DEFAULT_GROWTH_FACTOR 1.001069
-#define DEFAULT_BASE_LIMIT 1.8
+#define DEFAULT_INCREMENT 3.0
 #define DEFAULT_LIMITER 25.0
 
 #define SIZE_AVG_ARRAY 3

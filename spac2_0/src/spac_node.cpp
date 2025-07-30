@@ -24,22 +24,22 @@ SpacNode::SpacNode() : Node("spac_node")
     this->get_parameter(PARAMS_K_DIST, k_dist);
     
     //topics
-    this->declare_parameter(PARAMS_TOPIC_PATH, "/path");
+    this->declare_parameter(PARAMS_TOPIC_PATH, "/planned_path_topic");
 	this->get_parameter(PARAMS_TOPIC_PATH, path_topic);
-	this->declare_parameter(PARAMS_TOPIC_DYNAMICS_CMD, "/cmd");
+	this->declare_parameter(PARAMS_TOPIC_DYNAMICS_CMD, "pc_origin/dynamics");
 	this->get_parameter(PARAMS_TOPIC_DYNAMICS_CMD, dynamics_cmd_topic);
-    this->declare_parameter(PARAMS_TOPIC_RPM, "/rpm");
+    this->declare_parameter(PARAMS_TOPIC_RPM, "/acu_origin/dynamics");
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
     this->declare_parameter(PARAMS_TOPIC_STATE, "/pc_origin/system_status/critical_as/state");
     this->get_parameter(PARAMS_TOPIC_STATE, state_topic);
-    this->declare_parameter(PARAMS_TOPIC_MISSION, "/mission");
+    this->declare_parameter(PARAMS_TOPIC_MISSION, "pc_origin/system_status/critical_as/mission");
     this->get_parameter(PARAMS_TOPIC_MISSION, mission_topic);
 
     // soft start variables
     this->declare_parameter(PARAMS_GROWTH_FACTOR, DEFAULT_GROWTH_FACTOR);
     this->get_parameter(PARAMS_GROWTH_FACTOR, growth_factor);
-    this->declare_parameter(PARAMS_BASE_LIMIT, DEFAULT_BASE_LIMIT);
-    this->get_parameter(PARAMS_BASE_LIMIT, base_limit);
+    this->declare_parameter(PARAMS_INCREMENT, DEFAULT_INCREMENT);
+    this->get_parameter(PARAMS_INCREMENT, increment);
     this->declare_parameter(PARAMS_LIMITER, DEFAULT_LIMITER);
     this->get_parameter(PARAMS_LIMITER, max_limit);
 
@@ -57,7 +57,7 @@ SpacNode::SpacNode() : Node("spac_node")
     //RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
     
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle, growth_factor, base_limit, max_limit);
+    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle, increment);
 
     // Create a publisher for visualization markers
     marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);

@@ -1,11 +1,9 @@
 #include "spac2_0/target.h"
 
-Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float growth_factor, float base_limit, float max_limit){
+Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float increment){
     this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
     this->max_rpm = std::clamp(max_rpm, (float)0.0, (float)TERMINAL_RPM);
-    this->growth_factor = growth_factor;
-    this->base_limit = base_limit;
-    this->max_limit = max_limit;
+    this->increment = increment;
 }
 
 Target::Target(Pure_Pursuit pure_pursuit){
