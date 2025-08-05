@@ -1,4 +1,4 @@
-/DriveModelNode:
+/spac_node:
   ros__parameters:
     frequency: 100
     path_topic: "/planned_path_topic"
@@ -8,7 +8,7 @@
     mission_topic: "/pc_origin/system_status/critical_as/mission"
     target_marker_topic: "/target_marker_topic"
     distance_imu_to_rear_axle: 1.15
-    max_speed: 10.0
+    max_speed: 5.0
     k_curv: 0.3
     k_dist: 8.0
     k_dd: 5.5

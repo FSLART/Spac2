@@ -32,7 +32,7 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
     this->declare_parameter(PARAMS_TOPIC_STATE, "/pc_origin/system_status/critical_as/state");
     this->get_parameter(PARAMS_TOPIC_STATE, state_topic);
-    this->declare_parameter(PARAMS_TOPIC_MISSION, "pc_origin/system_status/critical_as/mission");
+    this->declare_parameter(PARAMS_TOPIC_MISSION, "acu_origin/system_status/critical_as/mission");
     this->get_parameter(PARAMS_TOPIC_MISSION, mission_topic);
 
     // soft start variables
@@ -85,7 +85,7 @@ SpacNode::SpacNode() : Node("spac_node")
         "/ekf/state", 10, std::bind(&SpacNode::ekf_callback, this, _1));
 
     // APENAS USAR NOS TESTES
-    this->target->set_ready();
+    //this->target->set_ready();
 
     auto interval = std::chrono::duration<double>(1.0 / frequency);
 
@@ -121,6 +121,7 @@ void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
 }
 
 void SpacNode::mission_callback(const lart_msgs::msg::Mission::SharedPtr msg){
+    // (void) msg;
     if(msg->data == lart_msgs::msg::Mission::ACCELERATION){
         RCLCPP_INFO(this->get_logger(), "Received ACCELERATION MISSION");
         this->target->set_acceleration_mission();
