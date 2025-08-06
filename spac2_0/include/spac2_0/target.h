@@ -80,6 +80,7 @@ class Target{
         void disengage_ready();
         bool get_ready();
         void set_target_marker(array<float, 2> target_point);
+        void set_mission(float max_speed, float increment);
         visualization_msgs::msg::Marker get_target_marker();
 
     protected:

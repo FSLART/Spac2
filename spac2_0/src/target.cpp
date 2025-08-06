@@ -122,6 +122,15 @@ void Target::set_acceleration_mission(){
     acel_flag = true;
 }
 
+void Target::set_mission(float max_speed, float increment){
+    //Calculate the equivalent rpm speed
+    float speed_mps = max_speed / 3.6;
+    float rpm_speed = MS_TO_RPM(speed_mps);
+    this->max_rpm = std::clamp(rpm_speed, (float)0.0, (float)TERMINAL_RPM);
+    //Update the value of the increment
+    this->increment = increment;
+}
+
 void Target::set_ready(){
     ready = true;
 }

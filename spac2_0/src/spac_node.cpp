@@ -14,6 +14,10 @@ SpacNode::SpacNode() : Node("spac_node")
     //MAX SPEED
     this->declare_parameter(PARAMS_MAX_SPEED, DEFAULT_MAX_SPEED);
     this->get_parameter(PARAMS_MAX_SPEED, max_speed);
+    this->declare_parameter(PARAMS_ACC_SPEED, DEFAULT_ACC_SPEED);
+    this->get_parameter(PARAMS_ACC_SPEED, acc_speed);
+    this->declare_parameter(PARAMS_EBS_SPEED, DEFAULT_EBS_SPEED);
+    this->get_parameter(PARAMS_EBS_SPEED, ebs_speed);
     
     //Pure Pursuit parameters
     this->declare_parameter(PARAMS_KDD, DEFAULT_KDD);
@@ -121,10 +125,17 @@ void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
 }
 
 void SpacNode::mission_callback(const lart_msgs::msg::Mission::SharedPtr msg){
-    // (void) msg;
-    if(msg->data == lart_msgs::msg::Mission::ACCELERATION){
-        RCLCPP_INFO(this->get_logger(), "Received ACCELERATION MISSION");
-        this->target->set_acceleration_mission();
+    switch(msg->data){
+        case lart_msgs::msg::Mission::ACCELERATION:
+            RCLCPP_INFO(this->get_logger(), "Received ACCELERATION MISSION");
+            this->target->set_mission(this->acc_speed, this->acc_increment);
+            break;
+        case lart_msgs::msg::Mission::EBS_TEST:
+            RCLCPP_INFO(this->get_logger(), "Received EBS TEST MISSION");
+            this->target->set_mission(this->ebs_speed, this->acc_increment);
+            break;
+        default:
+            break;
     }
 }
 

@@ -8,6 +8,10 @@
 //TODO this value needs to be increased for EBS test
 #define TERMINAL_RPM 3000.0f
 #define DEFAULT_MAX_SPEED 5.0
+#define DEFAULT_ACC_SPEED 40.0
+#define DEFAULT_EBS_SPEED 40.0
+
+
 #define DEFAULT_FREQUENCY 100
 #define DEFAULT_IMU_TO_REAR_AXLE 1.15
 

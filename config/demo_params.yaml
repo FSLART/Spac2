@@ -9,11 +9,14 @@
     target_marker_topic: "/target_marker_topic"
     distance_imu_to_rear_axle: 1.15
     max_speed: 5.0
+    acc_speed: 40.0
+    ebs_speed: 40.0
     k_curv: 0.3
     k_dist: 8.0
     k_dd: 5.5
     growth_factor: 1.000951
     increment: 3.0
+    acc_increment: 7.0
     max_limit: 25.0
     qos_overrides:
       /parameter_events:
