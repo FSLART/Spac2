@@ -36,7 +36,7 @@ SpacNode::SpacNode() : Node("spac_node")
 	this->get_parameter(PARAMS_TOPIC_RPM, rpm_topic);
     this->declare_parameter(PARAMS_TOPIC_STATE, "/pc_origin/system_status/critical_as/state");
     this->get_parameter(PARAMS_TOPIC_STATE, state_topic);
-    this->declare_parameter(PARAMS_TOPIC_MISSION, "acu_origin/system_status/critical_as/mission");
+    this->declare_parameter(PARAMS_TOPIC_MISSION, "pc_origin/system_status/critical_as/mission");
     this->get_parameter(PARAMS_TOPIC_MISSION, mission_topic);
 
     // soft start variables
@@ -125,6 +125,11 @@ void SpacNode::state_callback(const lart_msgs::msg::State::SharedPtr msg){
 }
 
 void SpacNode::mission_callback(const lart_msgs::msg::Mission::SharedPtr msg){
+    if(this->mission_received == 1){
+        RCLCPP_INFO(this->get_logger(), "Mission already received, ignoring new one");
+        return;
+    }
+    this->mission_received = 1;
     switch(msg->data){
         case lart_msgs::msg::Mission::ACCELERATION:
             RCLCPP_INFO(this->get_logger(), "Received ACCELERATION MISSION");

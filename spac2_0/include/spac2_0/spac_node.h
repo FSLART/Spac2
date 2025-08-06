@@ -110,6 +110,7 @@ protected:
     //void whatTimeIsIt();
 
     //Variables
+    int mission_received = 0;
     float distance_imu_to_rear_axle;    /**< The distance from the IMU to the rear axle in meters */
     int frequency=0;    /**< The frequency of the publisher */
     float max_speed;    /**< The maximum desired speed in km/h*/
