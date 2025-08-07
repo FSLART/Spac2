@@ -1,7 +1,7 @@
 #include "spac2_0/target.h"
 
-Target::Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float increment){
-    this->pure_pursuit = Pure_Pursuit(kdd, k_curv, k_dist, distance_imu_to_rear_axle);
+Target::Target(float max_rpm, float k_curv, float grip_coeficient, float kdd, float distance_imu_to_rear_axle, float increment){
+    this->pure_pursuit = Pure_Pursuit(kdd, k_curv, grip_coeficient, distance_imu_to_rear_axle);
     this->max_rpm = std::clamp(max_rpm, (float)0.0, (float)TERMINAL_RPM);
     this->increment = increment;
 }
@@ -25,11 +25,11 @@ void Target::instance_CarrotControl(){
         //CREATING THE TARGET POINT MARKER
         array<float, 2> target_point = this->pure_pursuit.get_target_point();
         this->set_target_marker(target_point);
+        
+        //Calculate the ideal velocity
+        float rpm = this->get_desired_rpm(this->path);
 
-        //gets the the ideal rpm that the car should have in a certain point of the path
-        float rpm = this->get_desired_rpm(this->path, this->max_rpm);
         rpm = std::clamp(rpm, (float)0.0, (float)TERMINAL_RPM);
-
 
 
         /*ORIGINAL CODE*/
@@ -46,14 +46,6 @@ void Target::instance_CarrotControl(){
         //create dispatcher with rpm and steering
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = (int)rpm;
-
-        // if(!this->acel_flag){
-        //     //if the car is not in acceleration mission, set the steering angle to the calculated one
-        //     dispatcherMailBox.steering_angle = steering_angle;
-        // }else{
-        //     //in case that the mission is acceleration
-        //     dispatcherMailBox.steering_angle = steering_angle/4;
-        // }
 
         dispatcherMailBox.steering_angle = steering_angle;
 
@@ -179,8 +171,9 @@ float Target::get_steering_angle(lart_msgs::msg::PathSpline path, int rpm){
 }
 
 
-float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
-    float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path, max_rpm);
+float Target::get_desired_rpm(lart_msgs::msg::PathSpline path){
+    float velocity = this->pure_pursuit.calculate_desiredSpeed(path);
+    float desired_rpm = MS_TO_RPM(velocity);
     return desired_rpm;
 }
 

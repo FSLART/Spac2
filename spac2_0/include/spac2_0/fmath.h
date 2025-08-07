@@ -34,7 +34,7 @@ class Pure_Pursuit : public CommonBase{
         * @param distance_imu_to_rear_axle
         * 
         */
-        Pure_Pursuit(float k_dd, float k_curv, float k_dist, float distance_imu_to_rear_axle);
+        Pure_Pursuit(float k_dd, float k_curv, float grip_coeficient, float distance_imu_to_rear_axle);
         /**
         * @brief Empty constructor for the Pure_Pursuit class.
         */
@@ -61,7 +61,7 @@ class Pure_Pursuit : public CommonBase{
         * 
         * @return rpm
         */
-        float calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm);
+        float calculate_desiredSpeed(lart_msgs::msg::PathSpline path);
         /**
         * @brief Function responsible for saving the last 3 calculated steering angles.
         * 
@@ -83,6 +83,7 @@ class Pure_Pursuit : public CommonBase{
         float k_dd;
         float k_curv, k_dist;
         float distance_imu_to_rear_axle;
+        float grip_coefficient;
         float avg_angle[SIZE_AVG_ARRAY] = {0};  /**< Array used to store the last 3 steering angles*/
         int cycles = 0;                         /**< The number of the current iteration */
         array<float, 2> target_point;

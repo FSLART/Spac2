@@ -24,8 +24,8 @@ SpacNode::SpacNode() : Node("spac_node")
     this->get_parameter(PARAMS_KDD, k_dd_pp);
     this->declare_parameter(PARAMS_K_CURV, DEFAULT_K_CURV);
     this->get_parameter(PARAMS_K_CURV, k_curv);
-    this->declare_parameter(PARAMS_K_DIST, DEFAULT_K_DIST);
-    this->get_parameter(PARAMS_K_DIST, k_dist);
+    this->declare_parameter(PARAMS_GRIP_COEF, DEFAULT_GRIP_COEF);
+    this->get_parameter(PARAMS_GRIP_COEF, grip_coefficient);
     
     //topics
     this->declare_parameter(PARAMS_TOPIC_PATH, "/planned_path_topic");
@@ -61,7 +61,7 @@ SpacNode::SpacNode() : Node("spac_node")
     //RCLCPP_INFO(this->get_logger(), "Defined max rpm: %f", max_rpm);
     
     //RCLCPP_INFO(this->get_logger(), "Desired RPM IN NODE: %d", desired_rpm);
-    target = new Target(max_rpm, k_curv, k_dist, k_dd_pp, distance_imu_to_rear_axle, increment);
+    target = new Target(max_rpm, k_curv, grip_coefficient, k_dd_pp, distance_imu_to_rear_axle, increment);
 
     // Create a publisher for visualization markers
     marker_publisher = this->create_publisher<visualization_msgs::msg::Marker>(target_marker_topic, 10);

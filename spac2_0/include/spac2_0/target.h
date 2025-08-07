@@ -27,7 +27,7 @@ class Target{
         * @param acc_limiter
         * 
         */
-        Target(float max_rpm, float k_curv, float k_dist, float kdd, float distance_imu_to_rear_axle, float increment);
+        Target(float max_rpm, float k_curv, float grip_coeficient, float kdd, float distance_imu_to_rear_axle, float increment);
         /**
         * @brief Constructor for the Target class.
         *
@@ -52,7 +52,7 @@ class Target{
         * 
         * @return desired speed in rpm
         */
-        float get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm);
+        float get_desired_rpm(lart_msgs::msg::PathSpline path);
         /**
         * @brief Function that is periodically called to get the
         * calculated values of the steering angle and speed needed

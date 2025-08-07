@@ -48,6 +48,7 @@
 #define PARAMS_LIMITER "max_limit"
 #define PARAMS_INCREMENT "increment"
 #define PARAMS_ACC_INCREMENT "acc_increment"
+#define PARAMS_GRIP_COEF "grip_coefficient"
 
 #define PARAMS_TARGET_MARKER "target_marker_topic"
 
@@ -118,7 +119,7 @@ protected:
     float ebs_speed;    /**<The max speed for the EBS test */
     float k_dd_pp;      /**< Lookahead distance if the variable lookahead method isn't being used */
     float k_curv;       /**< Factor of deceleration in function of the curvature of the path */
-    float k_dist;       /**< Extra value to be added to the index of the target point, used to get a new target point but only for the longitudinal control */
+    float grip_coefficient;       /**< Extra value to be added to the index of the target point, used to get a new target point but only for the longitudinal control */
     float max_rpm;      /**< The maximum desired speed in rpm */
     float growth_factor;
     float increment;   /**< The base limit of the soft start, used to calculate the maximum allowed change of rpm speed between iterations */
