@@ -79,7 +79,9 @@ class Pure_Pursuit : public CommonBase{
         array<float, 2> get_target_point();
         void set_target_point(array<float, 2> closest_point);
         void set_ekf(geometry_msgs::msg::Pose pose);
+        void acc_mode();
     protected:
+        bool accel_flag = false; /**< Flag to indicate if the car is in acceleration mode */
         float k_dd;
         float k_curv, k_dist;
         float distance_imu_to_rear_axle;

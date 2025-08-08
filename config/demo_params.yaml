@@ -12,7 +12,7 @@
     acc_speed: 40.0
     ebs_speed: 40.0
     k_curv: 0.3
-    k_dist: 8.0
+    k_dist: 6.0
     k_dd: 5.5
     growth_factor: 1.000951
     increment: 3.0

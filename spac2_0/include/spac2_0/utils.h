@@ -20,7 +20,7 @@
 
 // This value is supoded to be used in [0, +inf[
 #define DEFAULT_K_CURV 0.001
-#define DEFAULT_K_DIST 10.0
+#define DEFAULT_K_DIST 6.0
 #define MAX_SPEED 25.0
 
 // Values for the soft start [0->1.8, 426->2.8, 852->4.4, 1700->11.1]

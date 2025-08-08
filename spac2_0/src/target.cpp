@@ -129,6 +129,8 @@ void Target::set_mission(float max_speed, float increment){
     this->max_rpm = std::clamp(rpm_speed, (float)0.0, (float)TERMINAL_RPM);
     //Update the value of the increment
     this->increment = increment;
+    //Set the acceleration flag to true
+    this->pure_pursuit.acc_mode();
 }
 
 void Target::set_ready(){

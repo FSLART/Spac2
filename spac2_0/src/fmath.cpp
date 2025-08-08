@@ -5,7 +5,7 @@ using namespace std;
 
 int CommonBase::index = 0;
 
-Pure_Pursuit::Pure_Pursuit(float k_dd, float k_curv, float k_dist,float distance_to_rear_axle)
+Pure_Pursuit::Pure_Pursuit(float k_dd, float k_curv, float k_dist, float distance_to_rear_axle)
 {
     this->k_dd = k_dd;
     this->k_curv = k_curv;
@@ -71,10 +71,15 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
         path_points.push_back(point);
     }
 
+    float look_ahead_distance = 0.0;
     // Calculate look ahead point based on the speed with a min and max distances
-    float look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+    if(this->accel_flag)
+    {
+        look_ahead_distance = this->k_dist;
+    }else{
+        look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+    }
     
-    //float look_ahead_distance = clamp(k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
     
     // Find the closest point to the look ahead distance intersecting the path with a circle
     optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance);
@@ -121,7 +126,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 
 float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm){
     if(index > -1){
-        float curvature = abs(path.curvature[index + this->k_dist]);
+        float curvature = abs(path.curvature[index]);
         float p_curv = min(0.95f, curvature * this->k_curv);
         float desired_speed = max_rpm * (1 - p_curv);
         
@@ -186,17 +191,13 @@ int fastRound(float x) {
     return static_cast<int>(x + 0.5f);
 }
 
+void Pure_Pursuit::acc_mode(){
+    RCLCPP_INFO(rclcpp::get_logger("fmath"), "Acceleration mode activated");
+    this->accel_flag = true;
+}
+
 float speed_to_lookahead(float speed){
-  //min lookahead = 7.0
-    //float look_ahead_distance = 6.6852f * pow(1.00041, speed);
-
-    //min lookahead = 5.0
-    //float look_ahead_distance = 4.732881f * pow(1.000575, speed);
-
-    //recent function
-    // float look_ahead_distance = 4.62281f + 0.00495614f * speed;
     float look_ahead_distance = 3.6f + 0.00495614f * speed;
-
     
     return look_ahead_distance;
 }
