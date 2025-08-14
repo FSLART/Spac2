@@ -2,7 +2,7 @@
 #define UTILS_H_
 
 #define MAX_LOOKAHEAD 12.0f
-#define MIN_LOOKAHEAD 5.0f
+#define MIN_LOOKAHEAD 3.6f
 #define AVG_DISTANCE 0.50f
 #define MIN_INDEX 10
 //TODO this value needs to be increased for EBS test
