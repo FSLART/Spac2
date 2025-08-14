@@ -197,7 +197,11 @@ void Pure_Pursuit::acc_mode(){
 }
 
 float speed_to_lookahead(float speed){
+    // float ms_speed = RPM_TO_MS(speed);
+    // float look_ahead_distance = 3.6f + 0.5f * ms_speed;
+
     float look_ahead_distance = 3.6f + 0.00495614f * speed;
+
     
     return look_ahead_distance;
 }
