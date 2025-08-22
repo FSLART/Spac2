@@ -193,8 +193,7 @@ float speed_to_lookahead(float speed){
 
     float ms_speed = RPM_TO_MS(speed);
 
-    float look_ahead_distance = 3.6f + 1.0f * ms_speed;
-
+    float look_ahead_distance = 3.6f + 0.21f * ms_speed; // 12kmh-> 6.12    5kmh -> 4.65
     
     return look_ahead_distance;
 }
