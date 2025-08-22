@@ -17,7 +17,7 @@
     growth_factor: 1.000951
     increment: 3.0
     acc_increment: 7.0
-    max_limit: 25.0
+    max_limit: 6.0
     qos_overrides:
       /parameter_events:
         publisher:
