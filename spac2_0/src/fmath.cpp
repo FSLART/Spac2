@@ -72,10 +72,10 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     }
 
     // Calculate look ahead point based on the speed with a min and max distances
-    // float look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+    float look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
     
     //float look_ahead_distance = clamp(k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
-    float look_ahead_distance = 8.0f;
+    //float look_ahead_distance = 8.0f;
     
     // Find the closest point to the look ahead distance intersecting the path with a circle
     optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance);
@@ -122,7 +122,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 
 float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, float max_rpm){
     if(index > -1){
-        float curvature = abs(path.curvature[index + this->k_dist]);
+        float curvature = abs(path.curvature[index]);
         float p_curv = min(0.95f, curvature * this->k_curv);
         float desired_speed = max_rpm * (1 - p_curv);
 
@@ -190,15 +190,10 @@ int fastRound(float x) {
 }
 
 float speed_to_lookahead(float speed){
-  //min lookahead = 7.0
-    //float look_ahead_distance = 6.6852f * pow(1.00041, speed);
 
-    //min lookahead = 5.0
-    //float look_ahead_distance = 4.732881f * pow(1.000575, speed);
+    float ms_speed = RPM_TO_MS(speed);
 
-    //recent function
-    // float look_ahead_distance = 4.62281f + 0.00495614f * speed;
-    float look_ahead_distance = 3.6f + 0.00495614f * speed;
+    float look_ahead_distance = 3.6f + 1.0f * ms_speed;
 
     
     return look_ahead_distance;

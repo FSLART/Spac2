@@ -2,7 +2,7 @@
 #define UTILS_H_
 
 #define MAX_LOOKAHEAD 12.0f
-#define MIN_LOOKAHEAD 5.0f
+#define MIN_LOOKAHEAD 3.6f
 #define AVG_DISTANCE 0.50f
 #define MIN_INDEX 10
 //TODO this value needs to be increased for EBS test
@@ -21,7 +21,7 @@
 // This value is supoded to be used in [0, +inf[
 #define DEFAULT_K_CURV 0.001
 #define DEFAULT_K_DIST 10.0
-#define MAX_SPEED 25.0
+#define MAX_SPEED 5.0
 
 // Values for the soft start [0->1.8, 426->2.8, 852->4.4, 1700->11.1]
 #define DEFAULT_GROWTH_FACTOR 1.001069
