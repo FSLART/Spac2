@@ -72,9 +72,10 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
     }
 
     // Calculate look ahead point based on the speed with a min and max distances
-    float look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+    // float look_ahead_distance = clamp(speed_to_lookahead(speed), MIN_LOOKAHEAD, MAX_LOOKAHEAD);
     
     //float look_ahead_distance = clamp(k_dd, MIN_LOOKAHEAD, MAX_LOOKAHEAD);
+    float look_ahead_distance = 8.0f;
     
     // Find the closest point to the look ahead distance intersecting the path with a circle
     optional<array<float, 2>> closest_point = get_closest_point(path_points, look_ahead_distance);
@@ -94,7 +95,7 @@ float Pure_Pursuit::calculate_steering_angle(lart_msgs::msg::PathSpline path, fl
 
         set_target_point(target_point);
 
-        return getAvgAngle();
+        return 0.0;
     }
 
     // Calculate angle between the closest point and (0,0) (because the point is returned relative to (0,0)) instead of the rear!!
@@ -124,6 +125,8 @@ float Pure_Pursuit::calculate_desiredSpeed(lart_msgs::msg::PathSpline path, floa
         float curvature = abs(path.curvature[index + this->k_dist]);
         float p_curv = min(0.95f, curvature * this->k_curv);
         float desired_speed = max_rpm * (1 - p_curv);
+
+
         
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "max speed fmath=%f", max_rpm);
         // RCLCPP_INFO(rclcpp::get_logger("pure"), "curvature=%f", curvature);

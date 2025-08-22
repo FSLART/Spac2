@@ -47,18 +47,11 @@ void Target::instance_CarrotControl(){
         dispatcherMailBox = lart_msgs::msg::DynamicsCMD();
         dispatcherMailBox.rpm = (int)rpm;
 
-        // if(!this->acel_flag){
-        //     //if the car is not in acceleration mission, set the steering angle to the calculated one
-        //     dispatcherMailBox.steering_angle = steering_angle;
-        // }else{
-        //     //in case that the mission is acceleration
-        //     dispatcherMailBox.steering_angle = steering_angle/4;
-        // }
-
         dispatcherMailBox.steering_angle = steering_angle;
 
         //RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl"), "steering=%f", dispatcherMailBox.steering_angle);
-        // RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl after"), "rpm=%f", rpm);
+        //RCLCPP_INFO(rclcpp::get_logger("instance_CarrotControl after"), "rpm=%f", rpm);
+        // RCLCPP_WARN(rclcpp::get_logger("set_mission"), "max_rpm=%f, increment=%f", this->max_rpm, this->increment);
 
         //write the steering angle and speed to a file
         // ofstream myfile;
@@ -181,6 +174,7 @@ float Target::get_steering_angle(lart_msgs::msg::PathSpline path, int rpm){
 
 float Target::get_desired_rpm(lart_msgs::msg::PathSpline path, float max_rpm){
     float desired_rpm = this->pure_pursuit.calculate_desiredSpeed(path, max_rpm);
+    RCLCPP_WARN(rclcpp::get_logger("get_desired_rpm"), "desired_rpm=%f", desired_rpm);
     return desired_rpm;
 }
 

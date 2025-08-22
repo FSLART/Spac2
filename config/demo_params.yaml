@@ -9,7 +9,7 @@
     target_marker_topic: "/target_marker_topic"
     distance_imu_to_rear_axle: 1.15
     max_speed: 5.0
-    acc_speed: 40.0
+    acc_speed: 45.0
     ebs_speed: 40.0
     k_curv: 0.3
     k_dist: 8.0
