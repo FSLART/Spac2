@@ -1,13 +1,13 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#define MAX_LOOKAHEAD 12.0f
+#define MAX_LOOKAHEAD 8.0f
 #define MIN_LOOKAHEAD 3.6f
 #define AVG_DISTANCE 0.50f
 #define MIN_INDEX 10
 //TODO this value needs to be increased for EBS test
 #define TERMINAL_RPM 3000.0f
-#define DEFAULT_MAX_SPEED 12.0
+#define DEFAULT_MAX_SPEED 15.0
 #define DEFAULT_ACC_SPEED 25.0
 #define DEFAULT_EBS_SPEED 40.0
 
@@ -19,9 +19,9 @@
 #define DEFAULT_KDD 5.0
 
 // This value is supoded to be used in [0, +inf[
-#define DEFAULT_K_CURV 1.1
+#define DEFAULT_K_CURV 2.4
 #define DEFAULT_K_DIST 10.0
-#define MAX_SPEED 12.5
+#define MAX_SPEED 15.5
 
 // Values for the soft start [0->1.8, 426->2.8, 852->4.4, 1700->11.1]
 #define DEFAULT_GROWTH_FACTOR 1.001069
